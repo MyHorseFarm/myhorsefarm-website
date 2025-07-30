@@ -19,7 +19,7 @@ h1, h2, h3 {
 
 /* Hero Section */
 .hero {
-  background: url('assets/hero.jpg') center/cover no-repeat;
+  background: url('hero.jpg') center/cover no-repeat;
   height: 60vh;
   position: relative;
   display: flex;
