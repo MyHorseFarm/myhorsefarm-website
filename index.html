@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="My Horse Farm provides premier agricultural services for equestrians in Royal Palm Beach, Florida. We offer sod installation, millings asphalt delivery, manure bin rental and waste removal, fill dirt, dumpster rental and farm repairs." />
+  <title>My Horse Farm – Agricultural Service Company</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-p1BmVfeNcOGfm2ZN4xV7G49JGmTWq/m+KQpHUWGEdI8QaTdsK7InMy9lg+2Sp0UQG4I1VL0nZsdZ0wN7/Efc4g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-overlay">
+      <img src="assets/logo.png" alt="My Horse Farm logo" class="logo" />
+      <h1>My Horse Farm</h1>
+      <p class="tagline">Agricultural Service Company</p>
+      <a href="#contact" class="btn">Get a Quote</a>
+    </div>
+  </header>
+
+  <nav class="navbar">
+    <ul>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#calendar">Schedule</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section id="services" class="section services">
+      <h2>Our Services</h2>
+      <div class="cards">
+        <div class="card">
+          <h3>Sod Installation</h3>
+          <p>Transform your paddocks and arenas with lush, durable sod. We deliver and install high-quality pallets to give your horses the best footing year-round.</p>
+        </div>
+        <div class="card">
+          <h3>Millings Asphalt Delivery</h3>
+          <p>Need to stabilize driveways or arenas? We deliver 20‑yard loads of recycled asphalt millings for a strong, cost‑effective base.</p>
+        </div>
+        <div class="card">
+          <h3>Manure Bin & Waste Removal</h3>
+          <p>Keep your barns clean and odor‑free with our eco‑friendly manure bin rentals and scheduled waste removal services.</p>
+        </div>
+        <div class="card">
+          <h3>Fill Dirt</h3>
+          <p>High-quality fill dirt for leveling, berm construction and new paddock projects. We deliver directly to your property.</p>
+        </div>
+        <div class="card">
+          <h3>Dumpster Rental</h3>
+          <p>Clear out clutter with our 20‑yard dumpsters—perfect for farm cleanups, renovations and large projects.</p>
+        </div>
+        <div class="card">
+          <h3>Repairs & Maintenance</h3>
+          <p>From fences and stalls to paddocks and driveways, our team keeps your farm facilities in top shape.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="section about">
+      <h2>About Us</h2>
+      <p>Based in Royal Palm Beach, Florida, My Horse Farm is dedicated to providing top‑tier agricultural services for equestrians. We understand what horses love—clean, safe and functional spaces—and we work hard to deliver exactly that. As part of our community, we sponsor local equestrian events and strive to support our neighbors with reliable and eco‑conscious service.</p>
+    </section>
+
+    <section id="calendar" class="section calendar">
+      <h2>Schedule & Availability</h2>
+      <p>Check our availability or upcoming events. Replace the embed URL below with your public Google Calendar link:</p>
+      <div class="calendar-embed">
+        <!-- TODO: Replace this src with your Google Calendar embed URL -->
+        <iframe src="https://calendar.google.com/calendar/embed?src=example%40gmail.com&ctz=America%2FNew_York" style="border:0" width="100%" height="600" frameborder="0" scrolling="no"></iframe>
+      </div>
+    </section>
+
+    <section id="contact" class="section contact">
+      <h2>Contact Us</h2>
+      <p>Have questions or ready to book a service? Fill out the form below and we’ll get back to you promptly.</p>
+      <!-- HubSpot form embed placeholder: Replace the script src with your own HubSpot form embed code -->
+      <div id="hubspot-form">
+        <!-- Example HubSpot embed (commented out):
+        <script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/embed/v2.js"></script>
+        <script>
+          hbspt.forms.create({
+            region: "na1",
+            portalId: "YOUR_PORTAL_ID",
+            formId: "YOUR_FORM_ID"
+          });
+        </script>
+        -->
+        <p><em>HubSpot contact form will appear here. Replace the embed code in the comment above with your form’s embed code.</em></p>
+      </div>
+      <ul class="contact-info">
+        <li><i class="fas fa-phone"></i> (123) 456-7890</li>
+        <li><i class="fas fa-envelope"></i> info@myhorsefarm.com</li>
+        <li><i class="fas fa-map-marker-alt"></i> Royal Palm Beach, FL</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="social">
+      <a href="https://facebook.com/YourPage" target="_blank"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://instagram.com/YourPage" target="_blank"><i class="fab fa-instagram"></i></a>
+      <a href="https://youtube.com/YourChannel" target="_blank"><i class="fab fa-youtube"></i></a>
+    </div>
+    <p>&copy; <span id="year"></span> My Horse Farm. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Update year dynamically
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
