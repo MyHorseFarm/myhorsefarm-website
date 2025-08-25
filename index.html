@@ -83,19 +83,19 @@ fill dirt, dumpster rental and farm repairs." />
  friendly practices and exceptional service.</p>
         </section>
 
-        <section id="calendar" class="section calendar">
-          <h2>Schedule & Availability</h2>
-          <p>Check our availability or upcoming events.</p>
-          <!-- Calendly inline widget begin -->
-          <div class="calendly-inline-widget" data-
- url="https://calendly.com/manureservice/30min" style="min-
- width:320px;height:700px;"></div>
-          <script type="text/javascript" 
- src="https://assets.calendly.com/assets/external/widget.js" async></script>
-          <!-- Calendly inline widget end -->
-        </section>
-
-        <section id="contact" class="section contact">
+  <section id="calendar" class="section calendar">
+  <h2>Schedule & Availability</h2>
+  <p>Pick a service and a time that works for you.</p>
+  <div class="schedule-options" style="margin-bottom:16px; display:flex; flex-wrap: wrap; gap:8px;">
+    <button class="svc" data-url="https://calendly.com/manureservice/30min">General Booking</button>
+    <button class="svc" data-url="https://calendly.com/manureservice/30min?service=manure">Manure Removal</button>
+    <button class="svc" data-url="https://calendly.com/manureservice/30min?service=dumpster">Dumpster / Delivery</button>
+    <button class="svc" data-url="https://calendly.com/manureservice/30min?service=estimate">On-site Estimate</button>
+  </div>
+  <div id="calendar-container" style="min-height:760px;">
+    <iframe id="calendly-frame" src="https://calendly.com/manureservice/30min" style="width:100%; min-height:760px; border:0; border-radius:12px;" title="Book with My Horse Farm" loading="lazy"></iframe>
+  </div>
+</section><section id="contact" class="section contact">
           <h2>Contact Us</h2>
           <p>Have questions or ready to book a service? Fill out the form below 
  and we’ll get back to you promptly.</p>
@@ -129,9 +129,17 @@ fill dirt, dumpster rental and farm repairs." />
  reserved.</p>
       </footer>
 
-      <script>
-        // Update year dynamically
-        document.getElementById('year').textContent = new Date().getFullYear();
-      </script>
-    </body>
-    </html>
+  <script>
+  // Switch Calendly embed when service selected
+  document.querySelectorAll('.svc').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const url = btn.dataset.url;
+      const iframe = document.getElementById('calendly-frame');
+      iframe.src = url;
+    });
+  });
+  // Update year dynamically
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
