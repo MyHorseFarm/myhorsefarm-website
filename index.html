@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="logo.png" />
+  <!-- Google Analytics 4 — Replace G-XXXXXXXXXX with your Measurement ID from https://analytics.google.com -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-XXXXXXXXXX");</script>
+  <!-- Facebook Pixel — Replace YOUR_PIXEL_ID with your Pixel ID from https://business.facebook.com/events-manager -->
+  <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");fbq("init","YOUR_PIXEL_ID");fbq("track","PageView");</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="My Horse Farm provides premier agricultural services for equestrians in Royal Palm Beach, Florida. We offer sod installation, millings asphalt delivery, manure bin rental and waste removal, fill dirt, dumpster rental and farm repairs." />
   <meta name="robots" content="index, follow" />
@@ -36,6 +42,7 @@
   </header>
 
   <nav class="navbar">
+    <button class="menu-toggle" aria-label="Toggle navigation menu">☰</button>
     <ul>
       <!-- Primary navigation links -->
       <li><a href="#about">About</a></li>
@@ -272,7 +279,7 @@
     <section id="calendar" class="section calendar">
       <h2>Schedule & Availability</h2>
       <p>Pick a service and a time that works for you.</p>
-        <  <img src="logo.png" alt="My Horse Farm logo" style="width:160px; height:auto; margin-bottom:12px;" />
+      <img src="logo.png" alt="My Horse Farm logo" style="width:160px; height:auto; margin-bottom:12px;" />
 
       <div class="schedule-options" style="margin-bottom:16px; display:flex; flex-wrap: wrap; gap:8px;">
         <button class="svc" data-url="https://meetings-na2.hubspot.com/manureservice/book-a-service?embed=true&service=general">General Booking</button>
@@ -481,5 +488,6 @@
     }
   }
   </script>
+<script>document.querySelector(".menu-toggle").addEventListener("click",function(){document.querySelector(".navbar ul").classList.toggle("open")});</script>
 </body>
 </html>
