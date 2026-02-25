@@ -629,3 +629,384 @@ h1, h2, h3 {
     font-size: 0.8rem;
   }
 }
+
+/* ========================================
+   LANDING PAGE STYLES (Ad Campaigns)
+   ======================================== */
+
+/* Sticky Call Bar */
+.lp-call-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #558b2f;
+  text-align: center;
+  padding: 10px 15px;
+}
+
+.lp-call-bar a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+}
+
+.lp-call-bar a:hover {
+  color: #d4e157;
+}
+
+/* Landing Page Body */
+.landing-page {
+  padding-top: 44px; /* offset for sticky call bar */
+}
+
+/* Landing Hero */
+.lp-hero {
+  background: url('hero.jpg') center/cover no-repeat;
+  text-align: center;
+  padding: 60px 20px;
+  color: #fff;
+  position: relative;
+}
+
+.lp-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.lp-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.lp-hero .logo {
+  width: 100px;
+  margin-bottom: 12px;
+}
+
+.lp-hero h1 {
+  font-size: 2.2rem;
+  margin: 0 0 8px;
+}
+
+.lp-hero .lp-subtitle {
+  font-size: 1.2rem;
+  color: #d4e157;
+  margin-bottom: 20px;
+}
+
+.lp-cta {
+  display: inline-block;
+  padding: 14px 32px;
+  background: #689f38;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.15rem;
+  transition: background-color 0.3s ease;
+}
+
+.lp-cta:hover {
+  background: #558b2f;
+}
+
+/* Trust Strip */
+.lp-trust {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  background: #f5f5f5;
+  padding: 18px 20px;
+  border-bottom: 2px solid #689f38;
+}
+
+.lp-trust span {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #333;
+  white-space: nowrap;
+}
+
+.lp-trust i {
+  color: #689f38;
+  margin-right: 6px;
+}
+
+/* Main Content: Form + Info */
+.lp-main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 50px 20px;
+}
+
+.lp-form-container {
+  flex: 1;
+  min-width: 320px;
+  background: #fff;
+  border: 2px solid #689f38;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.lp-form-container h2 {
+  text-align: center;
+  margin-top: 0;
+  color: #558b2f;
+}
+
+.lp-form-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lp-form-container input,
+.lp-form-container select,
+.lp-form-container textarea {
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.lp-form-container input:focus,
+.lp-form-container select:focus,
+.lp-form-container textarea:focus {
+  outline: none;
+  border-color: #689f38;
+  box-shadow: 0 0 0 2px rgba(104, 159, 56, 0.2);
+}
+
+.lp-form-container textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.lp-form-container button {
+  padding: 14px;
+  background: #689f38;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.lp-form-container button:hover {
+  background: #558b2f;
+}
+
+/* Info Side */
+.lp-info {
+  flex: 1;
+  min-width: 280px;
+}
+
+.lp-info h3 {
+  color: #558b2f;
+  margin-top: 0;
+}
+
+.lp-info ul {
+  padding-left: 20px;
+  line-height: 2;
+}
+
+.lp-info li {
+  margin-bottom: 6px;
+}
+
+.lp-info .lp-phone-box {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  margin-top: 24px;
+}
+
+.lp-info .lp-phone-box p {
+  margin: 0 0 10px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Landing Testimonials */
+.lp-testimonials {
+  background: #f9f9f9;
+  padding: 50px 20px;
+  text-align: center;
+}
+
+.lp-testimonials h2 {
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.lp-testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.lp-testimonial-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  text-align: left;
+}
+
+.lp-testimonial-card .stars {
+  color: #f9a825;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.lp-testimonial-card p {
+  font-style: italic;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.lp-testimonial-card .author {
+  font-weight: 700;
+  color: #333;
+}
+
+.lp-testimonial-card .location {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+/* Final CTA */
+.lp-final-cta {
+  text-align: center;
+  padding: 50px 20px;
+  background: #fff;
+}
+
+.lp-final-cta h2 {
+  margin-bottom: 10px;
+}
+
+.lp-final-cta p {
+  color: #555;
+  margin-bottom: 20px;
+  font-size: 1.05rem;
+}
+
+/* Landing Footer */
+.lp-footer {
+  background: #333;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+  font-size: 0.9rem;
+}
+
+.lp-footer a {
+  color: #ccc;
+  text-decoration: none;
+}
+
+.lp-footer a:hover {
+  color: #d4e157;
+}
+
+/* Thank You Page */
+.lp-thankyou {
+  text-align: center;
+  padding: 80px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.lp-thankyou h1 {
+  color: #558b2f;
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.lp-thankyou p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.lp-thankyou .lp-checkmark {
+  font-size: 4rem;
+  color: #689f38;
+  margin-bottom: 15px;
+}
+
+/* ---- Landing Page Responsive ---- */
+@media (max-width: 768px) {
+  .lp-hero h1 {
+    font-size: 1.6rem;
+  }
+
+  .lp-hero .lp-subtitle {
+    font-size: 1rem;
+  }
+
+  .lp-main {
+    flex-direction: column;
+    padding: 30px 15px;
+  }
+
+  .lp-form-container {
+    min-width: unset;
+  }
+
+  .lp-trust {
+    gap: 12px;
+    padding: 14px 10px;
+  }
+
+  .lp-trust span {
+    font-size: 0.85rem;
+  }
+
+  .lp-testimonials-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .lp-call-bar a {
+    font-size: 0.95rem;
+  }
+
+  .lp-hero h1 {
+    font-size: 1.3rem;
+  }
+
+  .lp-cta {
+    padding: 12px 24px;
+    font-size: 1rem;
+  }
+
+  .lp-form-container {
+    padding: 20px 15px;
+  }
+}
