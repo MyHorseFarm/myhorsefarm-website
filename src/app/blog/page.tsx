@@ -39,6 +39,20 @@ const blogNavLinks = [
 
 const posts = [
   {
+    headline: "Sod Installation for Horse Paddocks: What Florida Equestrians Need to Know",
+    description: "A comprehensive guide to paddock sod installation in Florida. Covers the best sod types for equestrian use, site preparation, installation process, post-care schedules, common mistakes, and why professional installation makes the difference for horse safety.",
+    date: "February 26, 2026",
+    dateValue: "2026-02-26",
+    slug: "/blog/sod-installation-horse-paddocks",
+  },
+  {
+    headline: "5 Signs Your Farm Needs a Full Property Cleanout",
+    description: "Is clutter piling up on your farm? From overflowing barns to debris-covered paddocks, here are five clear signs it\u2019s time for a professional property cleanout \u2014 and what the process looks like from start to finish.",
+    date: "February 26, 2026",
+    dateValue: "2026-02-26",
+    slug: "/blog/signs-farm-needs-property-cleanout",
+  },
+  {
     headline: "Complete Guide to Wellington Manure Hauler Permits & Regulations",
     description: "Everything horse farm owners need to know about Wellington\u2019s manure hauler permits, waste ordinances, approved disposal sites, and how to stay compliant year-round. Covers the Commercial Livestock Waste Hauler Permit, storage best practices, common violations, and peak-season considerations.",
     date: "February 26, 2026",

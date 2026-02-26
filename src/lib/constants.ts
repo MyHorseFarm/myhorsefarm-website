@@ -48,6 +48,7 @@ export const NAV_LINKS_HOME = [
   { label: "Junk Removal Loxahatchee", href: "/junk-removal/loxahatchee" },
   { label: "Fill Dirt", href: "/fill-dirt" },
   { label: "Repairs & Maintenance", href: "/repairs" },
+  { label: "Season-Ready Package", href: "/season-ready" },
 ];
 
 export const NAV_LINKS_SERVICE = [
