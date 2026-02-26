@@ -16,8 +16,7 @@ export const SOCIAL = {
     "https://www.google.com/maps/place/My+Horse+Farm/@26.6957151,-80.2033345,10z/data=!3m1!4b1!4m6!3m5!1s0x6826af3f1557e94b:0xcc8b36039075494b!8m2!3d26.695715!4d-80.2033345!16s%2Fg%2F11p00vldxb?entry=ttu",
 };
 
-export const GA_ID = "G-8T0GW54XK3";
-export const FB_PIXEL_ID = "1505630082897177";
+export const GTM_ID = "GTM-TWDPWRQV";
 
 export const HUBSPOT_PORTAL_ID = "243452157";
 export const HUBSPOT_FORM_ID = "2980030d-1b91-4afd-af28-9fb1445cf00d";

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import LandingCallBar from "@/components/LandingCallBar";
 import LandingFooter from "@/components/LandingFooter";
 import { PHONE_OFFICE, PHONE_OFFICE_TEL } from "@/lib/constants";
@@ -50,12 +49,6 @@ export default function ThankYouPage() {
         </div>
       </main>
       <LandingFooter />
-      <Script id="fb-lead" strategy="afterInteractive">
-        {`if(typeof fbq!=='undefined'){fbq("track","Lead");}`}
-      </Script>
-      <Script id="ga4-conversion" strategy="afterInteractive">
-        {`if(typeof gtag!=='undefined'){gtag('event','conversion',{'send_to':'G-8T0GW54XK3/lead_form_submit'});}`}
-      </Script>
     </div>
   );
 }
