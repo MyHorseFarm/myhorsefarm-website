@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Hero from "@/components/Hero";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -37,6 +38,20 @@ const blogNavLinks = [
 ];
 
 const posts = [
+  {
+    headline: "Complete Guide to Wellington Manure Hauler Permits & Regulations",
+    description: "Everything horse farm owners need to know about Wellington\u2019s manure hauler permits, waste ordinances, approved disposal sites, and how to stay compliant year-round. Covers the Commercial Livestock Waste Hauler Permit, storage best practices, common violations, and peak-season considerations.",
+    date: "February 26, 2026",
+    dateValue: "2026-02-26",
+    slug: "/blog/wellington-manure-hauler-permits",
+  },
+  {
+    headline: "How to Get Your Farm Season-Ready Before WEF",
+    description: "A step-by-step checklist for preparing your Wellington or Loxahatchee horse farm before the Winter Equestrian Festival. Covers manure setup, fence and stall repairs, paddock improvements with sod and fill dirt, property cleanout, and permit verification.",
+    date: "February 26, 2026",
+    dateValue: "2026-02-26",
+    slug: "/blog/get-farm-season-ready-wef",
+  },
   {
     headline: "Benefits of Proper Manure Management",
     description: "Keeping barns clean isn\u2019t just about aesthetics\u2014it\u2019s essential for horse health and environmental stewardship. In this post, we explore why regular manure removal prevents pests, reduces odors and improves pasture quality. You\u2019ll learn practical tips for composting and how our manure bin service can simplify the process.",
@@ -101,9 +116,20 @@ export default function BlogPage() {
               </span>
             </div>
             <h3 className="mt-0 text-primary-dark" itemProp="headline">
-              {post.headline}
+              {"slug" in post && post.slug ? (
+                <Link href={post.slug} className="text-primary-dark hover:text-primary transition-colors no-underline">
+                  {post.headline}
+                </Link>
+              ) : (
+                post.headline
+              )}
             </h3>
             <p itemProp="description">{post.description}</p>
+            {"slug" in post && post.slug && (
+              <Link href={post.slug} className="text-primary font-semibold hover:underline text-sm">
+                Read full article &rarr;
+              </Link>
+            )}
             <meta itemProp="publisher" content="My Horse Farm" />
           </article>
         ))}
