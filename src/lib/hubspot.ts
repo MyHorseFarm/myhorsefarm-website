@@ -132,6 +132,15 @@ export async function hasAutomationTag(
   return bodies.some((b) => b.includes(tag));
 }
 
+export async function countAutomationTags(
+  objectType: string,
+  objectId: string,
+  tagPrefix: string,
+): Promise<number> {
+  const bodies = await getAssociatedNoteBodies(objectType, objectId);
+  return bodies.filter((b) => b.includes(tagPrefix)).length;
+}
+
 export async function createContactNote(
   contactId: string,
   body: string,
@@ -306,6 +315,37 @@ export async function updateDealStage(
       properties: { dealstage: stageId, closedate: new Date().toISOString() },
     }),
   });
+}
+
+export async function findDealByNoteContent(
+  contactId: string,
+  searchText: string,
+): Promise<Deal | null> {
+  const assocData = await hubspotRequest(
+    `/crm/v3/objects/contacts/${contactId}/associations/deals`,
+  );
+
+  const dealIds: string[] = assocData.results.map(
+    (r: Record<string, string>) => r.toObjectId ?? r.id,
+  );
+  if (dealIds.length === 0) return null;
+
+  // Batch-read deals
+  const batchData = await hubspotRequest("/crm/v3/objects/deals/batch/read", {
+    method: "POST",
+    body: JSON.stringify({
+      properties: ["dealname", "dealstage", "amount", "pipeline"],
+      inputs: dealIds.map((id) => ({ id })),
+    }),
+  });
+
+  // Check each deal's notes for the search text
+  for (const deal of batchData.results as Deal[]) {
+    const hasNote = await hasAutomationTag("deals", deal.id, searchText);
+    if (hasNote) return deal;
+  }
+
+  return null;
 }
 
 export async function updateDealAmount(

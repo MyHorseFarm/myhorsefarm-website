@@ -114,3 +114,34 @@ export async function getOrderDetails(
 
   return { id: order.id ?? orderId, lineItems };
 }
+
+// ---------------------------------------------------------------------------
+// Refund details
+// ---------------------------------------------------------------------------
+
+export interface RefundDetails {
+  id: string;
+  status: string;
+  paymentId: string;
+  amountCents: number;
+  currency: string;
+  reason: string | null;
+  createdAt: string;
+}
+
+export async function getRefundDetails(
+  refundId: string,
+): Promise<RefundDetails> {
+  const { refund } = await client.refunds.get({ refundId });
+  if (!refund) throw new Error(`Refund ${refundId} not found`);
+
+  return {
+    id: refund.id ?? refundId,
+    status: refund.status ?? "UNKNOWN",
+    paymentId: refund.paymentId ?? "",
+    amountCents: Number(refund.amountMoney?.amount ?? 0),
+    currency: refund.amountMoney?.currency ?? "USD",
+    reason: refund.reason ?? null,
+    createdAt: refund.createdAt ?? new Date().toISOString(),
+  };
+}
