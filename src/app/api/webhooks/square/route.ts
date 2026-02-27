@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     process.env.SQUARE_WEBHOOK_URL ||
     "https://www.myhorsefarm.com/api/webhooks/square";
 
-  const isValid = await verifyWebhookSignature(body, signature, notificationUrl);
+  const isValid = verifyWebhookSignature(body, signature, notificationUrl);
   if (!isValid) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
@@ -78,122 +78,129 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, skipped: "not COMPLETED" });
   }
 
-  // -----------------------------------------------------------------------
-  // 3. Fetch full payment details from Square
-  // -----------------------------------------------------------------------
-  const payment = await getPaymentDetails(paymentId);
-  const amount = formatAmount(payment.amountCents);
-  const paymentTag = `${TAG_PREFIX} $${amount} on ${payment.createdAt.slice(0, 10)} - Payment ID: ${payment.id}`;
+  try {
+    // -----------------------------------------------------------------------
+    // 3. Fetch full payment details from Square
+    // -----------------------------------------------------------------------
+    const payment = await getPaymentDetails(paymentId);
+    const amount = formatAmount(payment.amountCents);
+    const paymentTag = `${TAG_PREFIX} $${amount} on ${payment.createdAt.slice(0, 10)} - Payment ID: ${payment.id}`;
 
-  // -----------------------------------------------------------------------
-  // 4. Fetch customer details from Square
-  // -----------------------------------------------------------------------
-  if (!payment.customerId) {
-    return NextResponse.json(
-      { ok: false, error: "Payment has no customer ID" },
-      { status: 200 },
-    );
-  }
-
-  const customer = await getCustomerDetails(payment.customerId);
-  if (!customer.email) {
-    return NextResponse.json(
-      { ok: false, error: "Customer has no email address" },
-      { status: 200 },
-    );
-  }
-
-  // -----------------------------------------------------------------------
-  // 5. Fetch order line items (services performed)
-  // -----------------------------------------------------------------------
-  let services: string[] = [];
-  if (payment.orderId) {
-    try {
-      const order = await getOrderDetails(payment.orderId);
-      services = order.lineItems.map((li) => li.name);
-    } catch {
-      // Order details are nice-to-have, not critical
+    // -----------------------------------------------------------------------
+    // 4. Fetch customer details from Square
+    // -----------------------------------------------------------------------
+    if (!payment.customerId) {
+      return NextResponse.json(
+        { ok: false, error: "Payment has no customer ID" },
+        { status: 200 },
+      );
     }
-  }
 
-  // -----------------------------------------------------------------------
-  // 6. Find or create HubSpot contact
-  // -----------------------------------------------------------------------
-  let contact = await findContactByEmail(customer.email);
-  if (!contact) {
-    contact = await createContact(
-      customer.email,
-      customer.firstName ?? "",
-      customer.lastName ?? "",
-      customer.phone,
-    );
-  }
+    const customer = await getCustomerDetails(payment.customerId);
+    if (!customer.email) {
+      return NextResponse.json(
+        { ok: false, error: "Customer has no email address" },
+        { status: 200 },
+      );
+    }
 
-  // -----------------------------------------------------------------------
-  // 7. Dedup check — skip if this payment was already processed
-  // -----------------------------------------------------------------------
-  const alreadyProcessed = await hasAutomationTag(
-    "contacts",
-    contact.id,
-    `Payment ID: ${payment.id}`,
-  );
-  if (alreadyProcessed) {
-    return NextResponse.json({ ok: true, skipped: "duplicate" });
-  }
+    // -----------------------------------------------------------------------
+    // 5. Fetch order line items (services performed)
+    // -----------------------------------------------------------------------
+    let services: string[] = [];
+    if (payment.orderId) {
+      try {
+        const order = await getOrderDetails(payment.orderId);
+        services = order.lineItems.map((li) => li.name);
+      } catch {
+        // Order details are nice-to-have, not critical
+      }
+    }
 
-  // -----------------------------------------------------------------------
-  // 8. Find active deal or create a new one
-  // -----------------------------------------------------------------------
-  let deal = await findActiveDealForContact(contact.id);
+    // -----------------------------------------------------------------------
+    // 6. Find or create HubSpot contact
+    // -----------------------------------------------------------------------
+    let contact = await findContactByEmail(customer.email);
+    if (!contact) {
+      contact = await createContact(
+        customer.email,
+        customer.firstName ?? "",
+        customer.lastName ?? "",
+        customer.phone,
+      );
+    }
 
-  if (deal) {
-    // Move existing deal to Completed and set amount
-    await updateDealStage(deal.id, COMPLETED_STAGE_ID);
-    await updateDealAmount(deal.id, amount);
-  } else {
-    // Create a new deal already in Completed stage
-    const dealName = services.length > 0
-      ? `${services[0]}${services.length > 1 ? ` +${services.length - 1} more` : ""}`
-      : "Square Payment";
-    deal = await createDeal(
+    // -----------------------------------------------------------------------
+    // 7. Dedup check — skip if this payment was already processed
+    // -----------------------------------------------------------------------
+    const alreadyProcessed = await hasAutomationTag(
+      "contacts",
       contact.id,
-      dealName,
-      amount,
-      COMPLETED_STAGE_ID,
+      `Payment ID: ${payment.id}`,
     );
-  }
+    if (alreadyProcessed) {
+      return NextResponse.json({ ok: true, skipped: "duplicate" });
+    }
 
-  // -----------------------------------------------------------------------
-  // 9. Add tracking notes
-  // -----------------------------------------------------------------------
-  await createDealNote(deal.id, paymentTag);
-  await createContactNote(
-    contact.id,
-    paymentTag,
-  );
+    // -----------------------------------------------------------------------
+    // 8. Find active deal or create a new one
+    // -----------------------------------------------------------------------
+    let deal = await findActiveDealForContact(contact.id);
 
-  // -----------------------------------------------------------------------
-  // 10. Send thank-you / receipt email
-  // -----------------------------------------------------------------------
-  const subscribed = await isSubscribed(customer.email);
-  if (subscribed) {
-    const unsub = createUnsubscribeUrl(customer.email);
-    const template = paymentReceivedEmail(
-      customer.firstName ?? "",
+    if (deal) {
+      // Move existing deal to Completed and set amount
+      await updateDealStage(deal.id, COMPLETED_STAGE_ID);
+      await updateDealAmount(deal.id, amount);
+    } else {
+      // Create a new deal already in Completed stage
+      const dealName = services.length > 0
+        ? `${services[0]}${services.length > 1 ? ` +${services.length - 1} more` : ""}`
+        : "Square Payment";
+      deal = await createDeal(
+        contact.id,
+        dealName,
+        amount,
+        COMPLETED_STAGE_ID,
+      );
+    }
+
+    // -----------------------------------------------------------------------
+    // 9. Add tracking notes
+    // -----------------------------------------------------------------------
+    await createDealNote(deal.id, paymentTag);
+    await createContactNote(
+      contact.id,
+      paymentTag,
+    );
+
+    // -----------------------------------------------------------------------
+    // 10. Send thank-you / receipt email
+    // -----------------------------------------------------------------------
+    const subscribed = await isSubscribed(customer.email);
+    if (subscribed) {
+      const unsub = createUnsubscribeUrl(customer.email);
+      const template = paymentReceivedEmail(
+        customer.firstName ?? "",
+        amount,
+        services,
+        unsub,
+      );
+      await sendEmail(customer.email, template.subject, template.html);
+    }
+
+    return NextResponse.json({
+      ok: true,
+      paymentId: payment.id,
+      contactId: contact.id,
+      dealId: deal.id,
+      emailSent: subscribed,
       amount,
       services,
-      unsub,
+    });
+  } catch (err) {
+    return NextResponse.json(
+      { error: String(err) },
+      { status: 500 },
     );
-    await sendEmail(customer.email, template.subject, template.html);
   }
-
-  return NextResponse.json({
-    ok: true,
-    paymentId: payment.id,
-    contactId: contact.id,
-    dealId: deal.id,
-    emailSent: subscribed,
-    amount,
-    services,
-  });
 }

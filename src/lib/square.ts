@@ -1,4 +1,5 @@
-import { SquareClient, WebhooksHelper } from "square";
+import { createHmac } from "crypto";
+import { SquareClient, SquareEnvironment } from "square";
 
 // ---------------------------------------------------------------------------
 // Client
@@ -7,24 +8,25 @@ import { SquareClient, WebhooksHelper } from "square";
 const client = new SquareClient({
   token: process.env.SQUARE_ACCESS_TOKEN,
   environment:
-    process.env.SQUARE_ENVIRONMENT === "sandbox" ? "sandbox" : "production",
+    process.env.SQUARE_ENVIRONMENT === "sandbox"
+      ? SquareEnvironment.Sandbox
+      : SquareEnvironment.Production,
 });
 
 // ---------------------------------------------------------------------------
 // Webhook signature verification
 // ---------------------------------------------------------------------------
 
-export async function verifyWebhookSignature(
+export function verifyWebhookSignature(
   body: string,
   signatureHeader: string,
   notificationUrl: string,
-): Promise<boolean> {
-  return WebhooksHelper.verifySignature({
-    requestBody: body,
-    signatureHeader,
-    signatureKey: process.env.SQUARE_WEBHOOK_SIGNATURE_KEY!,
-    notificationUrl,
-  });
+): boolean {
+  const payload = notificationUrl + body;
+  const expected = createHmac("sha256", process.env.SQUARE_WEBHOOK_SIGNATURE_KEY!)
+    .update(payload, "utf8")
+    .digest("base64");
+  return expected === signatureHeader;
 }
 
 // ---------------------------------------------------------------------------
