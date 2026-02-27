@@ -276,6 +276,88 @@ ${header("Thank You for Choosing Us!")}
 }
 
 // ---------------------------------------------------------------------------
+// Payment Received / Receipt
+// ---------------------------------------------------------------------------
+
+export function paymentReceivedEmail(
+  firstname: string,
+  amount: string,
+  services: string[],
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  const serviceList =
+    services.length > 0
+      ? services.map((s) => `<li>${escapeHtml(s)}</li>`).join("")
+      : "<li>Farm services</li>";
+
+  return {
+    subject: `Payment Received \u2013 $${escapeHtml(amount)} \u2013 Thank You!`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Payment Received", "Thank you for your payment!")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">We\u2019ve received your payment of <strong>$${escapeHtml(amount)}</strong>. Thank you for choosing My Horse Farm!</p>
+<div style="background-color:#f9f7f2;padding:20px;border-radius:8px;margin:20px 0;">
+<p style="font-size:14px;color:#666;margin:0 0 10px;"><strong>Services:</strong></p>
+<ul style="font-size:15px;line-height:1.8;color:#555;margin:0;padding-left:20px;">${serviceList}</ul>
+<p style="font-size:16px;margin:15px 0 0;"><strong>Total: $${escapeHtml(amount)}</strong></p>
+</div>
+<p style="font-size:16px;line-height:1.6;">If you have any questions about your service or payment, don\u2019t hesitate to reach out.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="tel:+15615767667" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Call (561) 576-7667</a>
+</div>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Job Complete Summary
+// ---------------------------------------------------------------------------
+
+export function jobCompleteSummaryEmail(
+  firstname: string,
+  services: string[],
+  amount: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  const serviceRows = services
+    .map((s) => `<tr><td style="padding:8px 0;border-bottom:1px solid #eee;font-size:15px;">${escapeHtml(s)}</td></tr>`)
+    .join("");
+
+  return {
+    subject: "Your Service Is Complete \u2013 Here\u2019s a Summary",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Service Complete", "Here\u2019s what we did")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">Great news \u2013 your service with My Horse Farm is complete! Here\u2019s a summary of what was done:</p>
+<div style="background-color:#f9f7f2;padding:20px;border-radius:8px;margin:20px 0;">
+<table style="width:100%;border-collapse:collapse;">
+<tr><td style="padding:8px 0;border-bottom:2px solid #d4a843;font-weight:bold;font-size:14px;color:#666;">Services Performed</td></tr>
+${serviceRows || '<tr><td style="padding:8px 0;font-size:15px;">Farm services</td></tr>'}
+</table>
+<p style="font-size:16px;margin:15px 0 0;text-align:right;"><strong>Total Paid: $${escapeHtml(amount)}</strong></p>
+</div>
+<p style="font-size:16px;line-height:1.6;">We hope everything meets your expectations. If anything needs attention, please let us know right away \u2013 your satisfaction is our top priority.</p>
+<p style="font-size:16px;line-height:1.6;">If you have a moment, we\u2019d love to hear how we did:</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="https://g.page/r/CUtJdTADtIsyEBM/review" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Leave a Google Review</a>
+</div>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Pre-Season Campaign
 // ---------------------------------------------------------------------------
 

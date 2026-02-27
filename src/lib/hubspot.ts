@@ -179,6 +179,130 @@ export async function createDealNote(
 }
 
 // ---------------------------------------------------------------------------
+// Contact management
+// ---------------------------------------------------------------------------
+
+const PIPELINE_ID = "2057861855";
+
+export async function findContactByEmail(
+  email: string,
+): Promise<Contact | null> {
+  const results = await searchContacts(
+    [
+      {
+        filters: [
+          { propertyName: "email", operator: "EQ", value: email },
+        ],
+      },
+    ],
+    ["email", "firstname", "lastname", "phone"],
+  );
+  return results[0] ?? null;
+}
+
+export async function createContact(
+  email: string,
+  firstname: string,
+  lastname: string,
+  phone: string | null,
+): Promise<Contact> {
+  const properties: Record<string, string> = { email, firstname, lastname };
+  if (phone) properties.phone = phone;
+
+  return hubspotRequest("/crm/v3/objects/contacts", {
+    method: "POST",
+    body: JSON.stringify({ properties }),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Deal management
+// ---------------------------------------------------------------------------
+
+export async function findActiveDealForContact(
+  contactId: string,
+): Promise<Deal | null> {
+  // Get deals associated with the contact
+  const assocData = await hubspotRequest(
+    `/crm/v3/objects/contacts/${contactId}/associations/deals`,
+  );
+
+  const dealIds: string[] = assocData.results.map(
+    (r: Record<string, string>) => r.toObjectId ?? r.id,
+  );
+  if (dealIds.length === 0) return null;
+
+  // Batch-read the deals to find one that isn't in Completed or Lost stage
+  const batchData = await hubspotRequest("/crm/v3/objects/deals/batch/read", {
+    method: "POST",
+    body: JSON.stringify({
+      properties: ["dealname", "dealstage", "amount", "pipeline"],
+      inputs: dealIds.map((id) => ({ id })),
+    }),
+  });
+
+  const COMPLETED_STAGE = "3248645833";
+  // Find a deal in the Farm Services Pipeline that isn't completed
+  const activeDeal = batchData.results.find(
+    (d: Deal) =>
+      d.properties.pipeline === PIPELINE_ID &&
+      d.properties.dealstage !== COMPLETED_STAGE,
+  );
+
+  return activeDeal ?? null;
+}
+
+export async function createDeal(
+  contactId: string,
+  dealname: string,
+  amount: string,
+  stageId: string,
+): Promise<Deal> {
+  return hubspotRequest("/crm/v3/objects/deals", {
+    method: "POST",
+    body: JSON.stringify({
+      properties: {
+        dealname,
+        amount,
+        dealstage: stageId,
+        pipeline: PIPELINE_ID,
+        closedate: new Date().toISOString(),
+      },
+      associations: [
+        {
+          to: { id: contactId },
+          types: [
+            { associationCategory: "HUBSPOT_DEFINED", associationTypeId: 3 },
+          ],
+        },
+      ],
+    }),
+  });
+}
+
+export async function updateDealStage(
+  dealId: string,
+  stageId: string,
+): Promise<void> {
+  await hubspotRequest(`/crm/v3/objects/deals/${dealId}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      properties: { dealstage: stageId, closedate: new Date().toISOString() },
+    }),
+  });
+}
+
+export async function updateDealAmount(
+  dealId: string,
+  amount: string,
+): Promise<void> {
+  await hubspotRequest(`/crm/v3/objects/deals/${dealId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ properties: { amount } }),
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Subscription status
 // ---------------------------------------------------------------------------
 
