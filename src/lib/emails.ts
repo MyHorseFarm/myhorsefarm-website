@@ -406,3 +406,159 @@ ${header("Get Your Farm Season-Ready", "One Call Handles It All")}
     ),
   };
 }
+
+// ---------------------------------------------------------------------------
+// First Payment Welcome Email (replaces paymentReceivedEmail in webhook flow)
+// ---------------------------------------------------------------------------
+
+export function firstPaymentWelcomeEmail(
+  firstname: string,
+  amount: string,
+  services: string[],
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  const serviceList =
+    services.length > 0
+      ? services.map((s) => `<li>${escapeHtml(s)}</li>`).join("")
+      : "<li>Farm services</li>";
+
+  return {
+    subject: `Welcome to My Horse Farm – Payment of $${escapeHtml(amount)} Received`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Welcome to My Horse Farm", "Thank you for your first payment!")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">Thank you for choosing My Horse Farm! We\u2019ve received your payment of <strong>$${escapeHtml(amount)}</strong>.</p>
+<div style="background-color:#f9f7f2;padding:20px;border-radius:8px;margin:20px 0;">
+<p style="font-size:14px;color:#666;margin:0 0 10px;"><strong>Services:</strong></p>
+<ul style="font-size:15px;line-height:1.8;color:#555;margin:0;padding-left:20px;">${serviceList}</ul>
+<p style="font-size:16px;margin:15px 0 0;"><strong>Total: $${escapeHtml(amount)}</strong></p>
+</div>
+<p style="font-size:16px;line-height:1.6;">I\u2019m Jose Gomez, and my team and I have been serving Palm Beach County\u2019s equestrian community for over a decade. Now that you\u2019re part of the family, here\u2019s a quick look at everything we can help with:</p>
+<ul style="font-size:15px;line-height:1.8;color:#555;">
+<li><strong>Manure Removal</strong> \u2013 Leak-proof bins, scheduled pickups, weight tickets on every load</li>
+<li><strong>Junk Removal</strong> \u2013 Old fencing, debris, equipment \u2013 starting at $75/ton</li>
+<li><strong>Sod Installation</strong> \u2013 Professional paddock sod for safe, lush footing</li>
+<li><strong>Fill Dirt Delivery</strong> \u2013 Screened fill for leveling paddocks and drainage</li>
+<li><strong>Dumpster Rental</strong> \u2013 20-yard containers for barn cleanouts</li>
+<li><strong>Farm Repairs</strong> \u2013 Fencing, gates, stalls, driveways, and more</li>
+</ul>
+<p style="font-size:16px;line-height:1.6;">Need anything else? Just call us directly \u2013 we typically respond within one business hour.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="tel:+15615767667" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Call (561) 576-7667</a>
+</div>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Loyalty Milestone Email
+// ---------------------------------------------------------------------------
+
+export function loyaltyMilestoneEmail(
+  firstname: string,
+  monthCount: number,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  const monthLabel = monthCount === 6 ? "six months" : "a full year";
+
+  return {
+    subject: `It\u2019s Been ${monthCount} Months \u2013 Thank You for Trusting My Horse Farm`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Thank You!", `Celebrating ${monthLabel} together`)}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">It\u2019s been ${monthLabel} since you first trusted us with your farm \u2013 and I wanted to take a moment to personally say <strong>thank you</strong>.</p>
+<p style="font-size:16px;line-height:1.6;">Loyal clients like you are the reason we do what we do. We know you have options, and the fact that you keep choosing My Horse Farm means the world to our team.</p>
+<div style="background-color:#f9f7f2;border-left:4px solid #d4a843;padding:20px;margin:20px 0;border-radius:4px;">
+<p style="font-size:16px;line-height:1.6;margin:0;"><strong>As a valued client, you always get:</strong></p>
+<ul style="font-size:15px;line-height:1.8;color:#555;margin:10px 0 0;">
+<li>Priority scheduling \u2013 you go to the front of the line</li>
+<li>Direct line to me personally for any questions</li>
+<li>First access to new services and seasonal availability</li>
+</ul>
+</div>
+<p style="font-size:16px;line-height:1.6;">If there\u2019s anything we can do better, I\u2019d love to hear it. Just reply to this email or call me directly.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Referral Request Email
+// ---------------------------------------------------------------------------
+
+export function referralRequestEmail(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+
+  return {
+    subject: "Know Another Farm Owner Who Could Use a Hand?",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("A Quick Favor")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">You\u2019ve been a great client and I really appreciate your trust. I have a small favor to ask.</p>
+<p style="font-size:16px;line-height:1.6;">If you know another farm owner in the area who could use reliable manure removal, junk hauling, or any of our services \u2013 would you mind passing along my number?</p>
+<div style="background-color:#f9f7f2;padding:25px;border-radius:8px;margin:20px 0;text-align:center;">
+<p style="font-size:18px;font-weight:bold;color:#2d5016;margin:0 0 5px;">Jose Gomez \u2013 My Horse Farm</p>
+<p style="font-size:20px;margin:0;"><a href="tel:+15615767667" style="color:#2d5016;text-decoration:none;font-weight:bold;">(561) 576-7667</a></p>
+<p style="font-size:14px;color:#888;margin:10px 0 0;">Or share: <a href="https://www.myhorsefarm.com" style="color:#2d5016;">myhorsefarm.com</a></p>
+</div>
+<p style="font-size:16px;line-height:1.6;">Most of our business comes from word of mouth, and a recommendation from someone like you means more than any ad we could run.</p>
+<p style="font-size:16px;line-height:1.6;">Thank you \u2013 it really does make a difference.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Service Upsell Email
+// ---------------------------------------------------------------------------
+
+export function serviceUpsellEmail(
+  firstname: string,
+  suggestedServices: string[],
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  const serviceItems = suggestedServices
+    .map((s) => `<li>${escapeHtml(s)}</li>`)
+    .join("");
+
+  return {
+    subject: "Did You Know We Also Offer These Services?",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("More Ways We Can Help")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">Thanks for being a loyal My Horse Farm client. I wanted to make sure you knew about a few other services we offer that might be useful for your property:</p>
+<div style="background-color:#f9f7f2;padding:20px;border-radius:8px;margin:20px 0;">
+<ul style="font-size:15px;line-height:2.0;color:#555;margin:0;padding-left:20px;">${serviceItems}</ul>
+</div>
+<p style="font-size:16px;line-height:1.6;">Since we already know your property and your needs, bundling services is easy \u2013 one call, one provider, and everything gets handled together.</p>
+<p style="font-size:16px;line-height:1.6;">If any of these sound useful, just give me a call and I\u2019ll put together a quick quote.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="tel:+15615767667" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Call (561) 576-7667</a>
+</div>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}

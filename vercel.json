@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/pre-season",
       "schedule": "0 14 1 10 *"
+    },
+    {
+      "path": "/api/cron/client-engagement",
+      "schedule": "0 15 * * *"
     }
   ]
 }
