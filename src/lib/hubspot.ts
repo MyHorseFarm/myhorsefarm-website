@@ -200,6 +200,22 @@ export async function findContactByEmail(
   return results[0] ?? null;
 }
 
+export async function findContactByPhone(
+  phone: string,
+): Promise<Contact | null> {
+  const results = await searchContacts(
+    [
+      {
+        filters: [
+          { propertyName: "phone", operator: "EQ", value: phone },
+        ],
+      },
+    ],
+    ["email", "firstname", "lastname", "phone"],
+  );
+  return results[0] ?? null;
+}
+
 export async function createContact(
   email: string,
   firstname: string,

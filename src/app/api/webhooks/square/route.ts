@@ -7,6 +7,7 @@ import {
 } from "@/lib/square";
 import {
   findContactByEmail,
+  findContactByPhone,
   createContact,
   findActiveDealForContact,
   createDeal,
@@ -97,9 +98,9 @@ export async function POST(request: NextRequest) {
     }
 
     const customer = await getCustomerDetails(payment.customerId);
-    if (!customer.email) {
+    if (!customer.email && !customer.phone) {
       return NextResponse.json(
-        { ok: false, error: "Customer has no email address" },
+        { ok: false, error: "Customer has no email or phone" },
         { status: 200 },
       );
     }
@@ -118,12 +119,19 @@ export async function POST(request: NextRequest) {
     }
 
     // -----------------------------------------------------------------------
-    // 6. Find or create HubSpot contact
+    // 6. Find or create HubSpot contact (by email, fallback to phone)
     // -----------------------------------------------------------------------
-    let contact = await findContactByEmail(customer.email);
+    let contact = customer.email
+      ? await findContactByEmail(customer.email)
+      : null;
+
+    if (!contact && customer.phone) {
+      contact = await findContactByPhone(customer.phone);
+    }
+
     if (!contact) {
       contact = await createContact(
-        customer.email,
+        customer.email ?? "",
         customer.firstName ?? "",
         customer.lastName ?? "",
         customer.phone,
@@ -174,18 +182,22 @@ export async function POST(request: NextRequest) {
     );
 
     // -----------------------------------------------------------------------
-    // 10. Send thank-you / receipt email
+    // 10. Send thank-you / receipt email (only if contact has email)
     // -----------------------------------------------------------------------
-    const subscribed = await isSubscribed(customer.email);
-    if (subscribed) {
-      const unsub = createUnsubscribeUrl(customer.email);
-      const template = paymentReceivedEmail(
-        customer.firstName ?? "",
-        amount,
-        services,
-        unsub,
-      );
-      await sendEmail(customer.email, template.subject, template.html);
+    let emailSent = false;
+    if (customer.email) {
+      const subscribed = await isSubscribed(customer.email);
+      if (subscribed) {
+        const unsub = createUnsubscribeUrl(customer.email);
+        const template = paymentReceivedEmail(
+          customer.firstName ?? "",
+          amount,
+          services,
+          unsub,
+        );
+        await sendEmail(customer.email, template.subject, template.html);
+        emailSent = true;
+      }
     }
 
     return NextResponse.json({
@@ -193,7 +205,7 @@ export async function POST(request: NextRequest) {
       paymentId: payment.id,
       contactId: contact.id,
       dealId: deal.id,
-      emailSent: subscribed,
+      emailSent,
       amount,
       services,
     });
