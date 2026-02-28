@@ -530,6 +530,171 @@ ${signoff()}
 // Service Upsell Email
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Quote Confirmation Email
+// ---------------------------------------------------------------------------
+
+export function quoteConfirmationEmail(
+  firstname: string,
+  quoteNumber: string,
+  serviceName: string,
+  breakdown: { base: number; adjustments: { label: string; amount: number }[]; total: number },
+  acceptUrl: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  const adjustmentRows = breakdown.adjustments
+    .map(
+      (a) =>
+        `<tr><td style="padding:6px 0;font-size:14px;color:#666;">${escapeHtml(a.label)}</td><td style="padding:6px 0;font-size:14px;color:#666;text-align:right;">${a.amount >= 0 ? "+" : ""}$${Math.abs(a.amount).toFixed(2)}</td></tr>`,
+    )
+    .join("");
+
+  return {
+    subject: `Your Quote ${escapeHtml(quoteNumber)} – $${breakdown.total.toFixed(2)}`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Your Quote Is Ready")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">Thanks for requesting a quote from My Horse Farm! Here are the details:</p>
+<div style="background-color:#f9f7f2;padding:20px;border-radius:8px;margin:20px 0;">
+<p style="font-size:12px;color:#999;margin:0 0 5px;">Quote #</p>
+<p style="font-size:16px;font-weight:bold;margin:0 0 15px;color:#2d5016;">${escapeHtml(quoteNumber)}</p>
+<table style="width:100%;border-collapse:collapse;">
+<tr><td style="padding:8px 0;border-bottom:2px solid #d4a843;font-weight:bold;font-size:14px;color:#666;">Service</td><td style="padding:8px 0;border-bottom:2px solid #d4a843;font-weight:bold;font-size:14px;color:#666;text-align:right;">Amount</td></tr>
+<tr><td style="padding:8px 0;font-size:15px;">${escapeHtml(serviceName)}</td><td style="padding:8px 0;font-size:15px;text-align:right;">$${breakdown.base.toFixed(2)}</td></tr>
+${adjustmentRows}
+<tr><td style="padding:12px 0;border-top:2px solid #2d5016;font-size:16px;font-weight:bold;">Total</td><td style="padding:12px 0;border-top:2px solid #2d5016;font-size:16px;font-weight:bold;text-align:right;">$${breakdown.total.toFixed(2)}</td></tr>
+</table>
+</div>
+<p style="font-size:14px;color:#888;">This quote is valid for 30 days.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="${escapeHtml(acceptUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:16px 40px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:18px;">Accept &amp; Schedule</a>
+</div>
+<p style="font-size:16px;line-height:1.6;">Questions? Call us at <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a>.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Booking Confirmation Email
+// ---------------------------------------------------------------------------
+
+export function bookingConfirmationEmail(
+  firstname: string,
+  bookingNumber: string,
+  serviceName: string,
+  date: string,
+  timeSlot: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  const slotLabel = timeSlot === "morning" ? "Morning (8 AM – 12 PM)" : "Afternoon (12 PM – 5 PM)";
+
+  return {
+    subject: `Booking Confirmed – ${escapeHtml(bookingNumber)}`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Booking Confirmed!", "You\u2019re all set")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">Your service has been scheduled. Here are the details:</p>
+<div style="background-color:#f9f7f2;padding:20px;border-radius:8px;margin:20px 0;">
+<table style="width:100%;border-collapse:collapse;">
+<tr><td style="padding:10px 0;font-size:14px;color:#666;width:120px;">Booking #</td><td style="padding:10px 0;font-size:15px;font-weight:bold;color:#2d5016;">${escapeHtml(bookingNumber)}</td></tr>
+<tr><td style="padding:10px 0;font-size:14px;color:#666;">Service</td><td style="padding:10px 0;font-size:15px;">${escapeHtml(serviceName)}</td></tr>
+<tr><td style="padding:10px 0;font-size:14px;color:#666;">Date</td><td style="padding:10px 0;font-size:15px;font-weight:bold;">${escapeHtml(date)}</td></tr>
+<tr><td style="padding:10px 0;font-size:14px;color:#666;">Time</td><td style="padding:10px 0;font-size:15px;">${escapeHtml(slotLabel)}</td></tr>
+</table>
+</div>
+<p style="font-size:16px;line-height:1.6;">We\u2019ll be at your property during the scheduled window. If anything changes, give us a call and we\u2019ll work it out.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="tel:+15615767667" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Call (561) 576-7667</a>
+</div>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Site Visit Request Email
+// ---------------------------------------------------------------------------
+
+export function siteVisitRequestEmail(
+  firstname: string,
+  serviceName: string,
+  quoteNumber: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+
+  return {
+    subject: `Quote Request Received – ${escapeHtml(quoteNumber)}`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("We\u2019ll Be in Touch")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">Thanks for your interest in <strong>${escapeHtml(serviceName)}</strong>. This service requires a quick site visit so we can give you an accurate quote.</p>
+<div style="background-color:#f9f7f2;padding:20px;border-radius:8px;margin:20px 0;">
+<p style="font-size:14px;color:#666;margin:0 0 5px;">Quote Reference</p>
+<p style="font-size:16px;font-weight:bold;margin:0;color:#2d5016;">${escapeHtml(quoteNumber)}</p>
+</div>
+<p style="font-size:16px;line-height:1.6;">Here\u2019s what happens next:</p>
+<ol style="font-size:15px;line-height:2.0;color:#555;">
+<li>We\u2019ll call you within one business day to schedule a site visit</li>
+<li>We\u2019ll visit your property and assess the job</li>
+<li>You\u2019ll receive a detailed quote within 24 hours of the visit</li>
+</ol>
+<p style="font-size:16px;line-height:1.6;">Want to speed things up? Call us directly at <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a>.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Chat Handoff Email (internal – to Jose)
+// ---------------------------------------------------------------------------
+
+export function chatHandoffEmail(
+  customerName: string,
+  customerEmail: string,
+  customerPhone: string,
+  summary: string,
+  chatSessionId: string,
+): EmailTemplate {
+  return {
+    subject: `[Chat Handoff] ${escapeHtml(customerName || "Unknown")} needs help`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Chat Handoff", "A customer needs personal attention")}
+<div style="padding:30px 20px;">
+<div style="background-color:#f9f7f2;padding:20px;border-radius:8px;margin:0 0 20px;">
+<table style="width:100%;border-collapse:collapse;">
+<tr><td style="padding:8px 0;font-size:14px;color:#666;width:100px;">Name</td><td style="padding:8px 0;font-size:15px;font-weight:bold;">${escapeHtml(customerName || "Not provided")}</td></tr>
+<tr><td style="padding:8px 0;font-size:14px;color:#666;">Email</td><td style="padding:8px 0;font-size:15px;">${escapeHtml(customerEmail || "Not provided")}</td></tr>
+<tr><td style="padding:8px 0;font-size:14px;color:#666;">Phone</td><td style="padding:8px 0;font-size:15px;">${escapeHtml(customerPhone || "Not provided")}</td></tr>
+<tr><td style="padding:8px 0;font-size:14px;color:#666;">Session</td><td style="padding:8px 0;font-size:13px;color:#999;">${escapeHtml(chatSessionId)}</td></tr>
+</table>
+</div>
+<h3 style="color:#2d5016;margin:20px 0 10px;">Conversation Summary</h3>
+<div style="background-color:#fff;border:1px solid #e0e0e0;padding:15px;border-radius:8px;">
+<p style="font-size:14px;line-height:1.6;color:#555;margin:0;white-space:pre-wrap;">${escapeHtml(summary)}</p>
+</div>
+</div></div>`,
+      "#",
+    ),
+  };
+}
+
 export function serviceUpsellEmail(
   firstname: string,
   suggestedServices: string[],

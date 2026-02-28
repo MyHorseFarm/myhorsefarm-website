@@ -191,7 +191,21 @@ export async function createDealNote(
 // Contact management
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Pipeline & Stage IDs
+// ---------------------------------------------------------------------------
+
 const PIPELINE_ID = "2057861855";
+export const HUBSPOT_PIPELINE_ID = PIPELINE_ID;
+
+// Stage IDs for the Farm Services Pipeline
+// New Lead → Quoted → Scheduled → In Progress → Completed → Lost
+export const STAGE_NEW_LEAD = "3248645829";
+export const STAGE_QUOTED = "3248645830";
+export const STAGE_SCHEDULED = "3248645831";
+export const STAGE_IN_PROGRESS = "3248645832";
+export const STAGE_COMPLETED = "3248645833";
+export const STAGE_LOST = "3248645834";
 
 export async function findContactByEmail(
   email: string,
@@ -236,6 +250,16 @@ export async function createContact(
 
   return hubspotRequest("/crm/v3/objects/contacts", {
     method: "POST",
+    body: JSON.stringify({ properties }),
+  });
+}
+
+export async function updateContactProperties(
+  contactId: string,
+  properties: Record<string, string>,
+): Promise<void> {
+  await hubspotRequest(`/crm/v3/objects/contacts/${contactId}`, {
+    method: "PATCH",
     body: JSON.stringify({ properties }),
   });
 }

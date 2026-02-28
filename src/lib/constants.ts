@@ -24,6 +24,7 @@ export const HUBSPOT_MEETING_URL =
   "https://meetings-na2.hubspot.com/manureservice/book-a-service?embed=true";
 
 export const NAV_LINKS_HOME = [
+  { label: "Get a Quote", href: "/quote" },
   { label: "About", href: "#about" },
   { label: "Testimonials", href: "#testimonials" },
   { label: "FAQ", href: "#faq" },
@@ -152,6 +153,28 @@ export const FAQ_ITEMS = [
       "We dispose of waste at approved facilities and recycle materials whenever possible. For manure, we work with composting facilities. For junk removal, we sort items for recycling, donation and responsible disposal to minimize landfill impact.",
   },
 ];
+
+export const SERVICE_AREAS = [
+  { value: "wellington", label: "Wellington" },
+  { value: "loxahatchee", label: "Loxahatchee" },
+  { value: "royal_palm_beach", label: "Royal Palm Beach" },
+  { value: "west_palm_beach", label: "West Palm Beach" },
+  { value: "palm_beach_gardens", label: "Palm Beach Gardens" },
+  { value: "loxahatchee_groves", label: "Loxahatchee Groves" },
+];
+
+export const SERVICE_KEYS = [
+  "manure_removal",
+  "trash_bin_service",
+  "junk_removal",
+  "sod_installation",
+  "fill_dirt",
+  "dumpster_rental",
+  "farm_repairs",
+  "millings_asphalt",
+] as const;
+
+export type ServiceKey = (typeof SERVICE_KEYS)[number];
 
 export const TRUST_BADGES = [
   { icon: "fas fa-shield-halved", label: "Fully Insured" },

@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import TrustBadges from "@/components/TrustBadges";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import FaqAccordion from "@/components/FaqAccordion";
-import HubSpotCalendar from "@/components/HubSpotCalendar";
+import ServiceCalendar from "@/components/ServiceCalendar";
 import HubSpotForm from "@/components/HubSpotForm";
 import SchemaMarkup from "@/components/SchemaMarkup";
 import {
@@ -272,7 +272,7 @@ export default function HomePage() {
         title="My Horse Farm"
         tagline="Top-notch agricultural services for your equestrian needs"
         ctaText="Get a Quote"
-        ctaHref="#contact"
+        ctaHref="/quote"
       />
 
       <Navbar links={NAV_LINKS_HOME} />
@@ -378,7 +378,7 @@ export default function HomePage() {
         <FaqAccordion />
 
         {/* Calendar */}
-        <HubSpotCalendar />
+        <ServiceCalendar />
 
         {/* Contact */}
         <section id="contact" className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
