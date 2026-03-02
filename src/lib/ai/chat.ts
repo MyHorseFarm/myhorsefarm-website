@@ -5,12 +5,16 @@ import { buildSystemPrompt } from "./system-prompt";
 import { toolDefinitions, executeTool } from "./tools";
 import type { ChatMessage } from "@/lib/types";
 
-const MODEL = "claude-haiku-4-5-20251001";
+const PRIMARY_MODEL = "claude-haiku-4-5";
+const FALLBACK_MODEL = "claude-sonnet-4-6";
 
 let _anthropic: Anthropic | null = null;
 function getClient(): Anthropic {
   if (!_anthropic) {
-    _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    _anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+      maxRetries: 3,
+    });
   }
   return _anthropic;
 }
@@ -90,6 +94,9 @@ export async function processChat(
       let lastError: unknown;
 
       for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+        // Use fallback model on final retry
+        const model = attempt === MAX_RETRIES ? FALLBACK_MODEL : PRIMARY_MODEL;
+
         try {
           let fullAssistantText = "";
           let continueLoop = true;
@@ -109,7 +116,7 @@ export async function processChat(
             }
 
             const stream = getClient().messages.stream({
-              model: MODEL,
+              model,
               max_tokens: 1024,
               system: systemPrompt,
               tools: toolDefinitions,
@@ -203,7 +210,7 @@ export async function processChat(
         } catch (err) {
           lastError = err;
           const errMsg = err instanceof Error ? err.message : String(err);
-          console.error(`Chat stream error (attempt ${attempt + 1}/${MAX_RETRIES + 1}):`, errMsg);
+          console.error(`Chat stream error (attempt ${attempt + 1}/${MAX_RETRIES + 1}, model=${model}):`, errMsg);
 
           // Only retry on transient errors (rate limit, overloaded, network)
           const isRetryable =
@@ -215,8 +222,8 @@ export async function processChat(
             errMsg.includes("500");
 
           if (isRetryable && attempt < MAX_RETRIES) {
-            // Wait before retry (exponential backoff: 1s, 2s)
-            await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+            // Wait before retry (exponential backoff: 2s, 5s)
+            await new Promise((r) => setTimeout(r, (attempt + 1) * 2500));
             continue;
           }
 
