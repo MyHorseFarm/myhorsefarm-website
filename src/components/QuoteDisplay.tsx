@@ -116,12 +116,26 @@ export default function QuoteDisplay({ quote }: { quote: QuoteData }) {
           )}
 
           {accepted ? (
-            <a
-              href={`/booking/confirmation?quote_id=${quote.id}`}
-              className="block w-full text-center px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
-            >
-              Schedule Now
-            </a>
+            <div className="space-y-3">
+              <div className="bg-green-50 text-green-800 px-4 py-3 rounded-lg text-sm text-center">
+                <i className="fas fa-check-circle mr-1" />
+                Quote accepted! We&rsquo;ll reach out to schedule your service.
+              </div>
+              <div className="flex gap-3">
+                <a
+                  href="/#schedule"
+                  className="flex-1 text-center px-4 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors text-sm"
+                >
+                  Pick a Date
+                </a>
+                <a
+                  href="tel:+15615767667"
+                  className="flex-1 text-center px-4 py-3 border-2 border-primary text-primary font-semibold rounded-lg hover:bg-green-50 transition-colors text-sm"
+                >
+                  Call to Schedule
+                </a>
+              </div>
+            </div>
           ) : canAccept ? (
             <button
               onClick={handleAccept}
