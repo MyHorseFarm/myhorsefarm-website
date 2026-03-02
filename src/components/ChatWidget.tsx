@@ -43,6 +43,8 @@ function resizeImage(file: File, maxWidth = 800): Promise<string> {
   });
 }
 
+const THROTTLE_MS = 2500; // Min time between sends (matches server)
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -51,6 +53,8 @@ export default function ChatWidget() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [streaming, setStreaming] = useState(false);
   const [pendingImage, setPendingImage] = useState<{ dataUri: string; objectUrl: string } | null>(null);
+  const [chatEnded, setChatEnded] = useState(false);
+  const lastSendTime = useRef(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -84,7 +88,12 @@ export default function ChatWidget() {
 
   const handleSend = useCallback(async (overrideMessage?: string) => {
     const userMessage = overrideMessage || input.trim() || (pendingImage ? "Here's a photo" : "");
-    if (!userMessage || sending) return;
+    if (!userMessage || sending || chatEnded) return;
+
+    // Client-side throttle
+    const now = Date.now();
+    if (now - lastSendTime.current < THROTTLE_MS) return;
+    lastSendTime.current = now;
 
     setInput("");
     setSending(true);
@@ -118,7 +127,28 @@ export default function ChatWidget() {
         body: JSON.stringify(body),
       });
 
-      if (!res.ok) throw new Error("Chat request failed");
+      if (!res.ok) {
+        // Handle specific server errors
+        if (res.status === 429) {
+          const data = await res.json().catch(() => ({}));
+          if (data.error === "limit_reached") {
+            const endMsg = "Thanks for chatting! For anything else, reach Jose directly at (561) 576-7667 or start a new chat.";
+            setMessages((prev) =>
+              prev.map((msg, idx) =>
+                idx === prev.length - 1 && msg.role === "assistant"
+                  ? { ...msg, content: endMsg }
+                  : msg
+              )
+            );
+            setChatEnded(true);
+            return;
+          }
+          // Rate limited — remove the empty assistant bubble
+          setMessages((prev) => prev.filter((_, idx) => idx !== prev.length - 1));
+          return;
+        }
+        throw new Error("Chat request failed");
+      }
 
       const reader = res.body?.getReader();
       if (!reader) throw new Error("No response body");
@@ -175,7 +205,7 @@ export default function ChatWidget() {
       setSending(false);
       setStreaming(false);
     }
-  }, [input, sending, pendingImage, sessionId]);
+  }, [input, sending, pendingImage, sessionId, chatEnded]);
 
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -346,50 +376,70 @@ export default function ChatWidget() {
 
           {/* Input */}
           <div className="px-3 py-3 border-t border-gray-100 shrink-0">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSend();
-              }}
-              className="flex gap-2 items-center"
-            >
-              {/* Photo upload button */}
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={sending}
-                className="w-9 h-9 text-gray-400 hover:text-primary transition-colors disabled:opacity-50 shrink-0 flex items-center justify-center"
-                aria-label="Upload photo"
-                title="Send a photo"
+            {chatEnded ? (
+              <div className="text-center text-sm text-gray-500 py-1">
+                Chat ended.{" "}
+                <button
+                  onClick={() => {
+                    setMessages([]);
+                    setSessionId(null);
+                    setChatEnded(false);
+                  }}
+                  className="text-primary font-medium hover:underline"
+                >
+                  Start a new chat
+                </button>{" "}
+                or call{" "}
+                <a href="tel:+15615767667" className="text-primary font-medium hover:underline">
+                  (561) 576-7667
+                </a>
+              </div>
+            ) : (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSend();
+                }}
+                className="flex gap-2 items-center"
               >
-                <i className="fas fa-camera text-base" />
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
+                {/* Photo upload button */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={sending}
+                  className="w-9 h-9 text-gray-400 hover:text-primary transition-colors disabled:opacity-50 shrink-0 flex items-center justify-center"
+                  aria-label="Upload photo"
+                  title="Send a photo"
+                >
+                  <i className="fas fa-camera text-base" />
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
 
-              <input
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder={pendingImage ? "Add a note about this photo..." : "Type a message..."}
-                disabled={sending}
-                className="flex-1 px-3 py-2 rounded-full border border-gray-200 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none disabled:opacity-50"
-              />
-              <button
-                type="submit"
-                disabled={sending || (!input.trim() && !pendingImage)}
-                className="w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-50 shrink-0"
-              >
-                <i className="fas fa-paper-plane text-xs" />
-              </button>
-            </form>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={pendingImage ? "Add a note about this photo..." : "Type a message..."}
+                  disabled={sending}
+                  className="flex-1 px-3 py-2 rounded-full border border-gray-200 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none disabled:opacity-50"
+                />
+                <button
+                  type="submit"
+                  disabled={sending || (!input.trim() && !pendingImage)}
+                  className="w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-50 shrink-0"
+                >
+                  <i className="fas fa-paper-plane text-xs" />
+                </button>
+              </form>
+            )}
           </div>
         </div>
       )}
