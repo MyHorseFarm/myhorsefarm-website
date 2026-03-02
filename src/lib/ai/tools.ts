@@ -168,6 +168,7 @@ async function executeGenerateQuote(
 
   return JSON.stringify({
     quote_number: quoteNumber,
+    quote_id: quote.id,
     service: service.display_name,
     total: breakdown.total,
     breakdown,

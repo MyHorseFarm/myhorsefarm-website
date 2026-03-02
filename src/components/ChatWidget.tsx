@@ -2,10 +2,20 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 
+interface QuoteCard {
+  quote_number: string;
+  service: string;
+  total: number;
+  quote_url: string;
+  requires_site_visit: boolean;
+}
+
 interface Message {
   role: "user" | "assistant";
   content: string;
-  imageUrl?: string; // local object URL for photo thumbnails
+  imageUrl?: string;
+  quoteCard?: QuoteCard;
+  timestamp?: number;
 }
 
 const QUICK_OPTIONS = [
@@ -43,7 +53,11 @@ function resizeImage(file: File, maxWidth = 800): Promise<string> {
   });
 }
 
-const THROTTLE_MS = 2500; // Min time between sends (matches server)
+function formatTime(ts: number): string {
+  return new Date(ts).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+
+const THROTTLE_MS = 2500;
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
@@ -69,7 +83,6 @@ export default function ChatWidget() {
     }
   }, [open]);
 
-  // Cleanup object URLs on unmount
   useEffect(() => {
     return () => {
       if (pendingImage) URL.revokeObjectURL(pendingImage.objectUrl);
@@ -78,7 +91,6 @@ export default function ChatWidget() {
 
   async function initSession(): Promise<string> {
     if (sessionId) return sessionId;
-
     const res = await fetch("/api/chat/session", { method: "POST" });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
@@ -90,7 +102,6 @@ export default function ChatWidget() {
     const userMessage = overrideMessage || input.trim() || (pendingImage ? "Here's a photo" : "");
     if (!userMessage || sending || chatEnded) return;
 
-    // Client-side throttle
     const now = Date.now();
     if (now - lastSendTime.current < THROTTLE_MS) return;
     lastSendTime.current = now;
@@ -101,21 +112,20 @@ export default function ChatWidget() {
     const imageToSend = pendingImage;
     setPendingImage(null);
 
-    // Add user message (with optional photo thumbnail)
     setMessages((prev) => [
       ...prev,
       {
         role: "user",
         content: userMessage,
         imageUrl: imageToSend?.objectUrl,
+        timestamp: Date.now(),
       },
     ]);
 
     try {
       const sid = await initSession();
 
-      // Add empty assistant message for streaming
-      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: "", timestamp: Date.now() }]);
       setStreaming(true);
 
       const body: Record<string, string> = { session_id: sid, message: userMessage };
@@ -128,7 +138,6 @@ export default function ChatWidget() {
       });
 
       if (!res.ok) {
-        // Handle specific server errors
         if (res.status === 429) {
           const data = await res.json().catch(() => ({}));
           if (data.error === "limit_reached") {
@@ -143,7 +152,6 @@ export default function ChatWidget() {
             setChatEnded(true);
             return;
           }
-          // Rate limited — remove the empty assistant bubble
           setMessages((prev) => prev.filter((_, idx) => idx !== prev.length - 1));
           return;
         }
@@ -173,6 +181,23 @@ export default function ChatWidget() {
                 prev.map((msg, idx) =>
                   idx === prev.length - 1 && msg.role === "assistant"
                     ? { ...msg, content: msg.content + event.text }
+                    : msg
+                )
+              );
+            } else if (event.type === "quote_card") {
+              setMessages((prev) =>
+                prev.map((msg, idx) =>
+                  idx === prev.length - 1 && msg.role === "assistant"
+                    ? {
+                        ...msg,
+                        quoteCard: {
+                          quote_number: event.quote_number,
+                          service: event.service,
+                          total: event.total,
+                          quote_url: event.quote_url,
+                          requires_site_visit: event.requires_site_visit,
+                        },
+                      }
                     : msg
                 )
               );
@@ -210,17 +235,13 @@ export default function ChatWidget() {
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Reset file input so same file can be selected again
     e.target.value = "";
 
-    // Validate type
     if (!file.type.startsWith("image/")) {
       alert("Please select an image file (JPG, PNG, etc.)");
       return;
     }
 
-    // Validate size (10MB max before resize)
     if (file.size > 10 * 1024 * 1024) {
       alert("Photo is too large. Please use an image under 10MB.");
       return;
@@ -268,7 +289,7 @@ export default function ChatWidget() {
 
       {/* Chat window */}
       {open && (
-        <div className="fixed bottom-6 right-6 w-[380px] max-w-[calc(100vw-24px)] h-[520px] max-h-[calc(100vh-48px)] bg-white rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden max-md:bottom-0 max-md:right-0 max-md:w-full max-md:h-full max-md:rounded-none max-md:max-w-full max-md:max-h-full">
+        <div className="fixed bottom-6 right-6 w-[380px] max-w-[calc(100vw-24px)] h-[520px] max-h-[calc(100vh-48px)] bg-white rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden animate-chat-open max-md:bottom-0 max-md:right-0 max-md:w-full max-md:h-full max-md:rounded-none max-md:max-w-full max-md:max-h-full">
           {/* Header */}
           <div className="bg-primary text-white px-4 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
@@ -318,10 +339,7 @@ export default function ChatWidget() {
             )}
 
             {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-              >
+              <div key={i} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
                 <div
                   className={`max-w-[80%] rounded-2xl text-sm leading-relaxed ${
                     msg.role === "user"
@@ -339,7 +357,7 @@ export default function ChatWidget() {
                       />
                     </div>
                   )}
-                  <div className="px-3 py-2">
+                  <div className="px-3 py-2 whitespace-pre-line">
                     {msg.content || (
                       <span className="inline-flex gap-1">
                         <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
@@ -348,7 +366,49 @@ export default function ChatWidget() {
                       </span>
                     )}
                   </div>
+                  {/* Inline quote card */}
+                  {msg.quoteCard && (
+                    <div className="mx-2 mb-2 bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <p className="text-[10px] text-gray-400 uppercase tracking-wide">{msg.quoteCard.quote_number}</p>
+                        <p className="font-semibold text-gray-800 text-sm">{msg.quoteCard.service}</p>
+                      </div>
+                      <div className="px-4 py-3">
+                        <p className="text-2xl font-bold text-primary">
+                          ${msg.quoteCard.total.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                        </p>
+                        {msg.quoteCard.requires_site_visit && (
+                          <p className="text-xs text-amber-600 mt-1">
+                            <i className="fas fa-info-circle mr-1" />
+                            Final price confirmed after site visit
+                          </p>
+                        )}
+                      </div>
+                      <div className="px-3 pb-3 flex gap-2">
+                        <a
+                          href={msg.quoteCard.quote_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 text-center px-3 py-2 bg-primary text-white text-xs font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+                        >
+                          View Quote
+                        </a>
+                        <a
+                          href="tel:+15615767667"
+                          className="flex-1 text-center px-3 py-2 border border-primary text-primary text-xs font-semibold rounded-lg hover:bg-green-50 transition-colors"
+                        >
+                          Call to Schedule
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
+                {/* Timestamp */}
+                {msg.timestamp && msg.content && (
+                  <p className="text-[10px] text-gray-400 mt-0.5 px-1">
+                    {formatTime(msg.timestamp)}
+                  </p>
+                )}
               </div>
             ))}
             <div ref={messagesEndRef} />
@@ -402,7 +462,6 @@ export default function ChatWidget() {
                 }}
                 className="flex gap-2 items-center"
               >
-                {/* Photo upload button */}
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -421,7 +480,6 @@ export default function ChatWidget() {
                   onChange={handleFileSelect}
                   className="hidden"
                 />
-
                 <input
                   ref={inputRef}
                   type="text"
@@ -434,12 +492,17 @@ export default function ChatWidget() {
                 <button
                   type="submit"
                   disabled={sending || (!input.trim() && !pendingImage)}
-                  className="w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-50 shrink-0"
+                  className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-30 shrink-0 shadow-sm"
                 >
-                  <i className="fas fa-paper-plane text-xs" />
+                  <i className="fas fa-paper-plane text-sm" />
                 </button>
               </form>
             )}
+          </div>
+
+          {/* Footer */}
+          <div className="text-center text-[10px] text-gray-300 pb-1.5 shrink-0">
+            myhorsefarm.com
           </div>
         </div>
       )}

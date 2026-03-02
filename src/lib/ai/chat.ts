@@ -102,14 +102,16 @@ export async function processChat(
           let continueLoop = true;
           let currentMessages = [...claudeMessages];
           let toolLoopCount = 0;
+          let hadTextInPreviousIteration = false;
 
           while (continueLoop) {
             // Safety: prevent infinite tool loops
             toolLoopCount++;
             if (toolLoopCount > 5) {
-              fullAssistantText += "\n\nLet me have Jose follow up with you directly to finish getting this set up. You can also reach him at (561) 576-7667.";
+              const bailout = "\n\nLet me have Jose follow up with you directly to finish getting this set up. You can also reach him at (561) 576-7667.";
+              fullAssistantText += bailout;
               controller.enqueue(
-                encoder.encode(`data: ${JSON.stringify({ type: "text", text: "\n\nLet me have Jose follow up with you directly to finish getting this set up. You can also reach him at (561) 576-7667." })}\n\n`),
+                encoder.encode(`data: ${JSON.stringify({ type: "text", text: bailout })}\n\n`),
               );
               continueLoop = false;
               break;
@@ -126,10 +128,18 @@ export async function processChat(
             let hasToolUse = false;
             const toolUseBlocks: { id: string; name: string; input: Record<string, unknown> }[] = [];
             let currentText = "";
+            let emittedSeparator = false;
 
             for await (const event of stream) {
               if (event.type === "content_block_delta") {
                 if (event.delta.type === "text_delta") {
+                  // Add line break between pre-tool and post-tool text
+                  if (!emittedSeparator && hadTextInPreviousIteration) {
+                    controller.enqueue(
+                      encoder.encode(`data: ${JSON.stringify({ type: "text", text: "\n\n" })}\n\n`),
+                    );
+                    emittedSeparator = true;
+                  }
                   currentText += event.delta.text;
                   controller.enqueue(
                     encoder.encode(`data: ${JSON.stringify({ type: "text", text: event.delta.text })}\n\n`),
@@ -154,6 +164,13 @@ export async function processChat(
               }
             }
 
+            // Accumulate text from every iteration (not just the final one)
+            if (currentText) {
+              if (fullAssistantText) fullAssistantText += "\n\n";
+              fullAssistantText += currentText;
+              hadTextInPreviousIteration = true;
+            }
+
             if (hasToolUse && toolUseBlocks.length > 0) {
               currentMessages.push({
                 role: "assistant",
@@ -164,6 +181,26 @@ export async function processChat(
               for (const tool of toolUseBlocks) {
                 try {
                   const result = await executeTool(tool.name, tool.input, sessionId);
+
+                  // Emit quote card for generate_quote results
+                  if (tool.name === "generate_quote") {
+                    try {
+                      const parsed = JSON.parse(result);
+                      if (!parsed.error) {
+                        controller.enqueue(
+                          encoder.encode(`data: ${JSON.stringify({
+                            type: "quote_card",
+                            quote_number: parsed.quote_number,
+                            service: parsed.service,
+                            total: parsed.total,
+                            quote_url: `/quote/${parsed.quote_id}`,
+                            requires_site_visit: parsed.requires_site_visit,
+                          })}\n\n`),
+                        );
+                      }
+                    } catch { /* non-fatal */ }
+                  }
+
                   toolResults.push({
                     type: "tool_result",
                     tool_use_id: tool.id,
@@ -185,7 +222,6 @@ export async function processChat(
                 content: toolResults,
               });
             } else {
-              fullAssistantText += currentText;
               continueLoop = false;
             }
           }
