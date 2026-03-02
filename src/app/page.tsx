@@ -378,7 +378,9 @@ export default function HomePage() {
         <FaqAccordion />
 
         {/* Calendar */}
-        <ServiceCalendar />
+        <section id="schedule">
+          <ServiceCalendar />
+        </section>
 
         {/* Contact */}
         <section id="contact" className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
