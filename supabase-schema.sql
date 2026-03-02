@@ -31,7 +31,8 @@ insert into service_pricing (service_key, display_name, description, unit, base_
   ('fill_dirt', 'Fill Dirt Delivery', 'Screened fill for leveling paddocks and improving drainage.', 'per_yard', 35.00, 350.00, false, false, null),
   ('dumpster_rental', 'Dumpster Rental', '20-yard containers for barn cleanouts and renovations.', 'flat', 450.00, null, false, false, null),
   ('farm_repairs', 'Farm Repairs & Maintenance', 'Fencing, gates, stalls, driveways, and more.', 'flat', 0.00, null, true, false, null),
-  ('millings_asphalt', 'Millings Asphalt Delivery', '20-yard loads of recycled asphalt millings.', 'per_yard', 30.00, 300.00, false, false, null);
+  ('millings_asphalt', 'Millings Asphalt Delivery', '20-yard loads of recycled asphalt millings.', 'per_yard', 30.00, 300.00, false, false, null),
+  ('shipping_container', 'Shipping Container', '10-foot and 20-foot high-cube shipping containers for sale.', 'flat', 0.00, null, false, false, null);
 
 -- ---------------------------------------------------------------------------
 -- schedule_settings (single-row config)

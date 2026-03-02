@@ -79,6 +79,8 @@ export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   timestamp: string;
+  /** Base64 data URI for user-uploaded photos (not persisted — stored as "[Photo attached]") */
+  has_photo?: boolean;
 }
 
 // ---------------------------------------------------------------------------

@@ -1,10 +1,46 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
+  imageUrl?: string; // local object URL for photo thumbnails
+}
+
+const QUICK_OPTIONS = [
+  { label: "Manure Removal", icon: "fas fa-truck", message: "I need manure removal" },
+  { label: "Junk Removal", icon: "fas fa-dumpster", message: "I need junk removal" },
+  { label: "Get a Quote", icon: "fas fa-file-invoice-dollar", message: "I'd like to get a quote" },
+  { label: "Same-Day Service", icon: "fas fa-bolt", message: "I need same-day service — it's urgent" },
+];
+
+/** Resize an image file to max 800px wide and return a base64 data URI. */
+function resizeImage(file: File, maxWidth = 800): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("Canvas not supported"));
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", 0.8));
+      };
+      img.onerror = reject;
+      img.src = reader.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 export default function ChatWidget() {
@@ -14,8 +50,10 @@ export default function ChatWidget() {
   const [sending, setSending] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [streaming, setStreaming] = useState(false);
+  const [pendingImage, setPendingImage] = useState<{ dataUri: string; objectUrl: string } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -27,6 +65,13 @@ export default function ChatWidget() {
     }
   }, [open]);
 
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (pendingImage) URL.revokeObjectURL(pendingImage.objectUrl);
+    };
+  }, [pendingImage]);
+
   async function initSession(): Promise<string> {
     if (sessionId) return sessionId;
 
@@ -37,15 +82,25 @@ export default function ChatWidget() {
     return data.session_id;
   }
 
-  async function handleSend() {
-    if (!input.trim() || sending) return;
+  const handleSend = useCallback(async (overrideMessage?: string) => {
+    const userMessage = overrideMessage || input.trim() || (pendingImage ? "Here's a photo" : "");
+    if (!userMessage || sending) return;
 
-    const userMessage = input.trim();
     setInput("");
     setSending(true);
 
-    // Add user message
-    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
+    const imageToSend = pendingImage;
+    setPendingImage(null);
+
+    // Add user message (with optional photo thumbnail)
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "user",
+        content: userMessage,
+        imageUrl: imageToSend?.objectUrl,
+      },
+    ]);
 
     try {
       const sid = await initSession();
@@ -54,10 +109,13 @@ export default function ChatWidget() {
       setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
       setStreaming(true);
 
+      const body: Record<string, string> = { session_id: sid, message: userMessage };
+      if (imageToSend) body.image = imageToSend.dataUri;
+
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sid, message: userMessage }),
+        body: JSON.stringify(body),
       });
 
       if (!res.ok) throw new Error("Chat request failed");
@@ -81,23 +139,21 @@ export default function ChatWidget() {
           try {
             const event = JSON.parse(line.slice(6));
             if (event.type === "text") {
-              setMessages((prev) => {
-                const updated = [...prev];
-                const last = updated[updated.length - 1];
-                if (last.role === "assistant") {
-                  last.content += event.text;
-                }
-                return updated;
-              });
+              setMessages((prev) =>
+                prev.map((msg, idx) =>
+                  idx === prev.length - 1 && msg.role === "assistant"
+                    ? { ...msg, content: msg.content + event.text }
+                    : msg
+                )
+              );
             } else if (event.type === "error") {
-              setMessages((prev) => {
-                const updated = [...prev];
-                const last = updated[updated.length - 1];
-                if (last.role === "assistant") {
-                  last.content = event.text;
-                }
-                return updated;
-              });
+              setMessages((prev) =>
+                prev.map((msg, idx) =>
+                  idx === prev.length - 1 && msg.role === "assistant"
+                    ? { ...msg, content: event.text }
+                    : msg
+                )
+              );
             }
           } catch {
             // Skip malformed events
@@ -106,30 +162,78 @@ export default function ChatWidget() {
       }
     } catch {
       setMessages((prev) => {
-        const updated = [...prev];
-        const last = updated[updated.length - 1];
+        const last = prev[prev.length - 1];
         if (last?.role === "assistant" && !last.content) {
-          last.content = "Sorry, something went wrong. Please try again or call us at (561) 576-7667.";
+          return [
+            ...prev.slice(0, -1),
+            { ...last, content: "Hey, I ran into a hiccup on my end. Can you try sending that again? Or text Jose directly at (561) 576-7667." },
+          ];
         }
-        return updated;
+        return prev;
       });
     } finally {
       setSending(false);
       setStreaming(false);
     }
+  }, [input, sending, pendingImage, sessionId]);
+
+  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset file input so same file can be selected again
+    e.target.value = "";
+
+    // Validate type
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file (JPG, PNG, etc.)");
+      return;
+    }
+
+    // Validate size (10MB max before resize)
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Photo is too large. Please use an image under 10MB.");
+      return;
+    }
+
+    try {
+      const dataUri = await resizeImage(file);
+      const objectUrl = URL.createObjectURL(file);
+      setPendingImage({ dataUri, objectUrl });
+      inputRef.current?.focus();
+    } catch {
+      alert("Could not process that image. Please try another.");
+    }
   }
+
+  function removePendingImage() {
+    if (pendingImage) {
+      URL.revokeObjectURL(pendingImage.objectUrl);
+      setPendingImage(null);
+    }
+  }
+
+  const showQuickOptions = messages.length === 0 && !sending;
 
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button with label */}
       {!open && (
-        <button
-          onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg hover:bg-primary-dark transition-all flex items-center justify-center z-50"
-          aria-label="Open chat"
-        >
-          <i className="fas fa-comment-dots text-xl" />
-        </button>
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
+          <div
+            onClick={() => setOpen(true)}
+            className="bg-white text-gray-700 px-4 py-2 rounded-full shadow-lg text-sm font-medium cursor-pointer hover:shadow-xl transition-shadow border border-gray-100"
+          >
+            Chat with us
+          </div>
+          <button
+            onClick={() => setOpen(true)}
+            className="w-14 h-14 bg-primary text-white rounded-full shadow-lg hover:bg-primary-dark hover:scale-105 transition-all flex items-center justify-center"
+            aria-label="Open chat"
+          >
+            <i className="fas fa-comments text-xl" />
+          </button>
+        </div>
       )}
 
       {/* Chat window */}
@@ -155,36 +259,90 @@ export default function ChatWidget() {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
-            {messages.length === 0 && (
-              <div className="text-center text-gray-400 text-sm py-8">
-                <p className="mb-2">Hi there! I&rsquo;m the My Horse Farm assistant.</p>
-                <p>Ask me about our services, pricing, or scheduling.</p>
+            {/* Welcome + Quick select buttons */}
+            {showQuickOptions && (
+              <div className="space-y-3 py-2">
+                <div className="text-center text-gray-500 text-sm">
+                  <p className="font-medium text-gray-700 mb-1">Hey! How can we help?</p>
+                  <p>Tap an option or type a message below.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {QUICK_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.label}
+                      onClick={() => handleSend(opt.message)}
+                      className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-left text-sm font-medium transition-all border ${
+                        opt.label === "Same-Day Service"
+                          ? "bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100"
+                          : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                      }`}
+                    >
+                      <i className={`${opt.icon} text-xs ${
+                        opt.label === "Same-Day Service" ? "text-amber-600" : "text-primary"
+                      }`} />
+                      <span>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
+
             {messages.map((msg, i) => (
               <div
                 key={i}
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
+                  className={`max-w-[80%] rounded-2xl text-sm leading-relaxed ${
                     msg.role === "user"
                       ? "bg-primary text-white rounded-br-sm"
                       : "bg-gray-100 text-gray-800 rounded-bl-sm"
                   }`}
                 >
-                  {msg.content || (
-                    <span className="inline-flex gap-1">
-                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                    </span>
+                  {/* Photo thumbnail */}
+                  {msg.imageUrl && (
+                    <div className="p-1.5 pb-0">
+                      <img
+                        src={msg.imageUrl}
+                        alt="Uploaded photo"
+                        className="rounded-xl max-h-40 w-auto object-cover"
+                      />
+                    </div>
                   )}
+                  <div className="px-3 py-2">
+                    {msg.content || (
+                      <span className="inline-flex gap-1">
+                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
             <div ref={messagesEndRef} />
           </div>
+
+          {/* Pending image preview */}
+          {pendingImage && (
+            <div className="px-3 pb-1 shrink-0">
+              <div className="relative inline-block">
+                <img
+                  src={pendingImage.objectUrl}
+                  alt="Photo to send"
+                  className="h-16 w-auto rounded-lg border border-gray-200 object-cover"
+                />
+                <button
+                  onClick={removePendingImage}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+                  aria-label="Remove photo"
+                >
+                  <i className="fas fa-times text-[10px]" />
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Input */}
           <div className="px-3 py-3 border-t border-gray-100 shrink-0">
@@ -193,20 +351,40 @@ export default function ChatWidget() {
                 e.preventDefault();
                 handleSend();
               }}
-              className="flex gap-2"
+              className="flex gap-2 items-center"
             >
+              {/* Photo upload button */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={sending}
+                className="w-9 h-9 text-gray-400 hover:text-primary transition-colors disabled:opacity-50 shrink-0 flex items-center justify-center"
+                aria-label="Upload photo"
+                title="Send a photo"
+              >
+                <i className="fas fa-camera text-base" />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+
               <input
                 ref={inputRef}
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Type a message..."
+                placeholder={pendingImage ? "Add a note about this photo..." : "Type a message..."}
                 disabled={sending}
                 className="flex-1 px-3 py-2 rounded-full border border-gray-200 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none disabled:opacity-50"
               />
               <button
                 type="submit"
-                disabled={sending || !input.trim()}
+                disabled={sending || (!input.trim() && !pendingImage)}
                 className="w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-50 shrink-0"
               >
                 <i className="fas fa-paper-plane text-xs" />

@@ -172,6 +172,7 @@ export const SERVICE_KEYS = [
   "dumpster_rental",
   "farm_repairs",
   "millings_asphalt",
+  "shipping_container",
 ] as const;
 
 export type ServiceKey = (typeof SERVICE_KEYS)[number];
