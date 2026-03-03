@@ -214,7 +214,7 @@ export async function findContactByEmail(
     [
       {
         filters: [
-          { propertyName: "email", operator: "EQ", value: email },
+          { propertyName: "email", operator: "EQ", value: email.toLowerCase().trim() },
         ],
       },
     ],
@@ -223,9 +223,24 @@ export async function findContactByEmail(
   return results[0] ?? null;
 }
 
+/**
+ * Strip a phone number to digits only, removing country code prefix if present.
+ * "(561) 576-7667" → "5615767667"
+ * "+1 (561) 576-7667" → "5615767667"
+ * "15615767667" → "5615767667"
+ */
+export function normalizePhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  // Strip leading "1" country code if 11 digits
+  if (digits.length === 11 && digits.startsWith("1")) return digits.slice(1);
+  return digits;
+}
+
 export async function findContactByPhone(
   phone: string,
 ): Promise<Contact | null> {
+  // HubSpot stores phone in various formats, so we search with the raw value
+  // first, then try the normalized 10-digit version if no match.
   const results = await searchContacts(
     [
       {
@@ -236,7 +251,25 @@ export async function findContactByPhone(
     ],
     ["email", "firstname", "lastname", "phone"],
   );
-  return results[0] ?? null;
+  if (results[0]) return results[0];
+
+  // Try normalized digits (e.g. "5615767667")
+  const normalized = normalizePhone(phone);
+  if (normalized && normalized !== phone) {
+    const results2 = await searchContacts(
+      [
+        {
+          filters: [
+            { propertyName: "phone", operator: "CONTAINS_TOKEN", value: normalized },
+          ],
+        },
+      ],
+      ["email", "firstname", "lastname", "phone"],
+    );
+    if (results2[0]) return results2[0];
+  }
+
+  return null;
 }
 
 export async function createContact(
@@ -290,12 +323,12 @@ export async function findActiveDealForContact(
     }),
   });
 
-  const COMPLETED_STAGE = "3248645833";
-  // Find a deal in the Farm Services Pipeline that isn't completed
+  // Find a deal in the Farm Services Pipeline that isn't completed or lost
   const activeDeal = batchData.results.find(
     (d: Deal) =>
       d.properties.pipeline === PIPELINE_ID &&
-      d.properties.dealstage !== COMPLETED_STAGE,
+      d.properties.dealstage !== STAGE_COMPLETED &&
+      d.properties.dealstage !== STAGE_LOST,
   );
 
   return activeDeal ?? null;
@@ -333,11 +366,14 @@ export async function updateDealStage(
   dealId: string,
   stageId: string,
 ): Promise<void> {
+  const properties: Record<string, string> = { dealstage: stageId };
+  // Only set closedate when deal reaches a terminal stage
+  if (stageId === STAGE_COMPLETED || stageId === STAGE_LOST) {
+    properties.closedate = new Date().toISOString();
+  }
   await hubspotRequest(`/crm/v3/objects/deals/${dealId}`, {
     method: "PATCH",
-    body: JSON.stringify({
-      properties: { dealstage: stageId, closedate: new Date().toISOString() },
-    }),
+    body: JSON.stringify({ properties }),
   });
 }
 

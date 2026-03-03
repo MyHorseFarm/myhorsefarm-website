@@ -3,7 +3,9 @@ import { supabase } from "@/lib/supabase";
 import { hasCapacity } from "@/lib/availability";
 import {
   findContactByEmail,
+  createContact,
   createDeal,
+  findActiveDealForContact,
   updateDealStage,
   createContactNote,
   STAGE_SCHEDULED,
@@ -107,9 +109,24 @@ export async function POST(request: NextRequest) {
           );
         }
       } else {
-        // Direct booking without quote — find/create contact
-        const contact = await findContactByEmail(body.customer_email);
-        if (contact) {
+        // Direct booking without quote — find or create contact
+        let contact = await findContactByEmail(body.customer_email);
+        if (!contact) {
+          const nameParts = body.customer_name.split(" ");
+          contact = await createContact(
+            body.customer_email,
+            nameParts[0] || body.customer_name,
+            nameParts.slice(1).join(" ") || "",
+            body.customer_phone,
+          );
+        }
+
+        // Reuse active deal if one exists, otherwise create new
+        const existingDeal = await findActiveDealForContact(contact.id);
+        if (existingDeal) {
+          hubspotDealId = existingDeal.id;
+          await updateDealStage(existingDeal.id, STAGE_SCHEDULED);
+        } else {
           const deal = await createDeal(
             contact.id,
             `${serviceName} – ${body.customer_name}`,
@@ -117,12 +134,12 @@ export async function POST(request: NextRequest) {
             STAGE_SCHEDULED,
           );
           hubspotDealId = deal.id;
-
-          await createContactNote(
-            contact.id,
-            `[BOOKING:${bookingNumber}] Booked ${serviceName} for ${body.scheduled_date} (${body.time_slot})`,
-          );
         }
+
+        await createContactNote(
+          contact.id,
+          `[BOOKING:${bookingNumber}] Booked ${serviceName} for ${body.scheduled_date} (${body.time_slot})`,
+        );
       }
 
       // Store HubSpot deal ID on booking

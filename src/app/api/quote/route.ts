@@ -5,6 +5,8 @@ import {
   findContactByEmail,
   createContact,
   createDeal,
+  findActiveDealForContact,
+  updateDealStage,
   createContactNote,
   STAGE_QUOTED,
 } from "@/lib/hubspot";
@@ -103,12 +105,20 @@ export async function POST(request: NextRequest) {
       }
       hubspotContactId = contact.id;
 
-      const deal = await createDeal(
-        contact.id,
-        `${service.display_name} – ${body.customer_name}`,
-        String(breakdown.total),
-        STAGE_QUOTED,
-      );
+      // Reuse active deal if one exists for this contact, otherwise create new
+      const existingDeal = await findActiveDealForContact(contact.id);
+      let deal;
+      if (existingDeal) {
+        deal = existingDeal;
+        await updateDealStage(existingDeal.id, STAGE_QUOTED);
+      } else {
+        deal = await createDeal(
+          contact.id,
+          `${service.display_name} – ${body.customer_name}`,
+          String(breakdown.total),
+          STAGE_QUOTED,
+        );
+      }
       hubspotDealId = deal.id;
 
       await createContactNote(
