@@ -54,7 +54,7 @@ insert into schedule_settings (max_jobs_per_day, work_days) values (4, '{1,2,3,4
 create table quotes (
   id uuid primary key default uuid_generate_v4(),
   quote_number text unique not null,
-  status text not null default 'pending' check (status in ('pending','accepted','expired','declined','pending_site_visit')),
+  status text not null default 'pending' check (status in ('pending','accepted','booked','expired','declined','pending_site_visit')),
   customer_name text not null,
   customer_email text not null,
   customer_phone text not null,
@@ -88,6 +88,7 @@ create table bookings (
   scheduled_date date not null,
   time_slot text not null check (time_slot in ('morning','afternoon')),
   hubspot_deal_id text,
+  google_calendar_event_id text,
   created_at timestamptz not null default now()
 );
 

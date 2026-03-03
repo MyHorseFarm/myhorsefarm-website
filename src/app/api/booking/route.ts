@@ -156,6 +156,26 @@ export async function POST(request: NextRequest) {
       console.error("Email send error (non-fatal):", err);
     }
 
+    // Google Calendar: create event on business calendar
+    try {
+      const { createCalendarEvent } = await import("@/lib/google-calendar");
+      const eventId = await createCalendarEvent({
+        summary: `${bookingNumber} | ${serviceName} - ${body.customer_name}`,
+        description: `Booking #${bookingNumber}\nService: ${serviceName}\nCustomer: ${body.customer_name}\nPhone: ${body.customer_phone}\nLocation: ${body.customer_location}`,
+        location: body.customer_location,
+        startDate: body.scheduled_date,
+        timeSlot: body.time_slot,
+      });
+      if (eventId) {
+        await supabase
+          .from("bookings")
+          .update({ google_calendar_event_id: eventId })
+          .eq("id", booking.id);
+      }
+    } catch (err) {
+      console.error("Google Calendar error (non-fatal):", err);
+    }
+
     return NextResponse.json({
       ok: true,
       booking: {

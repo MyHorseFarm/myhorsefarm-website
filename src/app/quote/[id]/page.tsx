@@ -28,11 +28,32 @@ export default async function QuoteDetailPage({
 
   if (!quote) notFound();
 
-  const { data: service } = await supabase
-    .from("service_pricing")
-    .select("display_name")
-    .eq("service_key", quote.service_key)
-    .single();
+  const [serviceResult, bookingResult] = await Promise.all([
+    supabase
+      .from("service_pricing")
+      .select("display_name")
+      .eq("service_key", quote.service_key)
+      .single(),
+    supabase
+      .from("bookings")
+      .select("id, booking_number, scheduled_date, time_slot, service_key")
+      .eq("quote_id", id)
+      .eq("status", "confirmed")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  const service = serviceResult.data;
+  const existingBooking = bookingResult.data
+    ? {
+        id: bookingResult.data.id,
+        booking_number: bookingResult.data.booking_number,
+        scheduled_date: bookingResult.data.scheduled_date,
+        time_slot: bookingResult.data.time_slot,
+        service_name: service?.display_name ?? quote.service_key,
+      }
+    : null;
 
   return (
     <>
@@ -50,6 +71,7 @@ export default async function QuoteDetailPage({
               ...quote,
               service_display_name: service?.display_name ?? quote.service_key,
             }}
+            existingBooking={existingBooking}
           />
         </div>
       </main>
