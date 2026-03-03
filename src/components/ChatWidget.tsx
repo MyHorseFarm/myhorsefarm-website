@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { trackEvent } from "@/lib/analytics";
 
 interface QuoteCard {
   quote_number: string;
@@ -201,6 +202,13 @@ export default function ChatWidget() {
                     : msg
                 )
               );
+              trackEvent("generate_lead", {
+                currency: "USD",
+                value: event.total,
+                service: event.service,
+                source: "chatbot",
+                quote_number: event.quote_number,
+              });
             } else if (event.type === "error") {
               setMessages((prev) =>
                 prev.map((msg, idx) =>

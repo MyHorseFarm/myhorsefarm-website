@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import DateTimePicker from "./DateTimePicker";
+import { trackEvent } from "@/lib/analytics";
 
 interface ServiceCalendarProps {
   quoteId?: string;
@@ -69,6 +70,13 @@ export default function ServiceCalendar({
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
+
+      trackEvent("purchase", {
+        currency: "USD",
+        value: data.booking.amount,
+        transaction_id: data.booking.booking_number,
+        service: serviceKey || "general",
+      });
 
       if (onBooked) {
         onBooked(data.booking);

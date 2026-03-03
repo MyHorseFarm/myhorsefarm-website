@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { ServicePricing } from "@/lib/types";
+import { trackEvent } from "@/lib/analytics";
 
 interface QuoteFormProps {
   services: ServicePricing[];
@@ -96,6 +97,13 @@ export default function QuoteForm({ services }: QuoteFormProps) {
 
       setResult(data.quote);
       setStep("confirmation");
+      trackEvent("generate_lead", {
+        currency: "USD",
+        value: data.quote.estimated_amount,
+        service: selectedService.display_name,
+        source: "form",
+        quote_number: data.quote.quote_number,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {

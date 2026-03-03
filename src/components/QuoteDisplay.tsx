@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import DateTimePicker from "./DateTimePicker";
+import { trackEvent } from "@/lib/analytics";
 
 interface QuoteData {
   id: string;
@@ -68,6 +69,12 @@ export default function QuoteDisplay({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setPhase("schedule");
+      trackEvent("begin_checkout", {
+        currency: "USD",
+        value: quote.pricing_breakdown.total,
+        service: quote.service_display_name,
+        quote_number: quote.quote_number,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to accept quote");
     } finally {
@@ -92,6 +99,12 @@ export default function QuoteDisplay({
       if (!res.ok) throw new Error(data.error);
       setBookingData(data.booking);
       setPhase("confirmed");
+      trackEvent("purchase", {
+        currency: "USD",
+        value: quote.pricing_breakdown.total,
+        transaction_id: data.booking.booking_number,
+        service: quote.service_display_name,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create booking");
     } finally {

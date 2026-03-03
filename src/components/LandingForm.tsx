@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { PHONE_OFFICE, PHONE_OFFICE_TEL } from "@/lib/constants";
+import { trackEvent } from "@/lib/analytics";
 
 type FormState = "idle" | "submitting" | "success" | "error";
 
@@ -69,6 +70,13 @@ export default function LandingForm({
       const result = await res.json();
       setQuoteNumber(result.quote_number || "");
       setState("success");
+      trackEvent("generate_lead", {
+        currency: "USD",
+        value: result.estimated_amount,
+        service: serviceKey,
+        source: "landing_page",
+        quote_number: result.quote_number,
+      });
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setState("error");
