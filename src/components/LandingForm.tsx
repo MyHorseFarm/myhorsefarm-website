@@ -68,14 +68,15 @@ export default function LandingForm({
       }
 
       const result = await res.json();
-      setQuoteNumber(result.quote_number || "");
+      const quote = result.quote;
+      setQuoteNumber(quote?.quote_number || "");
       setState("success");
       trackEvent("generate_lead", {
         currency: "USD",
-        value: result.estimated_amount,
+        value: quote?.estimated_amount,
         service: serviceKey,
         source: "landing_page",
-        quote_number: result.quote_number,
+        quote_number: quote?.quote_number,
       });
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong. Please try again.");
