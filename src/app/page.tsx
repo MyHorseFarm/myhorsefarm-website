@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import Hero from "@/components/Hero";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -455,11 +454,6 @@ export default function HomePage() {
       <SchemaMarkup schema={faqPageSchema} />
       <SchemaMarkup schema={webSiteSchema} />
 
-      {/* HubSpot Meetings Embed */}
-      <Script
-        src="https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js"
-        strategy="afterInteractive"
-      />
     </>
   );
 }

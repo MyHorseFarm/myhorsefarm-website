@@ -3,7 +3,7 @@ import Link from "next/link";
 import Hero from "@/components/Hero";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { NAV_LINKS_SERVICE } from "@/lib/constants";
+
 
 export const metadata: Metadata = {
   title: "Blog – My Horse Farm",

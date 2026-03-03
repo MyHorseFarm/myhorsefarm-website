@@ -91,8 +91,6 @@ export async function processChat(
 
   return new ReadableStream({
     async start(controller) {
-      let lastError: unknown;
-
       for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
         // Use fallback model on final retry
         const model = attempt === MAX_RETRIES ? FALLBACK_MODEL : PRIMARY_MODEL;
@@ -100,7 +98,7 @@ export async function processChat(
         try {
           let fullAssistantText = "";
           let continueLoop = true;
-          let currentMessages = [...claudeMessages];
+          const currentMessages = [...claudeMessages];
           let toolLoopCount = 0;
           let hadTextInPreviousIteration = false;
 
@@ -244,7 +242,6 @@ export async function processChat(
           controller.close();
           return; // Success — exit retry loop
         } catch (err) {
-          lastError = err;
           const errMsg = err instanceof Error ? err.message : String(err);
           console.error(`Chat stream error (attempt ${attempt + 1}/${MAX_RETRIES + 1}, model=${model}):`, errMsg);
 

@@ -1,5 +1,4 @@
 export const SITE_NAME = "My Horse Farm";
-export const SITE_URL = "https://www.myhorsefarm.com";
 export const PHONE_OFFICE = "(561) 576-7667";
 export const PHONE_OFFICE_TEL = "+15615767667";
 export const PHONE_CELL = "(561) 889-9016";
@@ -20,8 +19,6 @@ export const GTM_ID = "GTM-TWDPWRQV";
 
 export const HUBSPOT_PORTAL_ID = "243452157";
 export const HUBSPOT_FORM_ID = "2980030d-1b91-4afd-af28-9fb1445cf00d";
-export const HUBSPOT_MEETING_URL =
-  "https://meetings-na2.hubspot.com/manureservice/book-a-service?embed=true";
 
 export const NAV_LINKS_HOME = [
   { label: "Get a Quote", href: "/quote" },
