@@ -37,7 +37,7 @@ export interface Quote {
   estimated_amount: number;
   pricing_breakdown: PricingBreakdown;
   requires_site_visit: boolean;
-  source: "form" | "chatbot";
+  source: "form" | "chatbot" | "landing_page";
   chat_session_id: string | null;
   hubspot_contact_id: string | null;
   hubspot_deal_id: string | null;
@@ -109,7 +109,7 @@ export interface QuoteRequest {
   customer_phone: string;
   customer_location: string;
   property_details: Record<string, unknown>;
-  source?: "form" | "chatbot";
+  source?: "form" | "chatbot" | "landing_page";
   chat_session_id?: string;
 }
 

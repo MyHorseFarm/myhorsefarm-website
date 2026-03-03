@@ -39,7 +39,8 @@ export default function LpJunkWestPalmBeach() {
       <main>
         <section className="flex flex-wrap gap-10 max-w-[1100px] mx-auto py-12 px-5 max-md:flex-col max-md:py-8 max-md:px-4">
           <LandingForm
-            formSubject="New Lead: Junk Removal - West Palm Beach"
+            serviceKey="junk_removal"
+            locationKey="west_palm_beach"
             selectLabel="What Do You Need Removed? *"
             selectOptions={JUNK_OPTIONS}
             addressPlaceholder="Property Address in West Palm Beach *"

@@ -37,7 +37,8 @@ export default function LpManureWellington() {
       <main>
         <section className="flex flex-wrap gap-10 max-w-[1100px] mx-auto py-12 px-5 max-md:flex-col max-md:py-8 max-md:px-4">
           <LandingForm
-            formSubject="New Lead: Manure Removal - Wellington"
+            serviceKey="manure_removal"
+            locationKey="wellington"
             selectLabel="Select Service Needed *"
             selectOptions={MANURE_OPTIONS}
             addressPlaceholder="Property Address in Wellington *"

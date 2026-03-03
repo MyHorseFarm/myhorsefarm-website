@@ -37,7 +37,8 @@ export default function LpManureWestPalmBeach() {
       <main>
         <section className="flex flex-wrap gap-10 max-w-[1100px] mx-auto py-12 px-5 max-md:flex-col max-md:py-8 max-md:px-4">
           <LandingForm
-            formSubject="New Lead: Manure Removal - West Palm Beach"
+            serviceKey="manure_removal"
+            locationKey="west_palm_beach"
             selectLabel="Select Service Needed *"
             selectOptions={MANURE_OPTIONS}
             addressPlaceholder="Property Address in West Palm Beach *"
