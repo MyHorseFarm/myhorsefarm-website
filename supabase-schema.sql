@@ -110,6 +110,43 @@ create table chat_sessions (
 );
 
 -- ---------------------------------------------------------------------------
+-- recurring_customers
+-- ---------------------------------------------------------------------------
+create table recurring_customers (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  email text,
+  phone text,
+  address text,
+  square_customer_id text,
+  default_bin_rate numeric(10,2) not null default 25.00,
+  notes text,
+  active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------------------------
+-- service_logs
+-- ---------------------------------------------------------------------------
+create table service_logs (
+  id uuid primary key default uuid_generate_v4(),
+  customer_id uuid not null references recurring_customers(id),
+  crew_member text not null default 'field',
+  service_date date not null default current_date,
+  bins_collected integer not null default 0,
+  bin_rate numeric(10,2) not null,
+  total_amount numeric(10,2) not null,
+  notes text,
+  status text not null default 'pending'
+    check (status in ('pending','approved','charged','failed')),
+  square_payment_id text,
+  approved_by text,
+  approved_at timestamptz,
+  charged_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------------------------
 -- RLS: Deny all public access (service_role key bypasses RLS)
 -- ---------------------------------------------------------------------------
 alter table service_pricing enable row level security;
@@ -117,6 +154,8 @@ alter table schedule_settings enable row level security;
 alter table quotes enable row level security;
 alter table bookings enable row level security;
 alter table chat_sessions enable row level security;
+alter table recurring_customers enable row level security;
+alter table service_logs enable row level security;
 
 -- No RLS policies = no public access. service_role key bypasses RLS.
 
@@ -130,3 +169,7 @@ create index idx_bookings_date on bookings(scheduled_date);
 create index idx_bookings_location on bookings(customer_location);
 create index idx_bookings_status on bookings(status);
 create index idx_chat_sessions_status on chat_sessions(status);
+create index idx_recurring_customers_active on recurring_customers(active);
+create index idx_service_logs_customer on service_logs(customer_id);
+create index idx_service_logs_status on service_logs(status);
+create index idx_service_logs_date on service_logs(service_date);

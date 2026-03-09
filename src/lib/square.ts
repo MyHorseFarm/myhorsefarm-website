@@ -1,4 +1,4 @@
-import { createHmac } from "crypto";
+import { createHmac, randomUUID } from "crypto";
 import { SquareClient, SquareEnvironment } from "square";
 
 // ---------------------------------------------------------------------------
@@ -143,5 +143,79 @@ export async function getRefundDetails(
     currency: refund.amountMoney?.currency ?? "USD",
     reason: refund.reason ?? null,
     createdAt: refund.createdAt ?? new Date().toISOString(),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Card on file — list stored cards for a customer
+// ---------------------------------------------------------------------------
+
+export interface StoredCard {
+  id: string;
+  cardBrand: string | null;
+  last4: string | null;
+  expMonth: number | null;
+  expYear: number | null;
+}
+
+export async function listCustomerCards(
+  customerId: string,
+): Promise<StoredCard[]> {
+  const page = await client.cards.list({ customerId });
+  const cards = page.data ?? [];
+
+  return cards
+    .filter((c) => c.enabled)
+    .map((c) => ({
+      id: c.id ?? "",
+      cardBrand: c.cardBrand ?? null,
+      last4: c.last4 ?? null,
+      expMonth: c.expMonth ? Number(c.expMonth) : null,
+      expYear: c.expYear ? Number(c.expYear) : null,
+    }));
+}
+
+// ---------------------------------------------------------------------------
+// Card on file — charge a customer's stored card
+// ---------------------------------------------------------------------------
+
+export interface ChargeResult {
+  paymentId: string;
+  status: string;
+  receiptUrl: string | null;
+}
+
+export async function chargeCard(
+  customerId: string,
+  amountCents: number,
+  note: string,
+  idempotencyKey?: string,
+  cardId?: string,
+): Promise<ChargeResult> {
+  // If no card ID provided, use the customer's first card on file
+  let sourceId = cardId;
+  if (!sourceId) {
+    const cards = await listCustomerCards(customerId);
+    if (cards.length === 0) {
+      throw new Error(`No cards on file for customer ${customerId}`);
+    }
+    sourceId = cards[0].id;
+  }
+
+  const { payment } = await client.payments.create({
+    sourceId,
+    customerId,
+    amountMoney: { amount: BigInt(amountCents), currency: "USD" },
+    note,
+    autocomplete: true,
+    idempotencyKey: idempotencyKey ?? randomUUID(),
+  });
+
+  if (!payment) throw new Error("Square payment creation returned no payment");
+
+  return {
+    paymentId: payment.id ?? "",
+    status: payment.status ?? "UNKNOWN",
+    receiptUrl: payment.receiptUrl ?? null,
   };
 }
