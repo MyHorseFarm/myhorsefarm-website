@@ -161,7 +161,7 @@ export interface StoredCard {
 export async function listCustomerCards(
   customerId: string,
 ): Promise<StoredCard[]> {
-  const page = await client.cards.list({ customerId });
+  const page = await client.cards.list({ customerId, sortOrder: "DESC" });
   const cards = page.data ?? [];
 
   return cards
