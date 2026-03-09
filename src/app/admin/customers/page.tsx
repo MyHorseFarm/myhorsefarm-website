@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { getAdminToken, setAdminToken, adminHeaders } from "@/lib/admin-auth";
 
 interface Customer {
   id: string;
@@ -39,14 +40,14 @@ export default function CustomersPage() {
   const [error, setError] = useState("");
 
   const headers = useCallback(
-    () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token}` }),
+    () => adminHeaders(token || undefined),
     [token],
   );
 
-  const fetchCustomers = useCallback(async () => {
+  const fetchCustomers = useCallback(async (authToken?: string) => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/customers", { headers: headers() });
+      const res = await fetch("/api/admin/customers", { headers: adminHeaders(authToken || token || undefined) });
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       setCustomers(data.customers);
@@ -56,12 +57,22 @@ export default function CustomersPage() {
     } finally {
       setLoading(false);
     }
-  }, [headers]);
+  }, [token]);
+
+  // Auto-login from session on mount
+  useEffect(() => {
+    const saved = getAdminToken();
+    if (saved) {
+      setToken(saved);
+      fetchCustomers(saved);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    await fetchCustomers();
+    setAdminToken(token);
+    await fetchCustomers(token);
   };
 
   const openNew = () => {
@@ -296,7 +307,7 @@ export default function CustomersPage() {
                   <tr key={c.id} className={`border-t ${!c.active ? "opacity-50" : ""}`}>
                     <td className="px-4 py-3 font-medium">{c.name}</td>
                     <td className="px-4 py-3 text-gray-600 hidden md:table-cell">
-                      {c.address || "—"}
+                      {c.address || "\u2014"}
                     </td>
                     <td className="px-4 py-3">${Number(c.default_bin_rate).toFixed(2)}</td>
                     <td className="px-4 py-3 hidden md:table-cell">

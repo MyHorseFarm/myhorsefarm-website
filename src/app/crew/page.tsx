@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getCrewPin, setCrewPin, crewHeaders } from "@/lib/admin-auth";
 
 interface Customer {
   id: string;
@@ -21,30 +22,38 @@ export default function CrewPage() {
   const [success, setSuccess] = useState<{ name: string; amount: number } | null>(null);
   const [error, setError] = useState("");
 
-  // Store PIN in session
-  const storedPin = () => (typeof window !== "undefined" ? sessionStorage.getItem("crew_pin") || pin : pin);
+  const fetchCustomers = async (crewPinValue: string) => {
+    try {
+      const res = await fetch("/api/crew/customers", {
+        headers: crewHeaders(crewPinValue),
+      });
+      if (!res.ok) return false;
+      const data = await res.json();
+      setCustomers(data.customers);
+      setAuthed(true);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  // Auto-login from session on mount
+  useEffect(() => {
+    const saved = getCrewPin();
+    if (saved) {
+      setPin(saved);
+      fetchCustomers(saved);
+    }
+  }, []);
 
   const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    // Verify PIN by fetching customers
-    try {
-      const res = await fetch("/api/crew/customers", {
-        headers: { "x-crew-pin": pin },
-      });
-      if (!res.ok) {
-        setError("Invalid PIN");
-        return;
-      }
-      const data = await res.json();
-      setCustomers(data.customers);
-      setAuthed(true);
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("crew_pin", pin);
-      }
-    } catch {
-      setError("Connection error");
+    const ok = await fetchCustomers(pin);
+    if (ok) {
+      setCrewPin(pin);
+    } else {
+      setError("Invalid PIN");
     }
   };
 
@@ -56,10 +65,7 @@ export default function CrewPage() {
     try {
       const res = await fetch("/api/crew/log", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-crew-pin": storedPin(),
-        },
+        headers: crewHeaders(),
         body: JSON.stringify({
           customer_id: selectedCustomer,
           bins_collected: bins,
@@ -162,7 +168,7 @@ export default function CrewPage() {
               <option value="">Select customer...</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.name} {c.address ? `— ${c.address}` : ""}
+                  {c.name} {c.address ? `\u2014 ${c.address}` : ""}
                 </option>
               ))}
             </select>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { getAdminToken, setAdminToken, adminHeaders } from "@/lib/admin-auth";
 
 interface ServiceLog {
   id: string;
@@ -34,17 +35,17 @@ export default function DailyDashboardPage() {
   const [editAmounts, setEditAmounts] = useState<Record<string, string>>({});
 
   const headers = useCallback(
-    () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token}` }),
+    () => adminHeaders(token || undefined),
     [token],
   );
 
   const fetchLogs = useCallback(
-    async (forDate?: string) => {
+    async (forDate?: string, authToken?: string) => {
       setLoading(true);
       setError("");
       try {
         const d = forDate || date;
-        const res = await fetch(`/api/admin/daily?date=${d}`, { headers: headers() });
+        const res = await fetch(`/api/admin/daily?date=${d}`, { headers: adminHeaders(authToken || token || undefined) });
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
         setLogs(data.logs);
@@ -55,13 +56,23 @@ export default function DailyDashboardPage() {
         setLoading(false);
       }
     },
-    [date, headers],
+    [date, token],
   );
+
+  // Auto-login from session on mount
+  useEffect(() => {
+    const saved = getAdminToken();
+    if (saved) {
+      setToken(saved);
+      fetchLogs(undefined, saved);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    await fetchLogs();
+    setAdminToken(token);
+    await fetchLogs(undefined, token);
   };
 
   const handleDateChange = (newDate: string) => {
