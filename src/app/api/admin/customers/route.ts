@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { requireAdmin } from "@/lib/api-auth";
 
 export const runtime = "nodejs";
 
-function checkAuth(request: NextRequest): boolean {
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${process.env.ADMIN_SECRET}`;
-}
-
 export async function GET(request: NextRequest) {
-  if (!checkAuth(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authError = requireAdmin(request);
+  if (authError) return authError;
 
   const activeOnly = request.nextUrl.searchParams.get("active") === "true";
 
@@ -34,9 +29,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!checkAuth(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const postAuthError = requireAdmin(request);
+  if (postAuthError) return postAuthError;
 
   const body = await request.json();
 
@@ -67,9 +61,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  if (!checkAuth(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const putAuthError = requireAdmin(request);
+  if (putAuthError) return putAuthError;
 
   const body = await request.json();
 

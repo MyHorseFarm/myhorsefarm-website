@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { getAdminToken, setAdminToken, adminHeaders } from "@/lib/admin-auth";
+import { getAdminToken, setAdminToken, clearAdminSession, adminHeaders } from "@/lib/admin-auth";
 
 interface Customer {
   id: string;
@@ -71,8 +71,30 @@ export default function CustomersPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setAdminToken(token);
-    await fetchCustomers(token);
+    try {
+      const res = await fetch("/api/admin/customers", { headers: adminHeaders(token) });
+      if (res.status === 429) {
+        setError("Too many failed attempts. Try again later.");
+        return;
+      }
+      if (!res.ok) {
+        setError("Invalid token");
+        return;
+      }
+      const data = await res.json();
+      setCustomers(data.customers);
+      setAuthed(true);
+      setAdminToken(token);
+    } catch {
+      setError("Login failed");
+    }
+  };
+
+  const handleLogout = () => {
+    clearAdminSession();
+    setAuthed(false);
+    setToken("");
+    setCustomers([]);
   };
 
   const openNew = () => {
@@ -161,7 +183,7 @@ export default function CustomersPage() {
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">Recurring Customers</h1>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <a href="/admin/daily" className="text-sm text-green-800 underline">
               Daily Dashboard
             </a>
@@ -170,6 +192,12 @@ export default function CustomersPage() {
               className="bg-green-800 text-white px-4 py-2 rounded text-sm font-semibold hover:bg-green-700"
             >
               + Add Customer
+            </button>
+            <button
+              onClick={handleLogout}
+              className="text-sm text-gray-500 hover:text-red-600 px-3 py-2 border rounded"
+            >
+              Sign Out
             </button>
           </div>
         </div>

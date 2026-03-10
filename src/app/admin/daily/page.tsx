@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { getAdminToken, setAdminToken, adminHeaders } from "@/lib/admin-auth";
+import { getAdminToken, setAdminToken, clearAdminSession, adminHeaders } from "@/lib/admin-auth";
 
 interface ServiceLog {
   id: string;
@@ -71,8 +71,30 @@ export default function DailyDashboardPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setAdminToken(token);
-    await fetchLogs(undefined, token);
+    try {
+      const res = await fetch(`/api/admin/daily?date=${date}`, { headers: adminHeaders(token) });
+      if (res.status === 429) {
+        setError("Too many failed attempts. Try again later.");
+        return;
+      }
+      if (!res.ok) {
+        setError("Invalid token");
+        return;
+      }
+      const data = await res.json();
+      setLogs(data.logs);
+      setAuthed(true);
+      setAdminToken(token);
+    } catch {
+      setError("Login failed");
+    }
+  };
+
+  const handleLogout = () => {
+    clearAdminSession();
+    setAuthed(false);
+    setToken("");
+    setLogs([]);
   };
 
   const handleDateChange = (newDate: string) => {
@@ -153,12 +175,20 @@ export default function DailyDashboardPage() {
               </a>
             </div>
           </div>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => handleDateChange(e.target.value)}
-            className="border rounded px-3 py-2"
-          />
+          <div className="flex items-center gap-3">
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => handleDateChange(e.target.value)}
+              className="border rounded px-3 py-2"
+            />
+            <button
+              onClick={handleLogout}
+              className="text-sm text-gray-500 hover:text-red-600 px-3 py-2 border rounded"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
 
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}

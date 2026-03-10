@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getCrewPin, setCrewPin, crewHeaders } from "@/lib/admin-auth";
+import { getCrewPin, setCrewPin, clearCrewSession, crewHeaders } from "@/lib/admin-auth";
 
 interface Customer {
   id: string;
@@ -49,12 +49,28 @@ export default function CrewPage() {
   const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    const ok = await fetchCustomers(pin);
-    if (ok) {
-      setCrewPin(pin);
-    } else {
-      setError("Invalid PIN");
+    const res = await fetch("/api/crew/customers", {
+      headers: crewHeaders(pin),
+    });
+    if (res.status === 429) {
+      setError("Too many failed attempts. Try again later.");
+      return;
     }
+    if (!res.ok) {
+      setError("Invalid PIN");
+      return;
+    }
+    const data = await res.json();
+    setCustomers(data.customers);
+    setAuthed(true);
+    setCrewPin(pin);
+  };
+
+  const handleLogout = () => {
+    clearCrewSession();
+    setAuthed(false);
+    setPin("");
+    setCustomers([]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -149,8 +165,14 @@ export default function CrewPage() {
   return (
     <div className="min-h-screen bg-green-900 p-4">
       <div className="max-w-sm mx-auto">
-        <div className="text-center mb-6 pt-4">
+        <div className="flex items-center justify-between mb-6 pt-4">
           <h1 className="text-xl font-bold text-white">Log Pickup</h1>
+          <button
+            onClick={handleLogout}
+            className="text-sm text-green-200 hover:text-white px-3 py-1 border border-green-200/30 rounded"
+          >
+            Sign Out
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-6 space-y-5">

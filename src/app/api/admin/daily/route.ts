@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { requireAdmin } from "@/lib/api-auth";
 
 export const runtime = "nodejs";
 
-function checkAuth(request: NextRequest): boolean {
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${process.env.ADMIN_SECRET}`;
-}
-
 export async function GET(request: NextRequest) {
-  if (!checkAuth(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authError = requireAdmin(request);
+  if (authError) return authError;
 
   const date = request.nextUrl.searchParams.get("date") || new Date().toISOString().split("T")[0];
 

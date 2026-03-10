@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { requireCrew } from "@/lib/api-auth";
 
 export const runtime = "nodejs";
 
-function checkPin(request: NextRequest): boolean {
-  const pin = request.headers.get("x-crew-pin");
-  return !!pin && pin === process.env.CREW_PIN;
-}
-
 export async function GET(request: NextRequest) {
-  if (!checkPin(request)) {
-    return NextResponse.json({ error: "Invalid PIN" }, { status: 401 });
-  }
+  const authError = requireCrew(request);
+  if (authError) return authError;
 
   const { data, error } = await supabase
     .from("recurring_customers")

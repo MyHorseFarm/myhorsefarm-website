@@ -34,3 +34,13 @@ export function crewHeaders(pin?: string): Record<string, string> {
     "x-crew-pin": pin || getCrewPin(),
   };
 }
+
+export function clearAdminSession(): void {
+  if (typeof window === "undefined") return;
+  sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+}
+
+export function clearCrewSession(): void {
+  if (typeof window === "undefined") return;
+  sessionStorage.removeItem(CREW_PIN_KEY);
+}
