@@ -121,6 +121,7 @@ create table recurring_customers (
   square_customer_id text,
   default_bin_rate numeric(10,2) not null default 25.00,
   notes text,
+  signature_data text,
   active boolean not null default true,
   created_at timestamptz not null default now()
 );

@@ -161,9 +161,17 @@ export default function CustomersPage() {
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">Recurring Customers</h1>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <a href="/admin/daily" className="text-sm text-green-800 underline">
               Daily Dashboard
+            </a>
+            <a
+              href="/enroll"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="border border-green-800 text-green-800 px-4 py-2 rounded text-sm font-semibold hover:bg-green-50"
+            >
+              Enroll Customer
             </a>
             <button
               onClick={openNew}

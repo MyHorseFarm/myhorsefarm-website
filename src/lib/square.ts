@@ -176,6 +176,64 @@ export async function listCustomerCards(
 }
 
 // ---------------------------------------------------------------------------
+// Create a new Square customer
+// ---------------------------------------------------------------------------
+
+export interface CreateCustomerResult {
+  customerId: string;
+}
+
+export async function createSquareCustomer(
+  givenName: string,
+  familyName: string,
+  email?: string,
+  phone?: string,
+  note?: string,
+): Promise<CreateCustomerResult> {
+  const { customer } = await client.customers.create({
+    givenName,
+    familyName,
+    emailAddress: email || undefined,
+    phoneNumber: phone || undefined,
+    note: note || undefined,
+    idempotencyKey: randomUUID(),
+  });
+  if (!customer?.id) throw new Error("Square customer creation returned no customer");
+  return { customerId: customer.id };
+}
+
+// ---------------------------------------------------------------------------
+// Save a card on file for a customer (from Web Payments SDK nonce)
+// ---------------------------------------------------------------------------
+
+export interface SaveCardResult {
+  cardId: string;
+  last4: string | null;
+  cardBrand: string | null;
+}
+
+export async function saveCardOnFile(
+  nonce: string,
+  customerId: string,
+  cardholderName?: string,
+): Promise<SaveCardResult> {
+  const { card } = await client.cards.create({
+    sourceId: nonce,
+    card: {
+      customerId,
+      cardholderName: cardholderName || undefined,
+    },
+    idempotencyKey: randomUUID(),
+  });
+  if (!card?.id) throw new Error("Square card creation returned no card");
+  return {
+    cardId: card.id,
+    last4: card.last4 ?? null,
+    cardBrand: card.cardBrand ?? null,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Card on file — charge a customer's stored card
 // ---------------------------------------------------------------------------
 
