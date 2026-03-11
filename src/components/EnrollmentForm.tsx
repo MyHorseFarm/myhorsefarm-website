@@ -38,6 +38,8 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [hasDifferentBilling, setHasDifferentBilling] = useState(false);
+  const [billingAddress, setBillingAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [authorized, setAuthorized] = useState(false);
 
@@ -221,6 +223,7 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
           email: email || undefined,
           phone: phone || undefined,
           address: address || undefined,
+          billingAddress: hasDifferentBilling && billingAddress ? billingAddress : undefined,
           notes: notes || undefined,
           nonce,
           signatureData,
@@ -325,6 +328,31 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-green-800 focus:border-green-800 outline-none"
             />
           </div>
+          <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={hasDifferentBilling}
+              onChange={(e) => {
+                setHasDifferentBilling(e.target.checked);
+                if (!e.target.checked) setBillingAddress("");
+              }}
+              className="w-4 h-4 accent-green-800"
+            />
+            Billing address is different from service address
+          </label>
+          {hasDifferentBilling && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Billing Address
+              </label>
+              <input
+                type="text"
+                value={billingAddress}
+                onChange={(e) => setBillingAddress(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-green-800 focus:border-green-800 outline-none"
+              />
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Notes

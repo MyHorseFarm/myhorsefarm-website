@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, email, phone, address, notes, nonce, signatureData } = body;
+    const { name, email, phone, address, billingAddress, notes, nonce, signatureData } = body;
 
     if (!name || !nonce) {
       return NextResponse.json(
@@ -19,13 +19,18 @@ export async function POST(req: Request) {
     const givenName = parts[0];
     const familyName = parts.length > 1 ? parts.slice(1).join(" ") : "";
 
+    // Build note for Square (include billing address if different)
+    const squareNote = [notes, billingAddress ? `Billing: ${billingAddress}` : ""]
+      .filter(Boolean)
+      .join(" | ") || undefined;
+
     // 1. Create customer in Square
     const { customerId } = await createSquareCustomer(
       givenName,
       familyName,
       email || undefined,
       phone || undefined,
-      notes || undefined,
+      squareNote,
     );
 
     // 2. Save card on file using the nonce from Web Payments SDK
@@ -40,7 +45,9 @@ export async function POST(req: Request) {
         phone: phone || null,
         address: address || null,
         square_customer_id: customerId,
-        notes: notes || null,
+        notes: [notes, billingAddress ? `Billing address: ${billingAddress}` : ""]
+          .filter(Boolean)
+          .join(" | ") || null,
         signature_data: signatureData || null,
         active: true,
       });
