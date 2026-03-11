@@ -695,6 +695,83 @@ ${header("Chat Handoff", "A customer needs personal attention")}
   };
 }
 
+// ---------------------------------------------------------------------------
+// Enrollment Confirmation Email (to customer)
+// ---------------------------------------------------------------------------
+
+export function enrollmentConfirmationEmail(
+  firstname: string,
+  cardBrand: string,
+  last4: string,
+  address: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+
+  return {
+    subject: "Welcome to My Horse Farm — You're Enrolled!",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Welcome to My Horse Farm", "You're enrolled!")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">You're all set! Your enrollment with My Horse Farm is complete. Here's a summary:</p>
+<div style="background-color:#f9f7f2;padding:20px;border-radius:8px;margin:20px 0;">
+<table style="width:100%;border-collapse:collapse;">
+<tr><td style="padding:10px 0;font-size:14px;color:#666;width:140px;">Card on File</td><td style="padding:10px 0;font-size:15px;font-weight:bold;">${escapeHtml(cardBrand)} ending in ${escapeHtml(last4)}</td></tr>
+${address ? `<tr><td style="padding:10px 0;font-size:14px;color:#666;">Service Address</td><td style="padding:10px 0;font-size:15px;">${escapeHtml(address)}</td></tr>` : ""}
+</table>
+</div>
+<h3 style="color:#2d5016;margin:25px 0 10px;">What Happens Next</h3>
+<ol style="font-size:15px;line-height:2.0;color:#555;">
+<li>We'll schedule your first service and confirm the details with you</li>
+<li>Our crew will arrive at your property on the scheduled day</li>
+<li>Your card on file will be charged after each service is completed</li>
+</ol>
+<p style="font-size:16px;line-height:1.6;">No surprises — you'll always know the amount before we charge your card.</p>
+<p style="font-size:16px;line-height:1.6;">Questions? Call us anytime at <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a>.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Enrollment Notification Email (internal – to Jose)
+// ---------------------------------------------------------------------------
+
+export function enrollmentNotificationEmail(
+  customerName: string,
+  customerEmail: string,
+  customerPhone: string,
+  address: string,
+  billingAddress: string,
+  cardBrand: string,
+  last4: string,
+): EmailTemplate {
+  return {
+    subject: `New Customer Enrolled: ${escapeHtml(customerName)}`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("New Customer Enrolled")}
+<div style="padding:30px 20px;">
+<div style="background-color:#f9f7f2;padding:20px;border-radius:8px;margin:0 0 20px;">
+<table style="width:100%;border-collapse:collapse;">
+<tr><td style="padding:8px 0;font-size:14px;color:#666;width:130px;">Name</td><td style="padding:8px 0;font-size:15px;font-weight:bold;">${escapeHtml(customerName)}</td></tr>
+<tr><td style="padding:8px 0;font-size:14px;color:#666;">Email</td><td style="padding:8px 0;font-size:15px;">${escapeHtml(customerEmail || "Not provided")}</td></tr>
+<tr><td style="padding:8px 0;font-size:14px;color:#666;">Phone</td><td style="padding:8px 0;font-size:15px;">${escapeHtml(customerPhone || "Not provided")}</td></tr>
+<tr><td style="padding:8px 0;font-size:14px;color:#666;">Service Address</td><td style="padding:8px 0;font-size:15px;">${escapeHtml(address || "Not provided")}</td></tr>
+${billingAddress ? `<tr><td style="padding:8px 0;font-size:14px;color:#666;">Billing Address</td><td style="padding:8px 0;font-size:15px;">${escapeHtml(billingAddress)}</td></tr>` : ""}
+<tr><td style="padding:8px 0;font-size:14px;color:#666;">Card on File</td><td style="padding:8px 0;font-size:15px;">${escapeHtml(cardBrand)} ending in ${escapeHtml(last4)}</td></tr>
+</table>
+</div>
+</div></div>`,
+      "#",
+    ),
+  };
+}
+
 export function serviceUpsellEmail(
   firstname: string,
   suggestedServices: string[],
