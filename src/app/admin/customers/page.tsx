@@ -38,6 +38,8 @@ export default function CustomersPage() {
   const [form, setForm] = useState<FormData>(emptyForm);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState("");
 
   const headers = useCallback(
     () => adminHeaders(token || undefined),
@@ -118,6 +120,29 @@ export default function CustomersPage() {
     }
   };
 
+  const handleImportSquare = async () => {
+    setImporting(true);
+    setImportResult("");
+    setError("");
+    try {
+      const res = await fetch("/api/admin/customers", {
+        method: "PATCH",
+        headers: headers(),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Import failed");
+      }
+      const { imported, updated, skipped } = await res.json();
+      setImportResult(`Imported ${imported}, updated ${updated}, skipped ${skipped}`);
+      await fetchCustomers();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Import failed");
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const toggleActive = async (c: Customer) => {
     try {
       await fetch("/api/admin/customers", {
@@ -165,6 +190,13 @@ export default function CustomersPage() {
             <a href="/admin/daily" className="text-sm text-green-800 underline">
               Daily Dashboard
             </a>
+            <button
+              onClick={handleImportSquare}
+              disabled={importing}
+              className="border border-blue-700 text-blue-700 px-4 py-2 rounded text-sm font-semibold hover:bg-blue-50 disabled:opacity-50"
+            >
+              {importing ? "Importing..." : "Import from Square"}
+            </button>
             <a
               href="/enroll"
               target="_blank"
@@ -183,6 +215,9 @@ export default function CustomersPage() {
         </div>
 
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+        {importResult && (
+          <p className="text-blue-700 text-sm mb-4 bg-blue-50 px-3 py-2 rounded">{importResult}</p>
+        )}
 
         {/* Customer form modal */}
         {showForm && (

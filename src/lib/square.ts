@@ -234,6 +234,45 @@ export async function saveCardOnFile(
 }
 
 // ---------------------------------------------------------------------------
+// List all Square customers (paginated)
+// ---------------------------------------------------------------------------
+
+export interface SquareCustomerSummary {
+  id: string;
+  givenName: string | null;
+  familyName: string | null;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  note: string | null;
+}
+
+export async function listAllSquareCustomers(): Promise<SquareCustomerSummary[]> {
+  const all: SquareCustomerSummary[] = [];
+
+  for await (const c of await client.customers.list({ limit: 100 })) {
+    const addr = c.address;
+    const addressStr = addr
+      ? [addr.addressLine1, addr.addressLine2, addr.locality, addr.administrativeDistrictLevel1, addr.postalCode]
+          .filter(Boolean)
+          .join(", ")
+      : null;
+
+    all.push({
+      id: c.id ?? "",
+      givenName: c.givenName ?? null,
+      familyName: c.familyName ?? null,
+      email: c.emailAddress ?? null,
+      phone: c.phoneNumber ?? null,
+      address: addressStr || null,
+      note: c.note ?? null,
+    });
+  }
+
+  return all;
+}
+
+// ---------------------------------------------------------------------------
 // Card on file — charge a customer's stored card
 // ---------------------------------------------------------------------------
 
