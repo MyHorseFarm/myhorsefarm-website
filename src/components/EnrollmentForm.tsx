@@ -248,6 +248,24 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
 
   return (
     <div className="w-full max-w-lg mx-auto">
+      {/* Intro message */}
+      {step === "info" && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+          <h2 className="font-semibold text-green-900 mb-2">Set Up Recurring Service</h2>
+          <p className="text-sm text-green-800 leading-relaxed">
+            Complete this form to enroll in recurring pickup service. We&apos;ll securely
+            store your card on file through Square and only charge it after each
+            service is performed. You&apos;ll receive a receipt for every charge and can
+            cancel anytime by calling us.
+          </p>
+          <div className="mt-3 text-xs text-green-700 space-y-1">
+            <p><strong>Step 1:</strong> Enter your contact and service address</p>
+            <p><strong>Step 2:</strong> Securely add your payment card</p>
+            <p><strong>Step 3:</strong> Sign the authorization</p>
+          </div>
+        </div>
+      )}
+
       {/* Progress indicator */}
       {step !== "success" && (
         <div className="flex items-center justify-center gap-2 mb-8">
@@ -476,25 +494,57 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
 
       {/* Step 4: Success */}
       {step === "success" && (
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-            <svg className="w-8 h-8 text-green-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h2 className="text-xl font-bold text-gray-900">You&apos;re All Set!</h2>
-          <p className="text-gray-600">
-            Your account has been created and your card is securely on file.
-          </p>
-          {cardBrand && cardLast4 && (
-            <div className="inline-block bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
-              <p className="text-sm text-gray-500">Card on file</p>
-              <p className="font-semibold text-gray-900">
-                {cardBrand} ending in {cardLast4}
-              </p>
+        <div className="space-y-5">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <svg className="w-8 h-8 text-green-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
             </div>
-          )}
-          <p className="text-sm text-gray-500 mt-4">
+            <h2 className="text-xl font-bold text-gray-900">You&apos;re All Set!</h2>
+            <p className="text-gray-600 mt-1">
+              Your account has been created and your card is securely on file.
+            </p>
+          </div>
+
+          {/* Summary */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg divide-y divide-gray-200">
+            <div className="px-4 py-3">
+              <p className="text-xs text-gray-500 uppercase tracking-wide">Name</p>
+              <p className="font-medium text-gray-900">{name}</p>
+            </div>
+            {address && (
+              <div className="px-4 py-3">
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Service Address</p>
+                <p className="font-medium text-gray-900">{address}</p>
+              </div>
+            )}
+            {hasDifferentBilling && billingAddress && (
+              <div className="px-4 py-3">
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Billing Address</p>
+                <p className="font-medium text-gray-900">{billingAddress}</p>
+              </div>
+            )}
+            {cardBrand && cardLast4 && (
+              <div className="px-4 py-3">
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Card on File</p>
+                <p className="font-medium text-gray-900">{cardBrand} ending in {cardLast4}</p>
+              </div>
+            )}
+          </div>
+
+          {/* What happens next */}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <h3 className="font-semibold text-green-900 mb-2">What Happens Next</h3>
+            <ul className="text-sm text-green-800 space-y-1.5">
+              <li>We&apos;ll contact you to confirm your service schedule.</li>
+              <li>Your card is only charged after each service is performed.</li>
+              <li>You&apos;ll receive a receipt by email for every charge.</li>
+              <li>You can cancel or update your card anytime by calling us.</li>
+            </ul>
+          </div>
+
+          <p className="text-sm text-gray-500 text-center">
             Questions? Call us at{" "}
             <a href="tel:5615767667" className="text-green-800 underline">
               (561) 576-7667
