@@ -195,7 +195,7 @@ export default function CustomersPage() {
               disabled={importing}
               className="border border-blue-700 text-blue-700 px-4 py-2 rounded text-sm font-semibold hover:bg-blue-50 disabled:opacity-50"
             >
-              {importing ? "Importing..." : "Import from Square"}
+              {importing ? "Syncing..." : "Sync from Square"}
             </button>
             <a
               href="/enroll"

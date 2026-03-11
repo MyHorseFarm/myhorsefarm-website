@@ -79,11 +79,11 @@ export async function PATCH(request: NextRequest) {
     // 2. Load all existing recurring_customers
     const { data: existing, error: fetchErr } = await supabase
       .from("recurring_customers")
-      .select("id, email, square_customer_id");
+      .select("id, name, email, phone, address, square_customer_id");
     if (fetchErr) throw new Error(fetchErr.message);
 
-    const knownSquareIds = new Set(
-      (existing ?? []).filter((r) => r.square_customer_id).map((r) => r.square_customer_id),
+    const squareIdToRow = new Map(
+      (existing ?? []).filter((r) => r.square_customer_id).map((r) => [r.square_customer_id, r]),
     );
     const emailToRow = new Map(
       (existing ?? []).filter((r) => r.email).map((r) => [r.email!.toLowerCase(), r]),
@@ -94,29 +94,37 @@ export async function PATCH(request: NextRequest) {
     let skipped = 0;
 
     for (const sc of squareCustomers) {
-      // Already linked by Square ID → skip
-      if (knownSquareIds.has(sc.id)) {
-        skipped++;
+      const name = [sc.givenName, sc.familyName].filter(Boolean).join(" ") || "Unknown";
+
+      // Already linked by Square ID → sync fields
+      const linkedRow = squareIdToRow.get(sc.id);
+      if (linkedRow) {
+        const updates: Record<string, unknown> = {};
+        if (sc.email && sc.email !== linkedRow.email) updates.email = sc.email;
+        if (sc.phone && sc.phone !== linkedRow.phone) updates.phone = sc.phone;
+        if (sc.address && sc.address !== linkedRow.address) updates.address = sc.address;
+        if (name !== "Unknown" && name !== linkedRow.name) updates.name = name;
+
+        if (Object.keys(updates).length === 0) {
+          skipped++;
+        } else {
+          await supabase.from("recurring_customers").update(updates).eq("id", linkedRow.id);
+          updated++;
+        }
         continue;
       }
 
-      const name = [sc.givenName, sc.familyName].filter(Boolean).join(" ") || "Unknown";
-
-      // Email matches existing row missing Square ID → update
+      // Email matches existing row missing Square ID → link + sync
       if (sc.email) {
         const match = emailToRow.get(sc.email.toLowerCase());
         if (match) {
           const updates: Record<string, unknown> = { square_customer_id: sc.id };
-          if (!match.email && sc.email) updates.email = sc.email;
-          if (sc.phone) updates.phone = sc.phone;
-          if (sc.address) updates.address = sc.address;
+          if (sc.phone && sc.phone !== match.phone) updates.phone = sc.phone;
+          if (sc.address && sc.address !== match.address) updates.address = sc.address;
 
-          await supabase
-            .from("recurring_customers")
-            .update(updates)
-            .eq("id", match.id);
+          await supabase.from("recurring_customers").update(updates).eq("id", match.id);
           updated++;
-          knownSquareIds.add(sc.id);
+          squareIdToRow.set(sc.id, match);
           continue;
         }
       }
@@ -138,7 +146,7 @@ export async function PATCH(request: NextRequest) {
         continue;
       }
       imported++;
-      knownSquareIds.add(sc.id);
+      squareIdToRow.set(sc.id, { id: sc.id, name, email: sc.email, phone: sc.phone, address: sc.address, square_customer_id: sc.id });
     }
 
     return NextResponse.json({ imported, updated, skipped });
