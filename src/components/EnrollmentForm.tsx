@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 
 // Square Web Payments SDK types
 interface SquarePayments {
-  card: () => Promise<SquareCard>;
+  card: (options?: Record<string, unknown>) => Promise<SquareCard>;
 }
 interface SquareCard {
   attach: (selector: string) => Promise<void>;
@@ -65,13 +65,17 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
       // Load script if not present
       if (!window.Square) {
         await new Promise<void>((resolve, reject) => {
-          const existing = document.querySelector('script[src*="squareup.com"]');
+          const existing = document.querySelector('script[src*="squarecdn.com/v1/square.js"]');
           if (existing) {
+            if (window.Square) { resolve(); return; }
             existing.addEventListener("load", () => resolve());
             return;
           }
           const script = document.createElement("script");
-          script.src = "https://web.squareup.com/v1/square.js";
+          const isSandbox = squareAppId.startsWith("sandbox-");
+          script.src = isSandbox
+            ? "https://sandbox.web.squarecdn.com/v1/square.js"
+            : "https://web.squarecdn.com/v1/square.js";
           script.onload = () => resolve();
           script.onerror = () => reject(new Error("Failed to load Square SDK"));
           document.head.appendChild(script);
@@ -81,7 +85,7 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
       if (cancelled) return;
 
       const payments = await window.Square!.payments(squareAppId, squareLocationId);
-      const card = await payments.card();
+      const card = await payments.card({ includeInputLabels: true });
       if (cancelled) {
         card.destroy();
         return;
