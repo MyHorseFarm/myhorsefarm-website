@@ -1,13 +1,10 @@
 import Hero from "@/components/Hero";
-import Navbar from "@/components/Navbar";
-import { NAV_LINKS_LEGAL } from "@/lib/constants";
 import Link from "next/link";
 
 export default function NotFound() {
   return (
     <>
       <Hero title="Page Not Found" short />
-      <Navbar links={NAV_LINKS_LEGAL} />
       <main className="py-15 px-5 max-w-[1200px] mx-auto text-center min-h-[40vh] max-md:py-10 max-md:px-4">
         <h2 className="text-2xl max-md:text-xl">Oops! This page doesn&apos;t exist.</h2>
         <p>The page you&apos;re looking for may have been moved or no longer exists. Let&apos;s get you back on track.</p>

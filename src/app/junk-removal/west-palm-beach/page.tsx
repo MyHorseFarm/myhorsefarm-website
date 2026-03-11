@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import Hero from "@/components/Hero";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
-import { NAV_LINKS_SERVICE } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Junk Removal West Palm Beach | My Horse Farm",
@@ -42,7 +40,6 @@ export default function JunkRemovalWestPalmBeachPage() {
         ctaText="Get a Quote"
         ctaHref="/#contact"
       />
-      <Navbar links={NAV_LINKS_SERVICE} />
       <main>
         <section className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
           <h2 className="text-2xl max-md:text-xl">

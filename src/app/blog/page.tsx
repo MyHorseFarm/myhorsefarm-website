@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Hero from "@/components/Hero";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-
 
 export const metadata: Metadata = {
   title: "Blog – My Horse Farm",
@@ -27,15 +25,6 @@ export const metadata: Metadata = {
     images: ["https://www.myhorsefarm.com/logo.png"],
   },
 };
-
-const blogNavLinks = [
-  { label: "Services", href: "/#services" },
-  { label: "About", href: "/#about" },
-  { label: "Testimonials", href: "/#testimonials" },
-  { label: "Schedule", href: "/#calendar" },
-  { label: "Contact", href: "/#contact" },
-  { label: "Blog", href: "/blog" },
-];
 
 const posts = [
   {
@@ -101,7 +90,6 @@ export default function BlogPage() {
         ctaText="Contact Us"
         ctaHref="/#contact"
       />
-      <Navbar links={blogNavLinks} />
       <main className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
         <h2 className="text-2xl max-md:text-xl">Latest Posts</h2>
         {posts.map((post) => (

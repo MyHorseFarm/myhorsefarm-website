@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
 
@@ -25,14 +24,6 @@ export const metadata: Metadata = {
     locale: "en_US",
   },
 };
-
-const blogNavLinks = [
-  { label: "Services", href: "/#services" },
-  { label: "About", href: "/#about" },
-  { label: "Schedule", href: "/#calendar" },
-  { label: "Contact", href: "/#contact" },
-  { label: "Blog", href: "/blog" },
-];
 
 const schema = {
   "@context": "https://schema.org",
@@ -75,7 +66,6 @@ export default function SeasonReadyPost() {
           </p>
         </div>
       </header>
-      <Navbar links={blogNavLinks} />
       <main className="py-15 px-5 max-w-[800px] mx-auto max-md:py-10 max-md:px-4">
         <article className="prose-article">
           <p className="text-lg leading-relaxed text-gray-700 mb-6">

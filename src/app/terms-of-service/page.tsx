@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import Hero from "@/components/Hero";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { NAV_LINKS_LEGAL } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Terms of Service | My Horse Farm",
@@ -31,7 +29,6 @@ export default function TermsOfServicePage() {
   return (
     <>
       <Hero title="Terms of Service" short />
-      <Navbar links={NAV_LINKS_LEGAL} />
       <main className="py-15 px-5 max-w-[800px] mx-auto text-left max-md:py-10 max-md:px-4">
         <p><strong>Last Updated:</strong> February 25, 2026</p>
 

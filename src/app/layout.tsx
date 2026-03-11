@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import Navbar from "@/components/Navbar";
 import ChatWidget from "@/components/ChatWidget";
 import "./globals.css";
 
@@ -50,6 +51,7 @@ export default function RootLayout({
             style={{ display: "none", visibility: "hidden" }}
           />
         </noscript>
+        <Navbar />
         {children}
         <ChatWidget />
         <Script id="gtm" strategy="afterInteractive">

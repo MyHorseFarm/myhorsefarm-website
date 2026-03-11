@@ -20,61 +20,22 @@ export const GTM_ID = "GTM-TWDPWRQV";
 export const HUBSPOT_PORTAL_ID = "243452157";
 export const HUBSPOT_FORM_ID = "2980030d-1b91-4afd-af28-9fb1445cf00d";
 
-export const NAV_LINKS_HOME = [
-  { label: "Get a Quote", href: "/quote" },
-  { label: "About", href: "#about" },
-  { label: "Testimonials", href: "#testimonials" },
-  { label: "FAQ", href: "#faq" },
+export const NAV_LINKS = [
+  { label: "About", anchor: "about" },
+  { label: "Testimonials", anchor: "testimonials" },
+  { label: "FAQ", anchor: "faq" },
   { label: "Blog", href: "/blog" },
-  { label: "Schedule", href: "#calendar" },
-  { label: "Contact", href: "#contact" },
+  { label: "Contact", anchor: "contact" },
+];
+
+export const SERVICE_DROPDOWN = [
   { label: "Manure Removal", href: "/manure-removal" },
-  { label: "Manure Removal Wellington", href: "/manure-removal/wellington" },
-  { label: "Manure Removal Loxahatchee", href: "/manure-removal/loxahatchee" },
-  {
-    label: "Manure Removal West Palm Beach",
-    href: "/manure-removal/west-palm-beach",
-  },
+  { label: "Junk Removal", href: "/junk-removal" },
   { label: "Dumpster Rental", href: "/dumpster-rental" },
   { label: "Sod Installation", href: "/sod-installation" },
-  { label: "Junk Removal", href: "/junk-removal" },
-  {
-    label: "Junk Removal West Palm Beach",
-    href: "/junk-removal/west-palm-beach",
-  },
-  { label: "Junk Removal Wellington", href: "/junk-removal/wellington" },
-  { label: "Junk Removal Loxahatchee", href: "/junk-removal/loxahatchee" },
   { label: "Fill Dirt", href: "/fill-dirt" },
   { label: "Repairs & Maintenance", href: "/repairs" },
   { label: "Season-Ready Package", href: "/season-ready" },
-];
-
-export const NAV_LINKS_SERVICE = [
-  { label: "Services", href: "/#services" },
-  { label: "About", href: "/#about" },
-  { label: "Blog", href: "/blog" },
-  { label: "Schedule", href: "/#calendar" },
-  { label: "Contact", href: "/#contact" },
-];
-
-export const NAV_LINKS_LOCATION = [
-  { label: "About", href: "/#about" },
-  { label: "Blog", href: "/blog" },
-  { label: "Schedule", href: "/#calendar" },
-  { label: "Contact", href: "/#contact" },
-  { label: "Manure Removal", href: "/manure-removal" },
-  { label: "Junk Removal", href: "/junk-removal" },
-  { label: "Dumpster Rental", href: "/dumpster-rental" },
-  { label: "Sod Installation", href: "/sod-installation" },
-  { label: "Fill Dirt", href: "/fill-dirt" },
-  { label: "Repairs & Maintenance", href: "/repairs" },
-];
-
-export const NAV_LINKS_LEGAL = [
-  { label: "About", href: "/#about" },
-  { label: "Blog", href: "/blog" },
-  { label: "Schedule", href: "/#calendar" },
-  { label: "Contact", href: "/#contact" },
 ];
 
 export const TESTIMONIALS = [

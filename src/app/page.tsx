@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Hero from "@/components/Hero";
-import Navbar from "@/components/Navbar";
+
 import Footer from "@/components/Footer";
 import TrustBadges from "@/components/TrustBadges";
 import TestimonialsSection from "@/components/TestimonialsSection";
@@ -9,7 +9,7 @@ import ServiceCalendar from "@/components/ServiceCalendar";
 import HubSpotForm from "@/components/HubSpotForm";
 import SchemaMarkup from "@/components/SchemaMarkup";
 import {
-  NAV_LINKS_HOME,
+
   PHONE_OFFICE,
   PHONE_OFFICE_TEL,
   PHONE_CELL,
@@ -273,8 +273,6 @@ export default function HomePage() {
         ctaText="Get a Quote"
         ctaHref="/quote"
       />
-
-      <Navbar links={NAV_LINKS_HOME} />
 
       <main>
         {/* Metrics / Why Choose Us */}

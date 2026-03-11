@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Hero from "@/components/Hero";
-import Navbar from "@/components/Navbar";
+
 import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
 import TrustBadges from "@/components/TrustBadges";
 import {
-  NAV_LINKS_SERVICE,
+
   PHONE_OFFICE,
   PHONE_OFFICE_TEL,
 } from "@/lib/constants";
@@ -145,8 +145,6 @@ export default function SeasonReadyPage() {
         ctaHref="#quote"
         short={true}
       />
-
-      <Navbar links={NAV_LINKS_SERVICE} />
 
       <main>
         {/* Section 1: Stop Coordinating 5 Different Vendors */}

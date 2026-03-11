@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import QuoteDisplay from "@/components/QuoteDisplay";
-import { NAV_LINKS_SERVICE } from "@/lib/constants";
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 
@@ -57,7 +55,6 @@ export default async function QuoteDetailPage({
 
   return (
     <>
-      <Navbar links={NAV_LINKS_SERVICE} />
       <main className="pt-20 pb-15 px-5 max-md:px-4">
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-10">
