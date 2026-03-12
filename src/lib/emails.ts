@@ -131,7 +131,7 @@ ${header("Welcome to My Horse Farm")}
 </ul>
 <p style="font-size:16px;line-height:1.6;">We serve Wellington, Loxahatchee, Royal Palm Beach, West Palm Beach, and surrounding areas.</p>
 <div style="text-align:center;margin:30px 0;">
-<a href="https://www.myhorsefarm.com/#calendar" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Book a Free Estimate</a>
+<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a Free Quote</a>
 </div>
 <p style="font-size:16px;line-height:1.6;">Or call us directly at <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> \u2013 we typically respond within one business hour.</p>
 ${signoff()}
@@ -151,7 +151,7 @@ export function welcomeEmail2(
 ): EmailTemplate {
   const name = escapeHtml(firstname || "there");
   return {
-    subject: "What Wellington Farm Owners Say About My Horse Farm",
+    subject: "What Palm Beach County Farm Owners Say About Us",
     html: emailDoc(
       `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
 ${header("What Our Clients Say")}
@@ -174,7 +174,7 @@ ${header("What Our Clients Say")}
 </ul>
 <p style="font-size:15px;line-height:1.6;color:#555;">Want to learn more? Check out our <a href="https://www.myhorsefarm.com/blog/wellington-manure-hauler-permits" style="color:#2d5016;font-weight:bold;">Complete Guide to Wellington Manure Hauler Permits</a>.</p>
 <div style="text-align:center;margin:30px 0;">
-<a href="https://www.myhorsefarm.com/#calendar" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a Free Quote</a>
+<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get Your Free Quote</a>
 </div>
 ${signoff()}
 </div></div>`,
@@ -193,23 +193,29 @@ export function welcomeEmail3(
 ): EmailTemplate {
   const name = escapeHtml(firstname || "there");
   return {
-    subject: "Ready to Get Started? Book Your Free Estimate Today",
+    subject: "10% Off Your First Service \u2013 This Week Only",
     html: emailDoc(
       `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
-${header("Ready to Get Started?")}
+${header("Your 10% New Client Discount", "Limited time \u2013 book this week")}
 <div style="padding:30px 20px;">
 <p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
-<p style="font-size:16px;line-height:1.6;">Over the past week, we\u2019ve shared what My Horse Farm offers and what our clients think of our work. Now we\u2019d love to help <em>you</em>.</p>
-<p style="font-size:16px;line-height:1.6;">Here\u2019s how easy it is to get started:</p>
+<p style="font-size:16px;line-height:1.6;">Over the past week, we\u2019ve shared what My Horse Farm offers and what our clients think of our work. Now we\u2019d love to help <em>you</em> \u2013 and we\u2019re making it easy to get started.</p>
+<div style="background-color:#2d5016;color:#fff;padding:25px;border-radius:8px;margin:20px 0;text-align:center;">
+<p style="font-size:14px;letter-spacing:2px;margin:0 0 8px;text-transform:uppercase;">New Client Offer</p>
+<p style="font-size:32px;font-weight:bold;margin:0;">10% OFF</p>
+<p style="font-size:16px;margin:8px 0 0;color:#d4a843;">your first service when you book this week</p>
+<p style="font-size:13px;margin:12px 0 0;color:#ffffffaa;">Mention code <strong style="color:#fff;">WELCOME10</strong> when you request your quote</p>
+</div>
+<p style="font-size:16px;line-height:1.6;">Here\u2019s how easy it is:</p>
 <div style="background-color:#f9f7f2;padding:25px;border-radius:8px;margin:20px 0;">
 <table style="width:100%;border-collapse:collapse;">
 <tr>
 <td style="padding:12px 0;vertical-align:top;width:50px;"><span style="display:inline-block;width:36px;height:36px;background-color:#2d5016;color:#fff;border-radius:50%;text-align:center;line-height:36px;font-weight:bold;font-size:16px;">1</span></td>
-<td style="padding:12px 0;"><strong style="font-size:15px;">Tell us what you need</strong><br/><span style="font-size:14px;color:#666;">Call (561) 576-7667 or book online \u2013 we\u2019ll ask a few questions about your property.</span></td>
+<td style="padding:12px 0;"><strong style="font-size:15px;">Tell us what you need</strong><br/><span style="font-size:14px;color:#666;">Call (561) 576-7667 or get a quote online \u2013 takes 2 minutes.</span></td>
 </tr>
 <tr>
 <td style="padding:12px 0;vertical-align:top;"><span style="display:inline-block;width:36px;height:36px;background-color:#2d5016;color:#fff;border-radius:50%;text-align:center;line-height:36px;font-weight:bold;font-size:16px;">2</span></td>
-<td style="padding:12px 0;"><strong style="font-size:15px;">Get a free estimate</strong><br/><span style="font-size:14px;color:#666;">We\u2019ll provide transparent pricing within one business hour. No hidden fees.</span></td>
+<td style="padding:12px 0;"><strong style="font-size:15px;">Get your estimate instantly</strong><br/><span style="font-size:14px;color:#666;">Transparent pricing, no hidden fees. We\u2019ll apply your 10% discount.</span></td>
 </tr>
 <tr>
 <td style="padding:12px 0;vertical-align:top;"><span style="display:inline-block;width:36px;height:36px;background-color:#2d5016;color:#fff;border-radius:50%;text-align:center;line-height:36px;font-weight:bold;font-size:16px;">3</span></td>
@@ -217,18 +223,10 @@ ${header("Ready to Get Started?")}
 </tr>
 </table>
 </div>
-<p style="font-size:16px;line-height:1.6;color:#555;"><strong>Why farm owners choose us:</strong></p>
-<ul style="font-size:15px;line-height:1.8;color:#555;">
-<li>Fully licensed &amp; insured in Florida</li>
-<li>Same-day and next-day service available</li>
-<li>60-yard capacity \u2013 largest in the area</li>
-<li>Weight tickets on every load</li>
-<li>We\u2019re horse owners too \u2013 we get it</li>
-</ul>
 <div style="text-align:center;margin:30px 0;">
-<a href="https://www.myhorsefarm.com/#calendar" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:16px 40px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:18px;">Book Your Free Estimate Now</a>
+<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:16px 40px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:18px;">Claim Your 10% Discount</a>
 </div>
-<p style="text-align:center;font-size:14px;color:#888;">Or call directly: <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a></p>
+<p style="text-align:center;font-size:14px;color:#888;">Or call directly: <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> and mention WELCOME10</p>
 <p style="font-size:16px;line-height:1.6;margin-top:30px;">Looking forward to working with you,<br/><strong>Jose Gomez</strong><br/>Owner, My Horse Farm<br/>(561) 576-7667</p>
 </div></div>`,
       unsubscribeUrl,
