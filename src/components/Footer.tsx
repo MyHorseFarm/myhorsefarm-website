@@ -5,16 +5,16 @@ export default function Footer() {
   return (
     <footer className="bg-gray-800 text-white py-5 text-center">
       <div className="flex justify-center gap-5 mb-2">
-        <a href={SOCIAL.facebook} target="_blank" rel="noopener" className="text-white text-xl hover:text-accent transition-colors">
+        <a href={SOCIAL.facebook} target="_blank" rel="noopener noreferrer" className="text-white text-xl hover:text-accent transition-colors">
           <i className="fab fa-facebook-f" />
         </a>
-        <a href={SOCIAL.instagram} target="_blank" rel="noopener" className="text-white text-xl hover:text-accent transition-colors">
+        <a href={SOCIAL.instagram} target="_blank" rel="noopener noreferrer" className="text-white text-xl hover:text-accent transition-colors">
           <i className="fab fa-instagram" />
         </a>
-        <a href={SOCIAL.youtube} target="_blank" rel="noopener" className="text-white text-xl hover:text-accent transition-colors">
+        <a href={SOCIAL.youtube} target="_blank" rel="noopener noreferrer" className="text-white text-xl hover:text-accent transition-colors">
           <i className="fab fa-youtube" />
         </a>
-        <a href={SOCIAL.google} target="_blank" rel="noopener" className="text-white text-xl hover:text-accent transition-colors">
+        <a href={SOCIAL.google} target="_blank" rel="noopener noreferrer" className="text-white text-xl hover:text-accent transition-colors">
           <i className="fab fa-google" />
         </a>
       </div>

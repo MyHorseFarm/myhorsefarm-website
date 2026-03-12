@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Hero({
@@ -19,10 +20,13 @@ export default function Hero({
       style={{ backgroundImage: "url('/hero.jpg')" }}
     >
       <div className="text-center bg-black/50 p-5 rounded-lg">
-        <img
+        <Image
           src="/logo.png"
           alt="My Horse Farm logo"
+          width={120}
+          height={120}
           className="w-[120px] max-md:w-[80px] mx-auto mb-4"
+          priority
         />
         <h1 className="text-[2.5rem] max-md:text-3xl max-[480px]:text-[1.4rem] my-1">
           {title}
