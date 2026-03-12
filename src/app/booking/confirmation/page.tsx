@@ -5,6 +5,7 @@ import BookingConfirmation from "@/components/BookingConfirmation";
 
 export const metadata: Metadata = {
   title: "Booking Confirmed",
+  description: "Your service booking with My Horse Farm has been confirmed.",
   robots: "noindex",
 };
 
