@@ -10,6 +10,7 @@ interface Customer {
   phone: string | null;
   address: string | null;
   square_customer_id: string | null;
+  default_service: string;
   default_bin_rate: number;
   notes: string | null;
   active: boolean;
@@ -22,12 +23,32 @@ interface Customer {
 
 type FormData = Omit<Customer, "id" | "created_at">;
 
+const SERVICE_OPTIONS: { key: string; label: string; defaultRate: number; unit: string }[] = [
+  { key: "trash_bin_service", label: "Trash Bin Service", defaultRate: 25.0, unit: "per bin" },
+  { key: "manure_removal", label: "Manure Removal", defaultRate: 350.0, unit: "per load" },
+  { key: "junk_removal", label: "Junk Removal", defaultRate: 75.0, unit: "per ton" },
+  { key: "fill_dirt", label: "Fill Dirt Delivery", defaultRate: 35.0, unit: "per yard" },
+  { key: "dumpster_rental", label: "Dumpster Rental", defaultRate: 450.0, unit: "flat" },
+  { key: "sod_installation", label: "Sod Installation", defaultRate: 0.85, unit: "per sqft" },
+  { key: "farm_repairs", label: "Farm Repairs", defaultRate: 0, unit: "flat" },
+  { key: "millings_asphalt", label: "Millings Asphalt", defaultRate: 30.0, unit: "per yard" },
+];
+
+function serviceLabel(key: string): string {
+  return SERVICE_OPTIONS.find((s) => s.key === key)?.label || key.replace(/_/g, " ");
+}
+
+function serviceUnit(key: string): string {
+  return SERVICE_OPTIONS.find((s) => s.key === key)?.unit || "";
+}
+
 const emptyForm: FormData = {
   name: "",
   email: null,
   phone: null,
   address: null,
   square_customer_id: null,
+  default_service: "trash_bin_service",
   default_bin_rate: 25.0,
   notes: null,
   active: true,
@@ -99,6 +120,7 @@ export default function CustomersPage() {
       phone: c.phone,
       address: c.address,
       square_customer_id: c.square_customer_id,
+      default_service: c.default_service || "trash_bin_service",
       default_bin_rate: c.default_bin_rate,
       notes: c.notes,
       active: c.active,
@@ -283,7 +305,30 @@ export default function CustomersPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Bin Rate ($)</label>
+                  <label className="block text-sm font-medium mb-1">Service Type</label>
+                  <select
+                    value={form.default_service}
+                    onChange={(e) => {
+                      const svc = SERVICE_OPTIONS.find((s) => s.key === e.target.value);
+                      setForm({
+                        ...form,
+                        default_service: e.target.value,
+                        default_bin_rate: svc?.defaultRate ?? form.default_bin_rate,
+                      });
+                    }}
+                    className="w-full border rounded px-3 py-2"
+                  >
+                    {SERVICE_OPTIONS.map((s) => (
+                      <option key={s.key} value={s.key}>
+                        {s.label} ({s.unit})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Rate ($ {serviceUnit(form.default_service)})
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -358,7 +403,7 @@ export default function CustomersPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-1">Default Bins</label>
+                        <label className="block text-sm font-medium mb-1">Default Quantity</label>
                         <input
                           type="number"
                           min="1"
@@ -368,6 +413,9 @@ export default function CustomersPage() {
                           }
                           className="w-full border rounded px-3 py-2 text-sm"
                         />
+                        <p className="text-xs text-gray-400 mt-1">
+                          {form.default_bins} &times; ${Number(form.default_bin_rate).toFixed(2)} = ${(form.default_bins * form.default_bin_rate).toFixed(2)} per service
+                        </p>
                       </div>
                     </div>
                   )}
@@ -410,7 +458,8 @@ export default function CustomersPage() {
                 <tr>
                   <th className="px-4 py-3 font-semibold">Name</th>
                   <th className="px-4 py-3 font-semibold hidden md:table-cell">Address</th>
-                  <th className="px-4 py-3 font-semibold">Bin Rate</th>
+                  <th className="px-4 py-3 font-semibold">Service</th>
+                  <th className="px-4 py-3 font-semibold">Rate</th>
                   <th className="px-4 py-3 font-semibold hidden md:table-cell">Square</th>
                   <th className="px-4 py-3 font-semibold hidden md:table-cell">Auto-Charge</th>
                   <th className="px-4 py-3 font-semibold">Status</th>
@@ -424,7 +473,13 @@ export default function CustomersPage() {
                     <td className="px-4 py-3 text-gray-600 hidden md:table-cell">
                       {c.address || "\u2014"}
                     </td>
-                    <td className="px-4 py-3">${Number(c.default_bin_rate).toFixed(2)}</td>
+                    <td className="px-4 py-3 text-xs">
+                      {serviceLabel(c.default_service)}
+                    </td>
+                    <td className="px-4 py-3">
+                      ${Number(c.default_bin_rate).toFixed(2)}
+                      <span className="text-xs text-gray-400 ml-1 hidden md:inline">{serviceUnit(c.default_service)}</span>
+                    </td>
                     <td className="px-4 py-3 hidden md:table-cell">
                       {c.square_customer_id ? (
                         <span className="text-green-700 text-xs font-medium">Linked</span>
@@ -465,7 +520,7 @@ export default function CustomersPage() {
                 ))}
                 {customers.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-gray-400">
+                    <td colSpan={8} className="px-4 py-8 text-center text-gray-400">
                       No customers yet. Click &quot;+ Add Customer&quot; to get started.
                     </td>
                   </tr>
