@@ -250,7 +250,7 @@ export interface SquareCustomerSummary {
 export async function listAllSquareCustomers(): Promise<SquareCustomerSummary[]> {
   const all: SquareCustomerSummary[] = [];
 
-  for await (const c of await client.customers.list({ limit: 100 })) {
+  for await (const c of await client.customers.list({ limit: 100, sortField: "DEFAULT", sortOrder: "ASC" })) {
     const addr = c.address;
     const addressStr = addr
       ? [addr.addressLine1, addr.addressLine2, addr.locality, addr.administrativeDistrictLevel1, addr.postalCode]
