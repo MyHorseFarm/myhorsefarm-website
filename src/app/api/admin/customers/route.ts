@@ -166,6 +166,23 @@ export async function PUT(request: NextRequest) {
 
   const body = await request.json();
 
+  // Bulk update: { ids: [...], updates: { ... } }
+  if (Array.isArray(body.ids)) {
+    const { ids, updates } = body;
+    if (!ids.length || !updates || typeof updates !== "object") {
+      return NextResponse.json({ error: "ids and updates required" }, { status: 400 });
+    }
+    const { error } = await supabase
+      .from("recurring_customers")
+      .update(updates)
+      .in("id", ids);
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ updated: ids.length });
+  }
+
+  // Single update: { id, ...fields }
   if (!body.id) {
     return NextResponse.json({ error: "Missing customer id" }, { status: 400 });
   }

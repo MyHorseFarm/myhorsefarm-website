@@ -21,6 +21,24 @@ interface Customer {
   created_at: string;
 }
 
+interface ServiceLogEntry {
+  id: string;
+  service_date: string;
+  bins_collected: number;
+  bin_rate: number;
+  total_amount: number;
+  status: string;
+  crew_member: string | null;
+  notes: string | null;
+}
+
+interface InvoiceEntry {
+  id: string;
+  invoice_number: string;
+  amount: number;
+  service_date: string | null;
+}
+
 type FormData = Omit<Customer, "id" | "created_at">;
 
 const SERVICE_OPTIONS: { key: string; label: string; defaultRate: number; unit: string }[] = [
@@ -69,6 +87,16 @@ export default function CustomersPage() {
   const [error, setError] = useState("");
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState("");
+  const [search, setSearch] = useState("");
+  const [filterService, setFilterService] = useState("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive">("all");
+  const [historyCustomer, setHistoryCustomer] = useState<Customer | null>(null);
+  const [historyLogs, setHistoryLogs] = useState<ServiceLogEntry[]>([]);
+  const [historyInvoices, setHistoryInvoices] = useState<InvoiceEntry[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkService, setBulkService] = useState("");
+  const [bulkUpdating, setBulkUpdating] = useState(false);
 
   const headers = useCallback(
     () => adminHeaders(token || undefined),
@@ -190,6 +218,83 @@ export default function CustomersPage() {
     }
   };
 
+  const openHistory = async (c: Customer) => {
+    setHistoryCustomer(c);
+    setHistoryLogs([]);
+    setHistoryInvoices([]);
+    setHistoryLoading(true);
+    try {
+      const res = await fetch(`/api/admin/customers/${c.id}/history`, { headers: headers() });
+      if (res.ok) {
+        const data = await res.json();
+        setHistoryLogs(data.logs);
+        setHistoryInvoices(data.invoices);
+      }
+    } catch { /* ignore */ } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selected.size === filtered.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(filtered.map((c) => c.id)));
+    }
+  };
+
+  const handleBulkUpdate = async () => {
+    if (!bulkService || selected.size === 0) return;
+    setBulkUpdating(true);
+    setError("");
+    try {
+      const svc = SERVICE_OPTIONS.find((s) => s.key === bulkService);
+      const updates: Record<string, unknown> = { default_service: bulkService };
+      if (svc) updates.default_bin_rate = svc.defaultRate;
+      const res = await fetch("/api/admin/customers", {
+        method: "PUT",
+        headers: headers(),
+        body: JSON.stringify({ ids: Array.from(selected), updates }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Bulk update failed");
+      }
+      setSelected(new Set());
+      setBulkService("");
+      await fetchCustomers();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Bulk update failed");
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+
+  const filtered = customers.filter((c) => {
+    if (filterStatus === "active" && !c.active) return false;
+    if (filterStatus === "inactive" && c.active) return false;
+    if (filterService !== "all" && c.default_service !== filterService) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      const match =
+        c.name.toLowerCase().includes(q) ||
+        (c.address && c.address.toLowerCase().includes(q)) ||
+        (c.email && c.email.toLowerCase().includes(q)) ||
+        (c.phone && c.phone.includes(q));
+      if (!match) return false;
+    }
+    return true;
+  });
+
   if (!authed) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -227,6 +332,9 @@ export default function CustomersPage() {
             <a href="/admin/crew" className="text-sm text-green-800 underline">
               Crew
             </a>
+            <a href="/admin/analytics" className="text-sm text-green-800 underline">
+              Analytics
+            </a>
             <button
               onClick={handleImportSquare}
               disabled={importing}
@@ -255,6 +363,41 @@ export default function CustomersPage() {
         {importResult && (
           <p className="text-blue-700 text-sm mb-4 bg-blue-50 px-3 py-2 rounded">{importResult}</p>
         )}
+
+        {/* Search & filter bar */}
+        <div className="flex flex-wrap gap-3 mb-4">
+          <input
+            type="text"
+            placeholder="Search name, address, email, phone..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border rounded px-3 py-2 text-sm flex-1 min-w-[200px]"
+          />
+          <select
+            value={filterService}
+            onChange={(e) => setFilterService(e.target.value)}
+            className="border rounded px-3 py-2 text-sm"
+          >
+            <option value="all">All Services</option>
+            {SERVICE_OPTIONS.map((s) => (
+              <option key={s.key} value={s.key}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value as "all" | "active" | "inactive")}
+            className="border rounded px-3 py-2 text-sm"
+          >
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          <span className="text-xs text-gray-400 self-center">
+            {filtered.length} of {customers.length}
+          </span>
+        </div>
 
         {/* Customer form modal */}
         {showForm && (
@@ -448,6 +591,123 @@ export default function CustomersPage() {
           </div>
         )}
 
+        {/* Service history panel */}
+        {historyCustomer && (
+          <div className="fixed inset-0 bg-black/40 flex items-end md:items-center justify-center z-50">
+            <div className="bg-white rounded-t-lg md:rounded-lg w-full md:max-w-lg max-h-[85vh] overflow-y-auto p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold">{historyCustomer.name} — History</h2>
+                <button
+                  onClick={() => setHistoryCustomer(null)}
+                  className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+                >
+                  &times;
+                </button>
+              </div>
+              {historyLoading ? (
+                <p className="text-gray-500 text-sm">Loading...</p>
+              ) : (
+                <>
+                  <h3 className="text-sm font-semibold mb-2">Service Logs ({historyLogs.length})</h3>
+                  {historyLogs.length === 0 ? (
+                    <p className="text-xs text-gray-400 mb-4">No service logs yet.</p>
+                  ) : (
+                    <div className="space-y-2 mb-4">
+                      {historyLogs.map((log) => (
+                        <div key={log.id} className="border rounded p-3 text-sm">
+                          <div className="flex justify-between">
+                            <span className="font-medium">{log.service_date}</span>
+                            <span
+                              className={`text-xs px-2 py-0.5 rounded ${
+                                log.status === "charged"
+                                  ? "bg-green-100 text-green-800"
+                                  : log.status === "failed"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-amber-100 text-amber-800"
+                              }`}
+                            >
+                              {log.status}
+                            </span>
+                          </div>
+                          <p className="text-gray-600">
+                            {log.bins_collected} &times; ${Number(log.bin_rate).toFixed(2)} = ${Number(log.total_amount).toFixed(2)}
+                          </p>
+                          {log.crew_member && (
+                            <p className="text-xs text-gray-400">Crew: {log.crew_member}</p>
+                          )}
+                          {log.notes && (
+                            <p className="text-xs text-gray-400">{log.notes}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <h3 className="text-sm font-semibold mb-2">Invoices ({historyInvoices.length})</h3>
+                  {historyInvoices.length === 0 ? (
+                    <p className="text-xs text-gray-400">No invoices yet.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {historyInvoices.map((inv) => (
+                        <div key={inv.id} className="border rounded p-3 text-sm flex justify-between items-center">
+                          <div>
+                            <a
+                              href={`/api/invoice/${inv.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-700 underline font-medium"
+                            >
+                              {inv.invoice_number}
+                            </a>
+                            {inv.service_date && (
+                              <span className="text-gray-400 text-xs ml-2">{inv.service_date}</span>
+                            )}
+                          </div>
+                          <span className="font-medium">${Number(inv.amount).toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Bulk action bar */}
+        {selected.size > 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 flex flex-wrap items-center gap-3">
+            <span className="text-sm font-medium text-blue-800">
+              {selected.size} selected
+            </span>
+            <select
+              value={bulkService}
+              onChange={(e) => setBulkService(e.target.value)}
+              className="border rounded px-2 py-1 text-sm"
+            >
+              <option value="">Change service to...</option>
+              {SERVICE_OPTIONS.map((s) => (
+                <option key={s.key} value={s.key}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={handleBulkUpdate}
+              disabled={!bulkService || bulkUpdating}
+              className="bg-blue-700 text-white px-3 py-1 rounded text-sm font-semibold hover:bg-blue-600 disabled:opacity-50"
+            >
+              {bulkUpdating ? "Updating..." : "Apply"}
+            </button>
+            <button
+              onClick={() => setSelected(new Set())}
+              className="text-xs text-gray-500 underline"
+            >
+              Clear selection
+            </button>
+          </div>
+        )}
+
         {/* Customer list */}
         {loading ? (
           <p className="text-gray-500">Loading...</p>
@@ -456,6 +716,13 @@ export default function CustomersPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-100 text-left">
                 <tr>
+                  <th className="px-2 py-3 w-8">
+                    <input
+                      type="checkbox"
+                      checked={filtered.length > 0 && selected.size === filtered.length}
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
                   <th className="px-4 py-3 font-semibold">Name</th>
                   <th className="px-4 py-3 font-semibold hidden md:table-cell">Address</th>
                   <th className="px-4 py-3 font-semibold">Service</th>
@@ -467,8 +734,15 @@ export default function CustomersPage() {
                 </tr>
               </thead>
               <tbody>
-                {customers.map((c) => (
+                {filtered.map((c) => (
                   <tr key={c.id} className={`border-t ${!c.active ? "opacity-50" : ""}`}>
+                    <td className="px-2 py-3 w-8">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(c.id)}
+                        onChange={() => toggleSelect(c.id)}
+                      />
+                    </td>
                     <td className="px-4 py-3 font-medium">{c.name}</td>
                     <td className="px-4 py-3 text-gray-600 hidden md:table-cell">
                       {c.address || "\u2014"}
@@ -508,20 +782,28 @@ export default function CustomersPage() {
                         {c.active ? "Active" : "Inactive"}
                       </button>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 flex gap-2">
                       <button
                         onClick={() => openEdit(c)}
                         className="text-green-800 text-xs underline"
                       >
                         Edit
                       </button>
+                      <button
+                        onClick={() => openHistory(c)}
+                        className="text-blue-700 text-xs underline"
+                      >
+                        History
+                      </button>
                     </td>
                   </tr>
                 ))}
-                {customers.length === 0 && (
+                {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-400">
-                      No customers yet. Click &quot;+ Add Customer&quot; to get started.
+                    <td colSpan={9} className="px-4 py-8 text-center text-gray-400">
+                      {customers.length === 0
+                        ? 'No customers yet. Click "+ Add Customer" to get started.'
+                        : "No customers match your filters."}
                     </td>
                   </tr>
                 )}

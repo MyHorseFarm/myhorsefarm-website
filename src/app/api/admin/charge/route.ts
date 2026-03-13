@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { chargeCard } from "@/lib/square";
-import { afterServiceEmail, createUnsubscribeUrl, sendEmail } from "@/lib/emails";
+import { afterServiceEmail, chargeFailedAlertEmail, createUnsubscribeUrl, sendEmail } from "@/lib/emails";
 import { findContactByEmail, findActiveDealForContact, updateDealStage, STAGE_COMPLETED } from "@/lib/hubspot";
 
 export const runtime = "nodejs";
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Service log not found" }, { status: 404 });
   }
 
-  if (log.status !== "pending") {
+  if (log.status !== "pending" && log.status !== "failed") {
     return NextResponse.json(
       { error: `Log already ${log.status}` },
       { status: 400 },
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       customer.square_customer_id,
       amountCents,
       note,
-      `crew-log-${log.id}`, // idempotency key
+      `crew-log-${log.id}-${Date.now()}`, // idempotency key (unique per attempt)
     );
 
     // Update log as charged
@@ -170,7 +170,21 @@ export async function POST(request: NextRequest) {
       .update({ status: "failed" })
       .eq("id", log.id);
 
+    // Send failure alert to admin
     const message = err instanceof Error ? err.message : "Charge failed";
+    try {
+      const alertEmail = chargeFailedAlertEmail(
+        customer.name,
+        log.service_date,
+        Number(chargeAmount).toFixed(2),
+        message,
+      );
+      const adminEmail = process.env.ADMIN_ALERT_EMAIL || "jose@myhorsefarm.com";
+      await sendEmail(adminEmail, alertEmail.subject, alertEmail.html);
+    } catch (alertErr) {
+      console.error("Failed to send charge failure alert:", alertErr);
+    }
+
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

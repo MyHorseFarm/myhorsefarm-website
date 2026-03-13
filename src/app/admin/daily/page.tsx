@@ -196,6 +196,9 @@ export default function DailyDashboardPage() {
               <a href="/admin/crew" className="text-sm text-green-800 underline">
                 Crew
               </a>
+              <a href="/admin/analytics" className="text-sm text-green-800 underline">
+                Analytics
+              </a>
             </div>
           </div>
           <input
@@ -386,9 +389,20 @@ export default function DailyDashboardPage() {
                           {Number(log.total_amount).toFixed(2)}
                         </p>
                       </div>
-                      <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">
-                        Failed
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">
+                          Failed
+                        </span>
+                        <button
+                          onClick={() => handleCharge(log.id)}
+                          disabled={
+                            charging === log.id || !log.recurring_customers.square_customer_id
+                          }
+                          className="bg-amber-600 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-amber-500 disabled:opacity-50"
+                        >
+                          {charging === log.id ? "Retrying..." : "Retry"}
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

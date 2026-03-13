@@ -1023,3 +1023,33 @@ ${signoff()}
     ),
   };
 }
+
+// ---------------------------------------------------------------------------
+// Charge Failed Alert (to admin)
+// ---------------------------------------------------------------------------
+
+export function chargeFailedAlertEmail(
+  customerName: string,
+  serviceDate: string,
+  amount: string,
+  errorMessage: string,
+): EmailTemplate {
+  return {
+    subject: `Charge Failed — ${customerName} (${serviceDate})`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Charge Failed")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">A charge attempt has failed:</p>
+<div style="background-color:#fef2f2;padding:20px;border-radius:8px;margin:20px 0;border-left:4px solid #dc2626;">
+<p style="margin:0 0 8px 0;font-size:15px;"><strong>Customer:</strong> ${escapeHtml(customerName)}</p>
+<p style="margin:0 0 8px 0;font-size:15px;"><strong>Service Date:</strong> ${escapeHtml(serviceDate)}</p>
+<p style="margin:0 0 8px 0;font-size:15px;"><strong>Amount:</strong> $${escapeHtml(amount)}</p>
+<p style="margin:0;font-size:15px;color:#dc2626;"><strong>Error:</strong> ${escapeHtml(errorMessage)}</p>
+</div>
+<p style="font-size:16px;line-height:1.6;">You can retry this charge from the <a href="https://www.myhorsefarm.com/admin/daily" style="color:#2563eb;">Daily Dashboard</a>.</p>
+</div></div>`,
+      "", // no unsubscribe link for admin alerts
+    ),
+  };
+}
