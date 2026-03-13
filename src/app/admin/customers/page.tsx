@@ -202,6 +202,9 @@ export default function CustomersPage() {
             <a href="/admin/daily" className="text-sm text-green-800 underline">
               Daily Dashboard
             </a>
+            <a href="/admin/crew" className="text-sm text-green-800 underline">
+              Crew
+            </a>
             <button
               onClick={handleImportSquare}
               disabled={importing}

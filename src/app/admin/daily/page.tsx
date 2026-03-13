@@ -193,6 +193,9 @@ export default function DailyDashboardPage() {
               <a href="/admin/customers" className="text-sm text-green-800 underline">
                 Customers
               </a>
+              <a href="/admin/crew" className="text-sm text-green-800 underline">
+                Crew
+              </a>
             </div>
           </div>
           <input
