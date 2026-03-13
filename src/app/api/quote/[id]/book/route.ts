@@ -108,6 +108,31 @@ export async function POST(
     // Update quote status to "booked"
     await supabase.from("quotes").update({ status: "booked" }).eq("id", id);
 
+    // Auto-create recurring_customer if none exists for this email
+    try {
+      if (quote.customer_email) {
+        const { data: existing } = await supabase
+          .from("recurring_customers")
+          .select("id")
+          .eq("email", quote.customer_email)
+          .maybeSingle();
+        if (!existing) {
+          await supabase.from("recurring_customers").insert({
+            name: quote.customer_name,
+            email: quote.customer_email,
+            phone: quote.customer_phone || null,
+            address: quote.customer_location || null,
+            default_service: quote.service_key || "trash_bin_service",
+            default_bins: 1,
+            auto_charge: false,
+            active: true,
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Auto-create recurring_customer error (non-fatal):", err);
+    }
+
     // HubSpot: update deal to Scheduled stage
     try {
       if (quote.hubspot_deal_id) {

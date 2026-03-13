@@ -1053,3 +1053,31 @@ ${header("Charge Failed")}
     ),
   };
 }
+
+// ---------------------------------------------------------------------------
+// Portal Login
+// ---------------------------------------------------------------------------
+
+export function portalLoginEmail(
+  firstname: string,
+  portalUrl: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  return {
+    subject: "Your My Horse Farm Portal Link",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Customer Portal")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${escapeHtml(firstname)},</p>
+<p style="font-size:16px;line-height:1.6;">Click the button below to access your My Horse Farm portal. You can view your service history, upcoming services, and invoices.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="${escapeHtml(portalUrl)}" style="display:inline-block;padding:14px 32px;background-color:#2d5016;color:#fff;text-decoration:none;border-radius:8px;font-size:16px;font-weight:600;">Open My Portal</a>
+</div>
+<p style="font-size:14px;color:#666;">This link is valid for 7 days. If you didn&rsquo;t request this, you can safely ignore this email.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}

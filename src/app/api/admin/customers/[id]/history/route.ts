@@ -21,7 +21,7 @@ export async function GET(
   const [logsRes, invoicesRes] = await Promise.all([
     supabase
       .from("service_logs")
-      .select("id, service_date, bins_collected, bin_rate, total_amount, status, crew_member, notes, created_at")
+      .select("id, service_date, bins_collected, bin_rate, total_amount, status, crew_member, notes, photo_url, created_at")
       .eq("customer_id", id)
       .order("service_date", { ascending: false })
       .limit(50),

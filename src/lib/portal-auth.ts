@@ -1,0 +1,47 @@
+import { createHmac } from "crypto";
+
+const PORTAL_SECRET = () => process.env.PORTAL_SECRET!;
+const EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+interface PortalPayload {
+  email: string;
+  customerId: string;
+  expiresAt: number;
+}
+
+export function createPortalToken(email: string, customerId: string): string {
+  const payload: PortalPayload = {
+    email,
+    customerId,
+    expiresAt: Date.now() + EXPIRY_MS,
+  };
+  const data = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const sig = createHmac("sha256", PORTAL_SECRET()).update(data).digest("base64url");
+  return `${data}.${sig}`;
+}
+
+export function verifyPortalToken(
+  token: string,
+): { email: string; customerId: string } | null {
+  const [data, sig] = token.split(".");
+  if (!data || !sig) return null;
+
+  const expected = createHmac("sha256", PORTAL_SECRET()).update(data).digest("base64url");
+  if (sig !== expected) return null;
+
+  try {
+    const payload: PortalPayload = JSON.parse(
+      Buffer.from(data, "base64url").toString(),
+    );
+    if (Date.now() > payload.expiresAt) return null;
+    return { email: payload.email, customerId: payload.customerId };
+  } catch {
+    return null;
+  }
+}
+
+export function createPortalUrl(email: string, customerId: string): string {
+  const token = createPortalToken(email, customerId);
+  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
+  return `${base}/portal?token=${encodeURIComponent(token)}`;
+}

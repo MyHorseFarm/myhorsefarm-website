@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getAdminToken, setAdminToken, adminHeaders } from "@/lib/admin-auth";
+import { csvFromArray, downloadCsv } from "@/lib/csv-export";
 
 interface Customer {
   id: string;
@@ -30,6 +31,7 @@ interface ServiceLogEntry {
   status: string;
   crew_member: string | null;
   notes: string | null;
+  photo_url: string | null;
 }
 
 interface InvoiceEntry {
@@ -51,6 +53,17 @@ const SERVICE_OPTIONS: { key: string; label: string; defaultRate: number; unit: 
   { key: "farm_repairs", label: "Farm Repairs", defaultRate: 0, unit: "flat" },
   { key: "millings_asphalt", label: "Millings Asphalt", defaultRate: 30.0, unit: "per yard" },
 ];
+
+function extractArea(address: string | null): string {
+  if (!address) return "Unknown";
+  // Match "City, FL" or "City, FL ZIP" pattern
+  const match = address.match(/([A-Za-z ]+),\s*FL/i);
+  if (match) return match[1].trim();
+  // Fallback: second-to-last comma segment
+  const parts = address.split(",").map((s) => s.trim());
+  if (parts.length >= 2) return parts[parts.length - 2];
+  return "Unknown";
+}
 
 function serviceLabel(key: string): string {
   return SERVICE_OPTIONS.find((s) => s.key === key)?.label || key.replace(/_/g, " ");
@@ -97,6 +110,7 @@ export default function CustomersPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkService, setBulkService] = useState("");
   const [bulkUpdating, setBulkUpdating] = useState(false);
+  const [viewMode, setViewMode] = useState<"table" | "route">("table");
 
   const headers = useCallback(
     () => adminHeaders(token || undefined),
@@ -279,6 +293,22 @@ export default function CustomersPage() {
     }
   };
 
+  const exportCsv = () => {
+    const csv = csvFromArray(filtered, [
+      { key: "name", label: "Name" },
+      { key: "email", label: "Email" },
+      { key: "phone", label: "Phone" },
+      { key: "address", label: "Address" },
+      { key: "default_service", label: "Service" },
+      { key: "default_bin_rate", label: "Rate" },
+      { key: "default_bins", label: "Qty" },
+      { key: "auto_charge", label: "Auto-Charge" },
+      { key: "charge_frequency", label: "Frequency" },
+      { key: "active", label: "Active" },
+    ]);
+    downloadCsv(csv, `customers-${new Date().toISOString().split("T")[0]}.csv`);
+  };
+
   const filtered = customers.filter((c) => {
     if (filterStatus === "active" && !c.active) return false;
     if (filterStatus === "inactive" && c.active) return false;
@@ -294,6 +324,14 @@ export default function CustomersPage() {
     }
     return true;
   });
+
+  const customersByArea = filtered.reduce<Record<string, Customer[]>>((acc, c) => {
+    const area = extractArea(c.address);
+    if (!acc[area]) acc[area] = [];
+    acc[area].push(c);
+    return acc;
+  }, {});
+  const sortedAreas = Object.keys(customersByArea).sort();
 
   if (!authed) {
     return (
@@ -326,15 +364,12 @@ export default function CustomersPage() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">Recurring Customers</h1>
           <div className="flex gap-2 items-center">
-            <a href="/admin/daily" className="text-sm text-green-800 underline">
-              Daily Dashboard
-            </a>
-            <a href="/admin/crew" className="text-sm text-green-800 underline">
-              Crew
-            </a>
-            <a href="/admin/analytics" className="text-sm text-green-800 underline">
-              Analytics
-            </a>
+            <button
+              onClick={exportCsv}
+              className="border border-gray-400 text-gray-700 px-4 py-2 rounded text-sm font-semibold hover:bg-gray-50"
+            >
+              Export CSV
+            </button>
             <button
               onClick={handleImportSquare}
               disabled={importing}
@@ -394,6 +429,16 @@ export default function CustomersPage() {
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
+          <button
+            onClick={() => setViewMode(viewMode === "table" ? "route" : "table")}
+            className={`px-3 py-2 rounded text-sm font-medium ${
+              viewMode === "route"
+                ? "bg-green-800 text-white"
+                : "bg-white border text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            {viewMode === "route" ? "Table View" : "Route View"}
+          </button>
           <span className="text-xs text-gray-400 self-center">
             {filtered.length} of {customers.length}
           </span>
@@ -638,6 +683,11 @@ export default function CustomersPage() {
                           {log.notes && (
                             <p className="text-xs text-gray-400">{log.notes}</p>
                           )}
+                          {log.photo_url && (
+                            <a href={log.photo_url} target="_blank" rel="noopener noreferrer" className="inline-block mt-1">
+                              <img src={log.photo_url} alt="Service photo" className="w-14 h-14 object-cover rounded border" />
+                            </a>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -711,6 +761,43 @@ export default function CustomersPage() {
         {/* Customer list */}
         {loading ? (
           <p className="text-gray-500">Loading...</p>
+        ) : viewMode === "route" ? (
+          <div className="space-y-3">
+            {sortedAreas.map((area) => (
+              <details key={area} className="bg-white rounded-lg shadow" open>
+                <summary className="px-4 py-3 cursor-pointer font-semibold text-sm flex justify-between items-center">
+                  <span>{area}</span>
+                  <span className="text-xs text-gray-400 font-normal">
+                    {customersByArea[area].length} customer{customersByArea[area].length !== 1 ? "s" : ""}
+                  </span>
+                </summary>
+                <div className="border-t divide-y">
+                  {customersByArea[area].map((c) => (
+                    <div key={c.id} className={`px-4 py-3 flex items-center justify-between text-sm ${!c.active ? "opacity-50" : ""}`}>
+                      <div>
+                        <p className="font-medium">{c.name}</p>
+                        <p className="text-xs text-gray-500">{c.address || "\u2014"}</p>
+                        <p className="text-xs text-gray-400">
+                          {serviceLabel(c.default_service)} &middot; ${Number(c.default_bin_rate).toFixed(2)}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => openEdit(c)} className="text-green-800 text-xs underline">Edit</button>
+                        <button onClick={() => openHistory(c)} className="text-blue-700 text-xs underline">History</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            ))}
+            {filtered.length === 0 && (
+              <div className="bg-white rounded-lg shadow p-8 text-center text-gray-400">
+                {customers.length === 0
+                  ? 'No customers yet. Click "+ Add Customer" to get started.'
+                  : "No customers match your filters."}
+              </div>
+            )}
+          </div>
         ) : (
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <table className="w-full text-sm">

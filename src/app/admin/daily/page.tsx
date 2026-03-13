@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getAdminToken, setAdminToken, adminHeaders } from "@/lib/admin-auth";
+import { csvFromArray, downloadCsv } from "@/lib/csv-export";
 
 interface ServiceLog {
   id: string;
@@ -15,6 +16,7 @@ interface ServiceLog {
   status: "pending" | "approved" | "charged" | "failed";
   square_payment_id: string | null;
   charged_at: string | null;
+  photo_url: string | null;
   created_at: string;
   recurring_customers: {
     name: string;
@@ -151,6 +153,32 @@ export default function DailyDashboardPage() {
     }
   };
 
+  const exportLogs = () => {
+    const csv = csvFromArray(
+      logs.map((l) => ({
+        date: l.service_date,
+        customer: l.recurring_customers.name,
+        address: l.recurring_customers.address ?? "",
+        crew: l.crew_member,
+        bins: l.bins_collected,
+        rate: Number(l.bin_rate).toFixed(2),
+        total: Number(l.total_amount).toFixed(2),
+        status: l.status,
+      })),
+      [
+        { key: "date", label: "Date" },
+        { key: "customer", label: "Customer" },
+        { key: "address", label: "Address" },
+        { key: "crew", label: "Crew" },
+        { key: "bins", label: "Bins" },
+        { key: "rate", label: "Rate" },
+        { key: "total", label: "Total" },
+        { key: "status", label: "Status" },
+      ],
+    );
+    downloadCsv(csv, `service-logs-${date}.csv`);
+  };
+
   const pendingLogs = logs.filter((l) => l.status === "pending");
   const chargedLogs = logs.filter((l) => l.status === "charged");
   const failedLogs = logs.filter((l) => l.status === "failed");
@@ -187,26 +215,22 @@ export default function DailyDashboardPage() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold">Daily Dashboard</h1>
-            <div className="flex gap-3 mt-1">
-              <a href="/admin/customers" className="text-sm text-green-800 underline">
-                Customers
-              </a>
-              <a href="/admin/crew" className="text-sm text-green-800 underline">
-                Crew
-              </a>
-              <a href="/admin/analytics" className="text-sm text-green-800 underline">
-                Analytics
-              </a>
-            </div>
+          <h1 className="text-2xl font-bold">Daily Dashboard</h1>
+          <div className="flex gap-2 items-center">
+            <button
+              onClick={exportLogs}
+              disabled={logs.length === 0}
+              className="border border-gray-400 text-gray-700 px-4 py-2 rounded text-sm font-semibold hover:bg-gray-50 disabled:opacity-50"
+            >
+              Export Logs
+            </button>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => handleDateChange(e.target.value)}
+              className="border rounded px-3 py-2"
+            />
           </div>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => handleDateChange(e.target.value)}
-            className="border rounded px-3 py-2"
-          />
         </div>
 
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
@@ -301,6 +325,11 @@ export default function DailyDashboardPage() {
                         </p>
                         {log.notes && (
                           <p className="text-xs text-gray-400 mt-1">{log.notes}</p>
+                        )}
+                        {log.photo_url && (
+                          <a href={log.photo_url} target="_blank" rel="noopener noreferrer" className="inline-block mt-1">
+                            <img src={log.photo_url} alt="Service photo" className="w-16 h-16 object-cover rounded border" />
+                          </a>
                         )}
                         {!log.recurring_customers.square_customer_id && (
                           <p className="text-xs text-red-500 mt-1">

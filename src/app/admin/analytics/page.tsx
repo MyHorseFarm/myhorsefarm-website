@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getAdminToken, setAdminToken, adminHeaders } from "@/lib/admin-auth";
+import { csvFromArray, downloadCsv } from "@/lib/csv-export";
 
 interface Summary {
   totalRevenue: number;
@@ -111,6 +112,18 @@ export default function AnalyticsPage() {
     );
   }
 
+  const exportRevenue = () => {
+    const days = Object.entries(data?.revenueByDay ?? {}).sort(([a], [b]) => a.localeCompare(b));
+    const csv = csvFromArray(
+      days.map(([day, rev]) => ({ date: day, revenue: rev.toFixed(2) })),
+      [
+        { key: "date", label: "Date" },
+        { key: "revenue", label: "Revenue" },
+      ],
+    );
+    downloadCsv(csv, `revenue-${range}d.csv`);
+  };
+
   const s = data?.summary;
   const sortedDays = Object.entries(data?.revenueByDay ?? {}).sort(([a], [b]) => a.localeCompare(b));
   const maxDayRev = Math.max(...sortedDays.map(([, v]) => v), 1);
@@ -123,21 +136,15 @@ export default function AnalyticsPage() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold">Analytics</h1>
-            <div className="flex gap-3 mt-1">
-              <a href="/admin/daily" className="text-sm text-green-800 underline">
-                Daily Dashboard
-              </a>
-              <a href="/admin/customers" className="text-sm text-green-800 underline">
-                Customers
-              </a>
-              <a href="/admin/crew" className="text-sm text-green-800 underline">
-                Crew
-              </a>
-            </div>
-          </div>
-          <div className="flex gap-2">
+          <h1 className="text-2xl font-bold">Analytics</h1>
+          <div className="flex gap-2 items-center">
+            <button
+              onClick={exportRevenue}
+              disabled={!data}
+              className="border border-gray-400 text-gray-700 px-3 py-1 rounded text-sm font-semibold hover:bg-gray-50 disabled:opacity-50"
+            >
+              Export Revenue
+            </button>
             {["7", "30", "90"].map((d) => (
               <button
                 key={d}

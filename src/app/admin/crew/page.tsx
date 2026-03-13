@@ -154,12 +154,6 @@ export default function CrewPage() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">Crew Members</h1>
           <div className="flex gap-2 items-center">
-            <a href="/admin/customers" className="text-sm text-green-800 underline">
-              Customers
-            </a>
-            <a href="/admin/daily" className="text-sm text-green-800 underline">
-              Daily Dashboard
-            </a>
             <button
               onClick={openNew}
               className="bg-green-800 text-white px-4 py-2 rounded text-sm font-semibold hover:bg-green-700"

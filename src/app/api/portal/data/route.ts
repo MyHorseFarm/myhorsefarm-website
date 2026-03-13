@@ -1,0 +1,84 @@
+import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase";
+import { verifyPortalToken } from "@/lib/portal-auth";
+
+export const runtime = "nodejs";
+
+const FREQ_DAYS: Record<string, number> = {
+  daily: 1,
+  weekly: 7,
+  biweekly: 14,
+  monthly: 30,
+};
+
+export async function GET(request: NextRequest) {
+  const auth = request.headers.get("authorization");
+  if (!auth?.startsWith("Bearer ")) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const token = auth.slice(7);
+  const payload = verifyPortalToken(token);
+  if (!payload) {
+    return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
+  }
+
+  const { customerId } = payload;
+
+  // Fetch customer info
+  const { data: customer } = await supabase
+    .from("recurring_customers")
+    .select("id, name, email, phone, address, default_service, default_bin_rate, auto_charge, charge_frequency, next_charge_date, default_bins")
+    .eq("id", customerId)
+    .single();
+
+  if (!customer) {
+    return NextResponse.json({ error: "Customer not found" }, { status: 404 });
+  }
+
+  // Fetch recent service logs
+  const { data: logs } = await supabase
+    .from("service_logs")
+    .select("id, service_date, bins_collected, bin_rate, total_amount, status, crew_member, photo_url")
+    .eq("customer_id", customerId)
+    .order("service_date", { ascending: false })
+    .limit(50);
+
+  // Fetch recent invoices
+  const { data: invoices } = await supabase
+    .from("invoices")
+    .select("id, invoice_number, amount, service_date")
+    .eq("customer_id", customerId)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  // Project upcoming dates
+  const upcoming: string[] = [];
+  if (customer.auto_charge && customer.charge_frequency && customer.next_charge_date) {
+    const freq = FREQ_DAYS[customer.charge_frequency] || 7;
+    let d = new Date(customer.next_charge_date + "T00:00:00");
+    const now = new Date();
+    // Skip past dates
+    while (d < now) {
+      d = new Date(d.getTime() + freq * 86400000);
+    }
+    for (let i = 0; i < 10 && upcoming.length < 10; i++) {
+      upcoming.push(d.toISOString().split("T")[0]);
+      d = new Date(d.getTime() + freq * 86400000);
+    }
+  }
+
+  return NextResponse.json({
+    customer: {
+      name: customer.name,
+      email: customer.email,
+      address: customer.address,
+      service: customer.default_service,
+      rate: customer.default_bin_rate,
+      frequency: customer.charge_frequency,
+    },
+    logs: logs ?? [],
+    invoices: invoices ?? [],
+    upcoming,
+  });
+}

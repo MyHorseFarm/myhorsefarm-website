@@ -30,9 +30,11 @@ export default function CrewPage() {
   const [bins, setBins] = useState(1);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState<{ name: string; amount: number } | null>(null);
+  const [success, setSuccess] = useState<{ name: string; amount: number; logId: string } | null>(null);
   const [error, setError] = useState("");
   const [customerSearch, setCustomerSearch] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [photoUploaded, setPhotoUploaded] = useState(false);
 
   const filteredCustomers = useMemo(() => {
     if (!customerSearch) return customers;
@@ -102,21 +104,47 @@ export default function CrewPage() {
       }
 
       const data = await res.json();
-      setSuccess({ name: data.customer_name, amount: data.total_amount });
-
-      // Reset form after delay
-      setTimeout(() => {
-        setSuccess(null);
-        setSelectedCustomer("");
-        setBins(1);
-        setNotes("");
-        setCustomerSearch("");
-      }, 3000);
+      setSuccess({ name: data.customer_name, amount: data.total_amount, logId: data.log.id });
+      setPhotoUploaded(false);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Submit failed");
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !success) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("photo", file);
+      formData.append("log_id", success.logId);
+      const res = await fetch("/api/crew/photo", {
+        method: "POST",
+        headers: { "x-crew-pin": pin },
+        body: formData,
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Upload failed");
+      }
+      setPhotoUploaded(true);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Photo upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const resetForm = () => {
+    setSuccess(null);
+    setSelectedCustomer("");
+    setBins(1);
+    setNotes("");
+    setCustomerSearch("");
+    setPhotoUploaded(false);
   };
 
   const selectCustomer = (id: string) => {
@@ -167,9 +195,36 @@ export default function CrewPage() {
         <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm text-center">
           <div className="text-6xl mb-4">&#10003;</div>
           <h2 className="text-xl font-bold text-green-900 mb-2">Logged!</h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 mb-4">
             {success.name} &mdash; ${success.amount.toFixed(2)}
           </p>
+          {!photoUploaded ? (
+            <div className="border-t pt-4 mt-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Add Photo (optional)
+              </label>
+              <label className="inline-flex items-center gap-2 bg-green-800 text-white px-5 py-3 rounded-xl text-sm font-semibold cursor-pointer hover:bg-green-700">
+                <i className="fas fa-camera" />
+                {uploading ? "Uploading..." : "Take Photo"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handlePhotoUpload}
+                  disabled={uploading}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          ) : (
+            <p className="text-green-700 text-sm font-medium">Photo uploaded!</p>
+          )}
+          <button
+            onClick={resetForm}
+            className="mt-4 w-full border-2 border-green-800 text-green-800 py-3 rounded-xl text-sm font-semibold hover:bg-green-50"
+          >
+            Log Another
+          </button>
         </div>
       </div>
     );
