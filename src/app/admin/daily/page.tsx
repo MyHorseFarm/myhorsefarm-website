@@ -24,15 +24,34 @@ interface ServiceLog {
   };
 }
 
+interface CrewMemberOption {
+  id: string;
+  name: string;
+}
+
+interface BookingEntry {
+  id: string;
+  booking_number: string;
+  customer_name: string;
+  customer_location: string;
+  service_key: string;
+  time_slot: string;
+  status: string;
+  assigned_crew: string | null;
+}
+
 export default function DailyDashboardPage() {
   const [token, setToken] = useState("");
   const [authed, setAuthed] = useState(false);
   const [logs, setLogs] = useState<ServiceLog[]>([]);
+  const [crewMembers, setCrewMembers] = useState<CrewMemberOption[]>([]);
+  const [bookings, setBookings] = useState<BookingEntry[]>([]);
   const [date, setDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [charging, setCharging] = useState<string | null>(null);
   const [editAmounts, setEditAmounts] = useState<Record<string, string>>({});
+  const [assigning, setAssigning] = useState<string | null>(null);
 
   const headers = useCallback(
     () => adminHeaders(token || undefined),
@@ -49,6 +68,8 @@ export default function DailyDashboardPage() {
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
         setLogs(data.logs);
+        setCrewMembers(data.crew_members ?? []);
+        setBookings(data.bookings ?? []);
         setAuthed(true);
       } catch {
         setError("Failed to load logs");
@@ -106,6 +127,27 @@ export default function DailyDashboardPage() {
       setError(err instanceof Error ? err.message : "Charge failed");
     } finally {
       setCharging(null);
+    }
+  };
+
+  const handleAssignCrew = async (bookingId: string, crewId: string | null) => {
+    setAssigning(bookingId);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/daily", {
+        method: "PATCH",
+        headers: headers(),
+        body: JSON.stringify({ booking_id: bookingId, crew_id: crewId }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Assignment failed");
+      }
+      await fetchLogs();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Assignment failed");
+    } finally {
+      setAssigning(null);
     }
   };
 
@@ -184,6 +226,48 @@ export default function DailyDashboardPage() {
             <p className="text-2xl font-bold text-red-600">{failedLogs.length}</p>
           </div>
         </div>
+
+        {/* Bookings with crew assignment */}
+        {bookings.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold mb-3">Bookings — Crew Assignment</h2>
+            <div className="space-y-2">
+              {bookings.map((b) => (
+                <div
+                  key={b.id}
+                  className="bg-white rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center gap-3"
+                >
+                  <div className="flex-1">
+                    <p className="font-semibold">{b.customer_name}</p>
+                    <p className="text-sm text-gray-500">
+                      {b.service_key.replace(/_/g, " ")} &middot; {b.time_slot} &middot; {b.customer_location}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={b.assigned_crew || ""}
+                      onChange={(e) =>
+                        handleAssignCrew(b.id, e.target.value || null)
+                      }
+                      disabled={assigning === b.id}
+                      className="border rounded px-2 py-1 text-sm"
+                    >
+                      <option value="">Unassigned</option>
+                      {crewMembers.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                    {assigning === b.id && (
+                      <span className="text-xs text-gray-400">Saving...</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {loading ? (
           <p className="text-gray-500">Loading...</p>

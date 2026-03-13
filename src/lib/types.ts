@@ -131,3 +131,57 @@ export interface AvailabilityDay {
   max_slots: number;
   status: "available" | "limited" | "full";
 }
+
+// ---------------------------------------------------------------------------
+// Recurring customer type (mirrors recurring_customers table)
+// ---------------------------------------------------------------------------
+
+export interface RecurringCustomer {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  square_customer_id: string | null;
+  default_bin_rate: number;
+  notes: string | null;
+  signature_data: string | null;
+  active: boolean;
+  auto_charge: boolean;
+  charge_frequency: "daily" | "weekly" | "biweekly" | "monthly" | null;
+  next_charge_date: string | null;
+  default_bins: number;
+  created_at: string;
+}
+
+// ---------------------------------------------------------------------------
+// Crew member type (mirrors crew_members table)
+// ---------------------------------------------------------------------------
+
+export interface CrewMember {
+  id: string;
+  name: string;
+  pin: string;
+  phone: string | null;
+  email: string | null;
+  active: boolean;
+  created_at: string;
+}
+
+// ---------------------------------------------------------------------------
+// Invoice type (mirrors invoices table)
+// ---------------------------------------------------------------------------
+
+export interface Invoice {
+  id: string;
+  invoice_number: string;
+  customer_id: string | null;
+  service_log_id: string | null;
+  customer_name: string;
+  customer_email: string | null;
+  amount: number;
+  service_description: string | null;
+  service_date: string | null;
+  sent_at: string | null;
+  created_at: string;
+}

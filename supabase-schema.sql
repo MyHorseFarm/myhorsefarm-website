@@ -148,6 +148,51 @@ create table service_logs (
 );
 
 -- ---------------------------------------------------------------------------
+-- recurring_customers — auto-charge columns (Phase 3)
+-- ---------------------------------------------------------------------------
+-- ALTER TABLE recurring_customers
+--   ADD COLUMN auto_charge boolean NOT NULL DEFAULT false,
+--   ADD COLUMN charge_frequency text CHECK (charge_frequency IN ('daily','weekly','biweekly','monthly')),
+--   ADD COLUMN next_charge_date date,
+--   ADD COLUMN default_bins integer NOT NULL DEFAULT 1;
+-- CREATE INDEX idx_recurring_customers_next_charge
+--   ON recurring_customers(next_charge_date) WHERE active = true AND auto_charge = true;
+
+-- ---------------------------------------------------------------------------
+-- crew_members (Phase 4)
+-- ---------------------------------------------------------------------------
+create table crew_members (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  pin text not null,
+  phone text,
+  email text,
+  active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+create unique index idx_crew_members_pin on crew_members(pin);
+
+-- ALTER TABLE bookings ADD COLUMN assigned_crew uuid REFERENCES crew_members(id);
+-- ALTER TABLE service_logs ADD COLUMN assigned_crew uuid REFERENCES crew_members(id);
+
+-- ---------------------------------------------------------------------------
+-- invoices (Phase 5)
+-- ---------------------------------------------------------------------------
+create table invoices (
+  id uuid primary key default uuid_generate_v4(),
+  invoice_number text unique not null,
+  customer_id uuid references recurring_customers(id),
+  service_log_id uuid references service_logs(id),
+  customer_name text not null,
+  customer_email text,
+  amount numeric(10,2) not null,
+  service_description text,
+  service_date date,
+  sent_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------------------------
 -- RLS: Deny all public access (service_role key bypasses RLS)
 -- ---------------------------------------------------------------------------
 alter table service_pricing enable row level security;
@@ -157,6 +202,8 @@ alter table bookings enable row level security;
 alter table chat_sessions enable row level security;
 alter table recurring_customers enable row level security;
 alter table service_logs enable row level security;
+alter table crew_members enable row level security;
+alter table invoices enable row level security;
 
 -- No RLS policies = no public access. service_role key bypasses RLS.
 

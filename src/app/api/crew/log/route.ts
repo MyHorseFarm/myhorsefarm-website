@@ -3,13 +3,33 @@ import { supabase } from "@/lib/supabase";
 
 export const runtime = "nodejs";
 
-function checkPin(request: NextRequest): boolean {
+async function authenticateCrew(
+  request: NextRequest,
+): Promise<{ id: string; name: string } | null> {
   const pin = request.headers.get("x-crew-pin");
-  return !!pin && pin === process.env.CREW_PIN;
+  if (!pin) return null;
+
+  // Try crew_members table first
+  const { data: member } = await supabase
+    .from("crew_members")
+    .select("id, name")
+    .eq("pin", pin)
+    .eq("active", true)
+    .single();
+
+  if (member) return member;
+
+  // Fall back to legacy CREW_PIN env var
+  if (pin === process.env.CREW_PIN) {
+    return { id: "legacy", name: "field" };
+  }
+
+  return null;
 }
 
 export async function POST(request: NextRequest) {
-  if (!checkPin(request)) {
+  const crew = await authenticateCrew(request);
+  if (!crew) {
     return NextResponse.json({ error: "Invalid PIN" }, { status: 401 });
   }
 
@@ -42,12 +62,13 @@ export async function POST(request: NextRequest) {
     .from("service_logs")
     .insert({
       customer_id,
-      crew_member: body.crew_member || "field",
+      crew_member: crew.name,
       bins_collected,
       bin_rate,
       total_amount,
       notes: notes || null,
       status: "pending",
+      assigned_crew: crew.id !== "legacy" ? crew.id : null,
     })
     .select()
     .single();

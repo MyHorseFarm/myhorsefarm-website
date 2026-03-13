@@ -13,6 +13,10 @@ interface Customer {
   default_bin_rate: number;
   notes: string | null;
   active: boolean;
+  auto_charge: boolean;
+  charge_frequency: "daily" | "weekly" | "biweekly" | "monthly" | null;
+  next_charge_date: string | null;
+  default_bins: number;
   created_at: string;
 }
 
@@ -27,6 +31,10 @@ const emptyForm: FormData = {
   default_bin_rate: 25.0,
   notes: null,
   active: true,
+  auto_charge: false,
+  charge_frequency: null,
+  next_charge_date: null,
+  default_bins: 1,
 };
 
 export default function CustomersPage() {
@@ -94,6 +102,10 @@ export default function CustomersPage() {
       default_bin_rate: c.default_bin_rate,
       notes: c.notes,
       active: c.active,
+      auto_charge: c.auto_charge ?? false,
+      charge_frequency: c.charge_frequency ?? null,
+      next_charge_date: c.next_charge_date ?? null,
+      default_bins: c.default_bins ?? 1,
     });
     setShowForm(true);
   };
@@ -301,6 +313,62 @@ export default function CustomersPage() {
                     placeholder="Gate code, stall count, etc."
                   />
                 </div>
+                <div className="border-t pt-3 mt-1">
+                  <p className="text-sm font-semibold mb-2">Auto-Charge Settings</p>
+                  <label className="flex items-center gap-2 text-sm mb-3">
+                    <input
+                      type="checkbox"
+                      checked={form.auto_charge}
+                      onChange={(e) => setForm({ ...form, auto_charge: e.target.checked })}
+                    />
+                    Enable Auto-Charge
+                  </label>
+                  {form.auto_charge && (
+                    <div className="space-y-3 pl-1">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Frequency</label>
+                        <select
+                          value={form.charge_frequency || "weekly"}
+                          onChange={(e) =>
+                            setForm({
+                              ...form,
+                              charge_frequency: e.target.value as FormData["charge_frequency"],
+                            })
+                          }
+                          className="w-full border rounded px-3 py-2 text-sm"
+                        >
+                          <option value="daily">Daily</option>
+                          <option value="weekly">Weekly</option>
+                          <option value="biweekly">Biweekly</option>
+                          <option value="monthly">Monthly</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Next Charge Date</label>
+                        <input
+                          type="date"
+                          value={form.next_charge_date || ""}
+                          onChange={(e) =>
+                            setForm({ ...form, next_charge_date: e.target.value || null })
+                          }
+                          className="w-full border rounded px-3 py-2 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Default Bins</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={form.default_bins}
+                          onChange={(e) =>
+                            setForm({ ...form, default_bins: parseInt(e.target.value) || 1 })
+                          }
+                          className="w-full border rounded px-3 py-2 text-sm"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <label className="flex items-center gap-2 text-sm">
                   <input
                     type="checkbox"
@@ -341,6 +409,7 @@ export default function CustomersPage() {
                   <th className="px-4 py-3 font-semibold hidden md:table-cell">Address</th>
                   <th className="px-4 py-3 font-semibold">Bin Rate</th>
                   <th className="px-4 py-3 font-semibold hidden md:table-cell">Square</th>
+                  <th className="px-4 py-3 font-semibold hidden md:table-cell">Auto-Charge</th>
                   <th className="px-4 py-3 font-semibold">Status</th>
                   <th className="px-4 py-3 font-semibold">Actions</th>
                 </tr>
@@ -358,6 +427,15 @@ export default function CustomersPage() {
                         <span className="text-green-700 text-xs font-medium">Linked</span>
                       ) : (
                         <span className="text-gray-400 text-xs">Not linked</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 hidden md:table-cell">
+                      {c.auto_charge ? (
+                        <span className="text-blue-700 text-xs font-medium">
+                          {c.charge_frequency || "weekly"} &middot; {c.default_bins ?? 1} bin{(c.default_bins ?? 1) !== 1 ? "s" : ""}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-xs">Off</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -384,7 +462,7 @@ export default function CustomersPage() {
                 ))}
                 {customers.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                    <td colSpan={7} className="px-4 py-8 text-center text-gray-400">
                       No customers yet. Click &quot;+ Add Customer&quot; to get started.
                     </td>
                   </tr>

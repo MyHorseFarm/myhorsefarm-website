@@ -770,6 +770,227 @@ ${billingAddress ? `<tr><td style="padding:8px 0;font-size:14px;color:#666;">Bil
   };
 }
 
+// ---------------------------------------------------------------------------
+// After-Service Email – sent after charge with review CTA
+// ---------------------------------------------------------------------------
+
+export function afterServiceEmail(
+  firstname: string,
+  binsCollected: number,
+  serviceDate: string,
+  amount: string,
+  invoiceUrl: string | null,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  const binLabel = binsCollected === 1 ? "1 bin" : `${binsCollected} bins`;
+
+  return {
+    subject: "Service Complete — Here's Your Summary",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Service Complete", "Thank you!")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">Your service has been completed and your card has been charged. Here's a quick summary:</p>
+<div style="background-color:#f9f7f2;padding:20px;border-radius:8px;margin:20px 0;">
+<table style="width:100%;border-collapse:collapse;">
+<tr><td style="padding:10px 0;font-size:14px;color:#666;width:140px;">Service Date</td><td style="padding:10px 0;font-size:15px;font-weight:bold;">${escapeHtml(serviceDate)}</td></tr>
+<tr><td style="padding:10px 0;font-size:14px;color:#666;">Bins Collected</td><td style="padding:10px 0;font-size:15px;font-weight:bold;">${binLabel}</td></tr>
+<tr><td style="padding:10px 0;font-size:14px;color:#666;">Amount Charged</td><td style="padding:10px 0;font-size:15px;font-weight:bold;color:#2d5016;">$${escapeHtml(amount)}</td></tr>
+</table>
+</div>
+${invoiceUrl ? `<div style="text-align:center;margin:20px 0;"><a href="${escapeHtml(invoiceUrl)}" style="color:#2d5016;font-size:14px;text-decoration:underline;">View Invoice</a></div>` : ""}
+<h3 style="color:#2d5016;margin:30px 0 10px;">How Did We Do?</h3>
+<p style="font-size:16px;line-height:1.6;">We'd love to hear your feedback! If you have a moment, a quick Google review means the world to us:</p>
+<div style="text-align:center;margin:25px 0;">
+<a href="https://g.page/r/Ccxk3fVm-TL-EBM/review" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Leave a Review</a>
+</div>
+<p style="font-size:16px;line-height:1.6;">See you next time! If you ever need anything, call us at <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a>.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Quote Follow-Up Email 1 – "Just checking in"
+// ---------------------------------------------------------------------------
+
+export function quoteFollowup1Email(
+  firstname: string,
+  quoteNumber: string,
+  acceptUrl: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+
+  return {
+    subject: `Just Checking In — Your Quote ${escapeHtml(quoteNumber)} Is Waiting`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Your Quote Is Ready")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">I wanted to follow up on your recent quote (<strong>${escapeHtml(quoteNumber)}</strong>). We put together the details based on your property needs, and I wanted to make sure you had everything you need to move forward.</p>
+<p style="font-size:16px;line-height:1.6;">If you have any questions about the pricing or what's included, I'm happy to chat — just reply to this email or give me a call.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="${escapeHtml(acceptUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">View Your Quote</a>
+</div>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Quote Follow-Up Email 2 – "Last reminder"
+// ---------------------------------------------------------------------------
+
+export function quoteFollowup2Email(
+  firstname: string,
+  quoteNumber: string,
+  acceptUrl: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+
+  return {
+    subject: `Last Reminder — Your Quote ${escapeHtml(quoteNumber)} Expires Soon`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Don't Miss Out")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">This is a friendly last reminder that your quote <strong>${escapeHtml(quoteNumber)}</strong> is still open. We'd love to help get your property taken care of.</p>
+<p style="font-size:16px;line-height:1.6;">Our schedule fills up fast, especially during season — locking in your spot now guarantees we can get to your property on your preferred timeline.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="${escapeHtml(acceptUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">View Your Quote</a>
+</div>
+<p style="font-size:16px;line-height:1.6;">Questions? Just call <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> — I'm happy to help.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Quote Expiring Email – "Your quote expires in X days"
+// ---------------------------------------------------------------------------
+
+export function quoteExpiringEmail(
+  firstname: string,
+  quoteNumber: string,
+  daysLeft: number,
+  acceptUrl: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+
+  return {
+    subject: `Your Quote ${escapeHtml(quoteNumber)} Expires in ${daysLeft} Days`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Quote Expiring Soon")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">Just a heads up — your quote <strong>${escapeHtml(quoteNumber)}</strong> expires in <strong>${daysLeft} day${daysLeft !== 1 ? "s" : ""}</strong>.</p>
+<p style="font-size:16px;line-height:1.6;">If you'd still like to move forward, now's a great time to lock in your pricing and get on our schedule.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="${escapeHtml(acceptUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Accept Quote Before It Expires</a>
+</div>
+<p style="font-size:16px;line-height:1.6;">Need more time or have questions? Call me at <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a>.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Auto-Charge Summary Email (internal – to Jose)
+// ---------------------------------------------------------------------------
+
+export function autoChargeSummaryEmail(
+  date: string,
+  results: { name: string; amount: string; status: string }[],
+): EmailTemplate {
+  const rows = results
+    .map(
+      (r) =>
+        `<tr><td style="padding:8px 12px;border-bottom:1px solid #eee;font-size:14px;">${escapeHtml(r.name)}</td><td style="padding:8px 12px;border-bottom:1px solid #eee;font-size:14px;text-align:right;">$${escapeHtml(r.amount)}</td><td style="padding:8px 12px;border-bottom:1px solid #eee;font-size:14px;text-align:center;color:${r.status === "charged" ? "#2d5016" : "#c00"};">${escapeHtml(r.status)}</td></tr>`,
+    )
+    .join("");
+
+  const charged = results.filter((r) => r.status === "charged");
+  const failed = results.filter((r) => r.status === "failed");
+  const totalCharged = charged.reduce((s, r) => s + parseFloat(r.amount), 0);
+
+  return {
+    subject: `Auto-Charge Summary — ${escapeHtml(date)}`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Auto-Charge Summary")}
+<div style="padding:30px 20px;">
+<div style="background-color:#f9f7f2;padding:15px;border-radius:8px;margin:0 0 20px;">
+<p style="margin:5px 0;font-size:15px;"><strong>Date:</strong> ${escapeHtml(date)}</p>
+<p style="margin:5px 0;font-size:15px;"><strong>Charged:</strong> ${charged.length} ($${totalCharged.toFixed(2)})</p>
+<p style="margin:5px 0;font-size:15px;color:${failed.length > 0 ? "#c00" : "#333"};"><strong>Failed:</strong> ${failed.length}</p>
+</div>
+<table style="width:100%;border-collapse:collapse;">
+<thead><tr style="background:#f0f0f0;"><th style="padding:8px 12px;text-align:left;font-size:13px;">Customer</th><th style="padding:8px 12px;text-align:right;font-size:13px;">Amount</th><th style="padding:8px 12px;text-align:center;font-size:13px;">Status</th></tr></thead>
+<tbody>${rows}</tbody>
+</table>
+</div></div>`,
+      "#",
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Crew Dispatch Email – daily job list for crew members
+// ---------------------------------------------------------------------------
+
+export function crewDispatchEmail(
+  crewName: string,
+  date: string,
+  jobs: { customerName: string; address: string; notes: string | null }[],
+): EmailTemplate {
+  const name = escapeHtml(crewName || "Team");
+  const jobRows = jobs
+    .map(
+      (j, i) =>
+        `<tr><td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:14px;font-weight:bold;">${i + 1}. ${escapeHtml(j.customerName)}</td></tr>
+<tr><td style="padding:0 12px 10px;font-size:13px;color:#666;">${escapeHtml(j.address || "No address on file")}${j.notes ? `<br/><em>${escapeHtml(j.notes)}</em>` : ""}</td></tr>`,
+    )
+    .join("");
+
+  return {
+    subject: `Your Jobs for Today — ${escapeHtml(date)}`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Today's Job List", date)}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">Here are your assigned jobs for today. Please log each service when complete.</p>
+<table style="width:100%;border-collapse:collapse;margin:20px 0;">
+${jobRows}
+</table>
+<p style="font-size:15px;line-height:1.6;color:#666;">Total jobs: <strong>${jobs.length}</strong></p>
+<p style="font-size:16px;line-height:1.6;">Questions? Call Jose at <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a>.</p>
+</div></div>`,
+      "#",
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Service Upsell Email
+// ---------------------------------------------------------------------------
+
 export function serviceUpsellEmail(
   firstname: string,
   suggestedServices: string[],

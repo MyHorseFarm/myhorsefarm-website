@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { chargeCard } from "@/lib/square";
-import { paymentReceivedEmail, createUnsubscribeUrl, sendEmail } from "@/lib/emails";
+import { afterServiceEmail, createUnsubscribeUrl, sendEmail } from "@/lib/emails";
+import { findContactByEmail, findActiveDealForContact, updateDealStage, STAGE_COMPLETED } from "@/lib/hubspot";
 
 export const runtime = "nodejs";
 
@@ -73,20 +74,85 @@ export async function POST(request: NextRequest) {
       })
       .eq("id", log.id);
 
-    // Send receipt email if customer has email
+    // Auto-complete matching bookings
+    if (customer.email) {
+      try {
+        await supabase
+          .from("bookings")
+          .update({ status: "completed" })
+          .eq("customer_email", customer.email)
+          .eq("scheduled_date", log.service_date)
+          .eq("status", "confirmed");
+      } catch (bookingErr) {
+        console.error("Booking completion failed:", bookingErr);
+      }
+    }
+
+    // Update HubSpot deal to Completed (non-fatal)
+    if (customer.email) {
+      try {
+        const contact = await findContactByEmail(customer.email);
+        if (contact) {
+          const deal = await findActiveDealForContact(contact.id);
+          if (deal) {
+            await updateDealStage(deal.id, STAGE_COMPLETED);
+          }
+        }
+      } catch (hsErr) {
+        console.error("HubSpot deal update failed:", hsErr);
+      }
+    }
+
+    // Create invoice
+    let invoiceUrl: string | null = null;
+    try {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
+      const dateStr = log.service_date.replace(/-/g, "");
+      const { count } = await supabase
+        .from("invoices")
+        .select("*", { count: "exact", head: true })
+        .like("invoice_number", `MHF-INV-${dateStr}%`);
+      const seq = String((count ?? 0) + 1).padStart(3, "0");
+      const invoiceNumber = `MHF-INV-${dateStr}-${seq}`;
+
+      const { data: invoice } = await supabase
+        .from("invoices")
+        .insert({
+          invoice_number: invoiceNumber,
+          customer_id: customer.id,
+          service_log_id: log.id,
+          customer_name: customer.name,
+          customer_email: customer.email,
+          amount: chargeAmount,
+          service_description: note,
+          service_date: log.service_date,
+          sent_at: new Date().toISOString(),
+        })
+        .select("id")
+        .single();
+
+      if (invoice) {
+        invoiceUrl = `${siteUrl}/api/invoice/${invoice.id}`;
+      }
+    } catch (invErr) {
+      console.error("Invoice creation failed:", invErr);
+    }
+
+    // Send after-service email if customer has email
     if (customer.email) {
       try {
         const unsubUrl = createUnsubscribeUrl(customer.email);
-        const email = paymentReceivedEmail(
+        const email = afterServiceEmail(
           customer.name.split(" ")[0],
+          log.bins_collected,
+          log.service_date,
           chargeAmount.toFixed(2),
-          [note],
+          invoiceUrl,
           unsubUrl,
         );
         await sendEmail(customer.email, email.subject, email.html);
       } catch (emailErr) {
-        console.error("Receipt email failed:", emailErr);
-        // Don't fail the charge if email fails
+        console.error("After-service email failed:", emailErr);
       }
     }
 
@@ -95,6 +161,7 @@ export async function POST(request: NextRequest) {
       payment_id: result.paymentId,
       receipt_url: result.receiptUrl,
       amount: chargeAmount,
+      invoice_url: invoiceUrl,
     });
   } catch (err: unknown) {
     // Mark as failed
