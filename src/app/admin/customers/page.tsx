@@ -209,8 +209,8 @@ export default function CustomersPage() {
         const data = await res.json();
         throw new Error(data.error || "Import failed");
       }
-      const { imported, updated, skipped } = await res.json();
-      setImportResult(`Imported ${imported}, updated ${updated}, skipped ${skipped}`);
+      const { imported, updated, skipped, serviceUpdated } = await res.json();
+      setImportResult(`Imported ${imported}, updated ${updated}, skipped ${skipped}${serviceUpdated ? `, services detected: ${serviceUpdated}` : ""}`);
       await fetchCustomers();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Import failed");

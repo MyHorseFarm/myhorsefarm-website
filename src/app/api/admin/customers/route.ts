@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { listAllSquareCustomers } from "@/lib/square";
+import { listAllSquareCustomers, searchOrdersByCustomer, inferServiceFromOrders } from "@/lib/square";
 
 export const runtime = "nodejs";
 
@@ -149,7 +149,38 @@ export async function PATCH(request: NextRequest) {
       squareIdToRow.set(sc.id, { id: sc.id, name, email: sc.email, phone: sc.phone, address: sc.address, square_customer_id: sc.id });
     }
 
-    return NextResponse.json({ imported, updated, skipped });
+    // Second pass: look up order history for customers with Square IDs
+    // and infer default_service + default_bin_rate from line items
+    const { data: allCustomers } = await supabase
+      .from("recurring_customers")
+      .select("id, square_customer_id, default_service")
+      .not("square_customer_id", "is", null);
+
+    let serviceUpdated = 0;
+    for (const cust of allCustomers ?? []) {
+      try {
+        const orders = await searchOrdersByCustomer(cust.square_customer_id!);
+        const inferred = inferServiceFromOrders(orders);
+        if (!inferred) continue;
+
+        const serviceUpdates: Record<string, unknown> = {
+          default_service: inferred.serviceKey,
+        };
+        if (inferred.rate > 0) {
+          serviceUpdates.default_bin_rate = inferred.rate;
+        }
+
+        await supabase
+          .from("recurring_customers")
+          .update(serviceUpdates)
+          .eq("id", cust.id);
+        serviceUpdated++;
+      } catch (orderErr) {
+        console.error(`Order lookup failed for customer ${cust.id}:`, orderErr);
+      }
+    }
+
+    return NextResponse.json({ imported, updated, skipped, serviceUpdated });
   } catch (err) {
     console.error("Square import error:", err);
     return NextResponse.json(

@@ -14,6 +14,9 @@ export interface ServicePricing {
   is_recurring: boolean;
   frequency_options: string[] | null;
   active: boolean;
+  peak_rate: number | null;
+  peak_start_month: number | null;
+  peak_end_month: number | null;
 }
 
 export interface ScheduleSettings {
@@ -111,6 +114,28 @@ export interface QuoteRequest {
   property_details: Record<string, unknown>;
   source?: "form" | "chatbot" | "landing_page";
   chat_session_id?: string;
+  referral_code?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Referral type (mirrors referrals table)
+// ---------------------------------------------------------------------------
+
+export interface Referral {
+  id: string;
+  referrer_customer_id: string | null;
+  referrer_name: string;
+  referrer_email: string;
+  referral_code: string;
+  referee_name: string | null;
+  referee_email: string | null;
+  referee_quote_id: string | null;
+  status: "pending" | "signed_up" | "completed" | "rewarded";
+  referrer_reward_amount: number;
+  referee_discount_amount: number;
+  referrer_reward_applied: boolean;
+  created_at: string;
+  completed_at: string | null;
 }
 
 export interface BookingRequest {
@@ -143,6 +168,7 @@ export interface RecurringCustomer {
   phone: string | null;
   address: string | null;
   square_customer_id: string | null;
+  default_service: string;
   default_bin_rate: number;
   notes: string | null;
   signature_data: string | null;

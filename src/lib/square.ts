@@ -273,6 +273,117 @@ export async function listAllSquareCustomers(): Promise<SquareCustomerSummary[]>
 }
 
 // ---------------------------------------------------------------------------
+// Service name mapping — Square line item names → service keys
+// ---------------------------------------------------------------------------
+
+const SERVICE_NAME_PATTERNS: { pattern: RegExp; serviceKey: string }[] = [
+  { pattern: /manure/i, serviceKey: "manure_removal" },
+  { pattern: /trash|bin/i, serviceKey: "trash_bin_service" },
+  { pattern: /junk/i, serviceKey: "junk_removal" },
+  { pattern: /fill\s*dirt|dirt/i, serviceKey: "fill_dirt" },
+  { pattern: /dumpster/i, serviceKey: "dumpster_rental" },
+  { pattern: /sod/i, serviceKey: "sod_installation" },
+  { pattern: /repair/i, serviceKey: "farm_repairs" },
+  { pattern: /millings|asphalt/i, serviceKey: "millings_asphalt" },
+];
+
+export function mapLineItemToServiceKey(itemName: string): string | null {
+  for (const { pattern, serviceKey } of SERVICE_NAME_PATTERNS) {
+    if (pattern.test(itemName)) return serviceKey;
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Search orders by customer (for service type inference)
+// ---------------------------------------------------------------------------
+
+export interface OrderSummary {
+  id: string;
+  createdAt: string;
+  lineItems: { name: string; quantity: number; amountCents: number }[];
+}
+
+export async function searchOrdersByCustomer(
+  customerId: string,
+): Promise<OrderSummary[]> {
+  const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID;
+  if (!locationId) {
+    console.warn("NEXT_PUBLIC_SQUARE_LOCATION_ID not set — skipping order search");
+    return [];
+  }
+
+  const result = await client.orders.search({
+    locationIds: [locationId],
+    query: {
+      filter: {
+        customerFilter: {
+          customerIds: [customerId],
+        },
+      },
+      sort: {
+        sortField: "CREATED_AT",
+        sortOrder: "DESC",
+      },
+    },
+    limit: 10,
+  });
+
+  return (result.orders ?? []).map((order) => ({
+    id: order.id ?? "",
+    createdAt: order.createdAt ?? "",
+    lineItems: (order.lineItems ?? []).map((item) => ({
+      name: item.name ?? "Service",
+      quantity: Number(item.quantity ?? "1"),
+      amountCents: Number(item.totalMoney?.amount ?? 0),
+    })),
+  }));
+}
+
+// ---------------------------------------------------------------------------
+// Infer service from order history
+// ---------------------------------------------------------------------------
+
+export function inferServiceFromOrders(
+  orders: OrderSummary[],
+): { serviceKey: string; rate: number } | null {
+  // Count occurrences of each service key across all line items
+  const counts = new Map<string, { count: number; totalCents: number; totalQty: number }>();
+
+  for (const order of orders) {
+    for (const item of order.lineItems) {
+      const key = mapLineItemToServiceKey(item.name);
+      if (!key) continue;
+      const prev = counts.get(key) ?? { count: 0, totalCents: 0, totalQty: 0 };
+      prev.count += 1;
+      prev.totalCents += item.amountCents;
+      prev.totalQty += item.quantity;
+      counts.set(key, prev);
+    }
+  }
+
+  if (counts.size === 0) return null;
+
+  // Find the most frequent service
+  let bestKey = "";
+  let bestCount = 0;
+  for (const [key, { count }] of counts) {
+    if (count > bestCount) {
+      bestKey = key;
+      bestCount = count;
+    }
+  }
+
+  const stats = counts.get(bestKey)!;
+  // Average rate = total amount / total quantity
+  const rate = stats.totalQty > 0
+    ? Math.round(stats.totalCents / stats.totalQty) / 100
+    : 0;
+
+  return { serviceKey: bestKey, rate };
+}
+
+// ---------------------------------------------------------------------------
 // Card on file — charge a customer's stored card
 // ---------------------------------------------------------------------------
 

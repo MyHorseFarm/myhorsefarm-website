@@ -6,6 +6,21 @@ import { findContactByEmail, findActiveDealForContact, updateDealStage, STAGE_CO
 
 export const runtime = "nodejs";
 
+const SERVICE_LABELS: Record<string, string> = {
+  trash_bin_service: "Trash Bin Service",
+  manure_removal: "Manure Removal",
+  junk_removal: "Junk Removal",
+  fill_dirt: "Fill Dirt Delivery",
+  dumpster_rental: "Dumpster Rental",
+  sod_installation: "Sod Installation",
+  farm_repairs: "Farm Repairs",
+  millings_asphalt: "Millings Asphalt",
+};
+
+function serviceLabel(key: string): string {
+  return SERVICE_LABELS[key] || key.replace(/_/g, " ");
+}
+
 function checkAuth(request: NextRequest): boolean {
   const auth = request.headers.get("authorization");
   return auth === `Bearer ${process.env.ADMIN_SECRET}`;
@@ -51,7 +66,8 @@ export async function POST(request: NextRequest) {
 
   const chargeAmount = override_amount ?? log.total_amount;
   const amountCents = Math.round(chargeAmount * 100);
-  const note = `Manure Removal - ${log.bins_collected} bin${log.bins_collected !== 1 ? "s" : ""} (${log.service_date})`;
+  const svcLabel = serviceLabel(customer.default_service || "manure_removal");
+  const note = `${svcLabel} - ${log.bins_collected} bin${log.bins_collected !== 1 ? "s" : ""} (${log.service_date})`;
 
   try {
     const result = await chargeCard(
