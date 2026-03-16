@@ -17,6 +17,8 @@ export interface ServicePricing {
   peak_rate: number | null;
   peak_start_month: number | null;
   peak_end_month: number | null;
+  premium_rate_multiplier: number | null;
+  premium_description: string | null;
 }
 
 export interface ScheduleSettings {
@@ -115,6 +117,7 @@ export interface QuoteRequest {
   source?: "form" | "chatbot" | "landing_page";
   chat_session_id?: string;
   referral_code?: string;
+  service_tier?: "standard" | "premium";
 }
 
 // ---------------------------------------------------------------------------

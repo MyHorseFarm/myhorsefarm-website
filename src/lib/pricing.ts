@@ -65,6 +65,7 @@ export async function getServiceByKey(
 export function calculateQuote(
   service: ServicePricing,
   details: Record<string, unknown>,
+  tier: "standard" | "premium" = "standard",
 ): PricingBreakdown {
   const adjustments: { label: string; amount: number }[] = [];
   const rate = getEffectiveRate(service);
@@ -123,6 +124,15 @@ export function calculateQuote(
       amount: service.minimum_charge - base,
     });
     base = service.minimum_charge;
+  }
+
+  // Apply premium tier multiplier
+  if (tier === "premium" && service.premium_rate_multiplier && service.premium_rate_multiplier > 1) {
+    const premiumExtra = base * (service.premium_rate_multiplier - 1);
+    adjustments.push({
+      label: "Premium service (priority scheduling, dedicated crew)",
+      amount: premiumExtra,
+    });
   }
 
   const total = base + adjustments.reduce((sum, a) => sum + a.amount, 0);

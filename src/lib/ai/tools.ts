@@ -98,7 +98,7 @@ async function executeGenerateQuote(
   const quoteNumber = `MHF-Q-${today}-${seq}`;
 
   const status = service.requires_site_visit ? "pending_site_visit" : "pending";
-  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
   // Save to Supabase
   const { data: quote, error: insertError } = await supabase

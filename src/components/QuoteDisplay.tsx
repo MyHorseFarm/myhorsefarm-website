@@ -228,6 +228,32 @@ export default function QuoteDisplay({
                 </tbody>
               </table>
 
+              {/* Volume discount comparison */}
+              {canAccept && quote.pricing_breakdown.total > 0 && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-4">
+                  <p className="text-sm font-semibold text-blue-800 mb-2">
+                    <i className="fas fa-tag mr-1.5" />
+                    Save with a commitment plan
+                  </p>
+                  <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div className="bg-white rounded p-2 border border-blue-100">
+                      <p className="text-gray-500">Monthly</p>
+                      <p className="font-bold text-gray-800">${quote.pricing_breakdown.total.toFixed(2)}</p>
+                    </div>
+                    <div className="bg-white rounded p-2 border border-blue-200">
+                      <p className="text-blue-600 font-medium">6-Month</p>
+                      <p className="font-bold text-blue-800">${(quote.pricing_breakdown.total * 0.95).toFixed(2)}</p>
+                      <p className="text-blue-600">5% off</p>
+                    </div>
+                    <div className="bg-green-50 rounded p-2 border border-green-300">
+                      <p className="text-green-700 font-medium">Annual</p>
+                      <p className="font-bold text-green-800">${(quote.pricing_breakdown.total * 0.90).toFixed(2)}</p>
+                      <p className="text-green-600">10% off</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Price lock messaging */}
               {canAccept && daysUntilExpiry > 0 && (
                 <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 mb-4">

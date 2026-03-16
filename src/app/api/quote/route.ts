@@ -50,7 +50,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate price
-    const breakdown = calculateQuote(service, body.property_details || {});
+    const tier = (body.service_tier === "premium" ? "premium" : "standard") as "standard" | "premium";
+    const breakdown = calculateQuote(service, body.property_details || {}, tier);
 
     // Apply referral discount if valid code
     let referralCode: string | null = null;
@@ -106,6 +107,7 @@ export async function POST(request: NextRequest) {
         chat_session_id: body.chat_session_id || null,
         referral_code: referralCode,
         expires_at: expiresAt,
+        service_tier: tier,
       })
       .select()
       .single();

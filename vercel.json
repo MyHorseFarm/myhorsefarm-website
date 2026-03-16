@@ -35,6 +35,14 @@
     {
       "path": "/api/cron/contract-renewal",
       "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/cron/chat-recovery",
+      "schedule": "0 17 * * *"
+    },
+    {
+      "path": "/api/cron/winback",
+      "schedule": "0 15 * * 1"
     }
   ]
 }

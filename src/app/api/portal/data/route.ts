@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   // Fetch customer info
   const { data: customer } = await supabase
     .from("recurring_customers")
-    .select("id, name, email, phone, address, default_service, default_bin_rate, auto_charge, charge_frequency, next_charge_date, default_bins")
+    .select("id, name, email, phone, address, default_service, default_bin_rate, auto_charge, charge_frequency, next_charge_date, default_bins, active, contract_type, contract_end_date, contract_discount_pct")
     .eq("id", customerId)
     .single();
 
@@ -76,6 +76,11 @@ export async function GET(request: NextRequest) {
       service: customer.default_service,
       rate: customer.default_bin_rate,
       frequency: customer.charge_frequency,
+      active: customer.active,
+      auto_charge: customer.auto_charge,
+      contract_type: customer.contract_type || "month_to_month",
+      contract_end_date: customer.contract_end_date,
+      contract_discount_pct: customer.contract_discount_pct || 0,
     },
     logs: logs ?? [],
     invoices: invoices ?? [],

@@ -20,12 +20,53 @@ const LOCATION_OPTIONS = [
   { value: "loxahatchee_groves", label: "Loxahatchee Groves" },
 ];
 
+const STORAGE_KEY = "mhf_quote_draft";
+
+interface SavedDraft {
+  service_key?: string;
+  details?: Record<string, unknown>;
+  location?: string;
+  contact?: { name: string; email: string; phone: string };
+  tier?: "standard" | "premium";
+  step?: Step;
+  saved_at: number;
+}
+
+function loadDraft(): SavedDraft | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const draft = JSON.parse(raw) as SavedDraft;
+    // Expire after 24 hours
+    if (Date.now() - draft.saved_at > 24 * 60 * 60 * 1000) {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+    return draft;
+  } catch {
+    return null;
+  }
+}
+
+function saveDraft(draft: Omit<SavedDraft, "saved_at">) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...draft, saved_at: Date.now() }));
+  } catch {
+    // localStorage full or unavailable
+  }
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch { /* noop */ }
+}
+
 export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
   const [step, setStep] = useState<Step>("service");
   const [selectedService, setSelectedService] = useState<ServicePricing | null>(null);
   const [details, setDetails] = useState<Record<string, unknown>>({});
   const [location, setLocation] = useState("");
   const [contact, setContact] = useState({ name: "", email: "", phone: "" });
+  const [tier, setTier] = useState<"standard" | "premium">("standard");
   const [preview, setPreview] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{
@@ -35,6 +76,49 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
     requires_site_visit: boolean;
   } | null>(null);
   const [error, setError] = useState("");
+  const [showExitModal, setShowExitModal] = useState(false);
+  const [exitModalShown, setExitModalShown] = useState(false);
+
+  // Restore draft on mount
+  useEffect(() => {
+    const draft = loadDraft();
+    if (!draft) return;
+    if (draft.service_key) {
+      const svc = services.find((s) => s.service_key === draft.service_key);
+      if (svc) setSelectedService(svc);
+    }
+    if (draft.details) setDetails(draft.details);
+    if (draft.location) setLocation(draft.location);
+    if (draft.contact) setContact(draft.contact);
+    if (draft.tier) setTier(draft.tier);
+    if (draft.step && draft.step !== "confirmation") setStep(draft.step);
+  }, [services]);
+
+  // Auto-save draft on changes
+  useEffect(() => {
+    if (step === "confirmation") return;
+    saveDraft({
+      service_key: selectedService?.service_key,
+      details,
+      location,
+      contact,
+      tier,
+      step,
+    });
+  }, [selectedService, details, location, contact, tier, step]);
+
+  // Exit-intent detection (mouse leaves viewport on desktop)
+  useEffect(() => {
+    if (step === "confirmation" || step === "service") return;
+    const handler = (e: MouseEvent) => {
+      if (e.clientY <= 0 && !exitModalShown && !result) {
+        setShowExitModal(true);
+        setExitModalShown(true);
+      }
+    };
+    document.addEventListener("mouseleave", handler);
+    return () => document.removeEventListener("mouseleave", handler);
+  }, [step, exitModalShown, result]);
 
   // Calculate preview price when details change
   useEffect(() => {
@@ -69,8 +153,12 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
       base = selectedService.minimum_charge;
     }
 
+    if (tier === "premium" && selectedService.premium_rate_multiplier) {
+      base = base * selectedService.premium_rate_multiplier;
+    }
+
     setPreview(base > 0 ? Math.round(base * 100) / 100 : null);
-  }, [selectedService, details]);
+  }, [selectedService, details, tier]);
 
   async function handleSubmit() {
     if (!selectedService || !location || !contact.name || !contact.email || !contact.phone) return;
@@ -90,6 +178,7 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
           customer_location: location,
           property_details: details,
           source: "form",
+          service_tier: tier,
           ...(referralCode ? { referral_code: referralCode } : {}),
         }),
       });
@@ -99,6 +188,7 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
 
       setResult(data.quote);
       setStep("confirmation");
+      clearDraft();
       trackEvent("generate_lead", {
         currency: "USD",
         value: data.quote.estimated_amount,
@@ -339,6 +429,44 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
 
           {renderDetailsFields()}
 
+          {/* Service tier selector */}
+          {!selectedService.requires_site_visit && (
+            <div className="mb-4">
+              <span className="text-gray-700 font-semibold block mb-2">Service Level</span>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setTier("standard")}
+                  className={`text-left p-4 rounded-lg border-2 transition-all ${
+                    tier === "standard"
+                      ? "border-primary bg-green-50"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <p className="font-bold text-gray-800">Standard</p>
+                  <p className="text-xs text-gray-500 mt-1">Regular scheduling, professional crew</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTier("premium")}
+                  className={`text-left p-4 rounded-lg border-2 transition-all ${
+                    tier === "premium"
+                      ? "border-primary bg-green-50"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-gray-800">Premium</p>
+                    <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-semibold">PRIORITY</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {selectedService.premium_description || "Priority scheduling, dedicated crew, same-day availability"}
+                  </p>
+                </button>
+              </div>
+            </div>
+          )}
+
           <label className="block mb-4">
             <span className="text-gray-700 font-semibold">Additional notes (optional)</span>
             <textarea
@@ -515,6 +643,57 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
               </a>
             </>
           )}
+        </div>
+      )}
+
+      {/* Exit-intent modal */}
+      {showExitModal && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 text-center">
+            <h3 className="text-xl font-bold text-gray-800 mb-2">
+              Don&rsquo;t lose your progress!
+            </h3>
+            <p className="text-gray-600 text-sm mb-4">
+              Your quote details are saved. Come back anytime to finish — or leave your email and we&rsquo;ll send you a reminder.
+            </p>
+            {!contact.email ? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const fd = new FormData(e.currentTarget);
+                  const em = (fd.get("exit_email") as string || "").trim();
+                  if (em) {
+                    setContact((prev) => ({ ...prev, email: em }));
+                    saveDraft({ service_key: selectedService?.service_key, details, location, contact: { ...contact, email: em }, step });
+                  }
+                  setShowExitModal(false);
+                }}
+              >
+                <input
+                  name="exit_email"
+                  type="email"
+                  placeholder="your@email.com"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 mb-3 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                />
+                <button
+                  type="submit"
+                  className="w-full bg-primary text-white py-2.5 rounded-lg font-semibold hover:bg-primary-dark transition-colors mb-2"
+                >
+                  Save My Quote
+                </button>
+              </form>
+            ) : (
+              <p className="text-green-700 text-sm font-medium mb-3">
+                We&rsquo;ve got your email. Your progress is saved!
+              </p>
+            )}
+            <button
+              onClick={() => setShowExitModal(false)}
+              className="text-gray-400 text-sm hover:text-gray-600"
+            >
+              Continue with my quote
+            </button>
+          </div>
         </div>
       )}
     </div>

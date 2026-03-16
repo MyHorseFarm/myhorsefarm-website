@@ -566,7 +566,17 @@ ${adjustmentRows}
 <tr><td style="padding:12px 0;border-top:2px solid #2d5016;font-size:16px;font-weight:bold;">Total</td><td style="padding:12px 0;border-top:2px solid #2d5016;font-size:16px;font-weight:bold;text-align:right;">$${breakdown.total.toFixed(2)}</td></tr>
 </table>
 </div>
-<p style="font-size:14px;color:#888;">This quote is valid for 30 days.</p>
+<p style="font-size:14px;color:#888;">This quote is valid for 7 days.</p>
+<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:15px;margin:15px 0;">
+<p style="font-size:14px;font-weight:bold;color:#1e40af;margin:0 0 8px;">Save with a commitment plan:</p>
+<table style="width:100%;border-collapse:collapse;text-align:center;font-size:13px;">
+<tr>
+<td style="padding:8px;background:#fff;border-radius:4px;border:1px solid #e5e7eb;">Monthly<br/><strong>$${breakdown.total.toFixed(2)}</strong></td>
+<td style="padding:8px;background:#fff;border-radius:4px;border:1px solid #bfdbfe;">6-Mo (5% off)<br/><strong style="color:#1e40af;">$${(breakdown.total * 0.95).toFixed(2)}</strong></td>
+<td style="padding:8px;background:#f0fdf4;border-radius:4px;border:1px solid #bbf7d0;">Annual (10% off)<br/><strong style="color:#166534;">$${(breakdown.total * 0.90).toFixed(2)}</strong></td>
+</tr>
+</table>
+</div>
 <div style="text-align:center;margin:30px 0;">
 <a href="${escapeHtml(acceptUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:16px 40px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:18px;">Accept &amp; Schedule</a>
 </div>
@@ -1190,6 +1200,60 @@ ${header("Customer Portal")}
 <a href="${escapeHtml(portalUrl)}" style="display:inline-block;padding:14px 32px;background-color:#2d5016;color:#fff;text-decoration:none;border-radius:8px;font-size:16px;font-weight:600;">Open My Portal</a>
 </div>
 <p style="font-size:14px;color:#666;">This link is valid for 7 days. If you didn&rsquo;t request this, you can safely ignore this email.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+export function chatRecoveryEmail(
+  firstname: string,
+  serviceName: string,
+  quoteUrl: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  return {
+    subject: `Still thinking about ${serviceName}? Let's get you a quote`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("We Saved Your Spot")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${escapeHtml(firstname)},</p>
+<p style="font-size:16px;line-height:1.6;">We noticed you were chatting with us about ${escapeHtml(serviceName)} but didn&rsquo;t get a chance to finish. No worries — we saved your details.</p>
+<p style="font-size:16px;line-height:1.6;">Click below to pick up where you left off and get your free quote in under 60 seconds:</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="${escapeHtml(quoteUrl)}" style="display:inline-block;padding:14px 32px;background-color:#2d5016;color:#fff;text-decoration:none;border-radius:8px;font-size:16px;font-weight:600;">Get My Free Quote</a>
+</div>
+<p style="font-size:14px;color:#666;">Or just reply to this email — we&rsquo;ll take it from there.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+export function winbackEmail(
+  firstname: string,
+  serviceName: string,
+  enrollUrl: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  return {
+    subject: `We miss you, ${firstname}! Come back and save 10%`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("We'd Love to Have You Back")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${escapeHtml(firstname)},</p>
+<p style="font-size:16px;line-height:1.6;">It&rsquo;s been a little while since your last ${escapeHtml(serviceName)} service with us. We&rsquo;d love to have you back.</p>
+<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:20px;text-align:center;margin:20px 0;">
+<p style="font-size:20px;font-weight:bold;color:#2d5016;margin:0;">Save 10% when you sign up for an annual plan</p>
+</div>
+<div style="text-align:center;margin:30px 0;">
+<a href="${escapeHtml(enrollUrl)}" style="display:inline-block;padding:14px 32px;background-color:#2d5016;color:#fff;text-decoration:none;border-radius:8px;font-size:16px;font-weight:600;">Re-Enroll Now</a>
+</div>
+<p style="font-size:14px;color:#666;">Or call us at (561) 576-7667 — we&rsquo;ll get you set up in minutes.</p>
 ${signoff()}
 </div></div>`,
       unsubscribeUrl,

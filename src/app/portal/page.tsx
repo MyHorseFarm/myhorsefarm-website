@@ -10,6 +10,11 @@ interface PortalCustomer {
   service: string;
   rate: number;
   frequency: string | null;
+  active: boolean;
+  auto_charge: boolean;
+  contract_type: string;
+  contract_end_date: string | null;
+  contract_discount_pct: number;
 }
 
 interface ServiceLog {
@@ -183,8 +188,46 @@ function PortalContent() {
     );
   }
 
+  const [subAction, setSubAction] = useState<"pause" | "cancel" | null>(null);
+  const [cancelStep, setCancelStep] = useState<1 | 2 | 3>(1);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelFeedback, setCancelFeedback] = useState("");
+  const [subLoading, setSubLoading] = useState(false);
+  const [subMessage, setSubMessage] = useState("");
+
+  const handleSubscriptionAction = async (action: "pause" | "resume" | "cancel", reason?: string, feedback?: string) => {
+    const t = token || sessionStorage.getItem("portal_token");
+    if (!t) return;
+    setSubLoading(true);
+    setSubMessage("");
+    try {
+      const res = await fetch("/api/portal/subscription", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${t}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ action, reason, feedback }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      const msgs: Record<string, string> = {
+        pause: "Service paused. You can resume anytime.",
+        resume: "Service resumed! Next service coming soon.",
+        cancel: "Service cancelled. We're sorry to see you go.",
+      };
+      setSubMessage(msgs[action] || "Updated.");
+      setSubAction(null);
+      setCancelStep(1);
+      // Refresh data
+      fetchData(t);
+    } catch {
+      setSubMessage("Something went wrong. Please try again or call (561) 576-7667.");
+    } finally {
+      setSubLoading(false);
+    }
+  };
+
   // Authenticated dashboard
   const c = data.customer;
+  const isPaused = c.active && !c.auto_charge;
+  const isCancelled = !c.active;
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
@@ -195,6 +238,11 @@ function PortalContent() {
           <p className="text-sm text-gray-500">
             {(c.service || "").replace(/_/g, " ")}
             {c.frequency && ` \u00b7 ${c.frequency}`}
+            {c.contract_type !== "month_to_month" && (
+              <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">
+                {c.contract_type === "annual" ? "Annual" : "6-Month"} ({c.contract_discount_pct}% off)
+              </span>
+            )}
           </p>
         </div>
 
@@ -218,6 +266,111 @@ function PortalContent() {
             </div>
           </div>
         )}
+
+        {/* Subscription Management */}
+        <div className="bg-white rounded-lg shadow p-4 mb-6">
+          <h2 className="text-sm font-semibold mb-3">Manage Subscription</h2>
+          {subMessage && (
+            <div className="text-sm bg-green-50 text-green-800 px-3 py-2 rounded mb-3">{subMessage}</div>
+          )}
+          {isCancelled ? (
+            <div className="text-sm text-gray-500">
+              Your service is cancelled. Want to come back?{" "}
+              <a href="/enroll" className="text-green-800 underline font-medium">Re-enroll here</a> or call (561) 576-7667.
+            </div>
+          ) : subAction === "cancel" ? (
+            <div>
+              {cancelStep === 1 && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-3">We&rsquo;re sorry to hear that. Can you tell us why?</p>
+                  {["Too expensive", "Don't need the service anymore", "Switching to another provider", "Service quality", "Other"].map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => { setCancelReason(r); setCancelStep(2); }}
+                      className="block w-full text-left text-sm px-3 py-2 rounded hover:bg-gray-100 border mb-1"
+                    >
+                      {r}
+                    </button>
+                  ))}
+                  <button onClick={() => setSubAction(null)} className="text-xs text-gray-400 mt-2">Never mind</button>
+                </div>
+              )}
+              {cancelStep === 2 && (
+                <div>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <p className="text-sm font-semibold text-green-800 mb-1">Before you go — how about 10% off?</p>
+                    <p className="text-xs text-green-700">Switch to an annual plan and save 10% on every service. That&rsquo;s real money back in your pocket.</p>
+                    <button
+                      onClick={() => { setSubAction(null); setCancelStep(1); setSubMessage("Great! Call us at (561) 576-7667 to switch to annual."); }}
+                      className="mt-2 bg-green-800 text-white text-xs px-4 py-1.5 rounded font-semibold"
+                    >
+                      Switch to Annual (Save 10%)
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => setCancelStep(3)}
+                    className="text-xs text-gray-400 underline"
+                  >
+                    No thanks, continue cancellation
+                  </button>
+                </div>
+              )}
+              {cancelStep === 3 && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">Any feedback for us? (optional)</p>
+                  <textarea
+                    value={cancelFeedback}
+                    onChange={(e) => setCancelFeedback(e.target.value)}
+                    rows={2}
+                    className="w-full border rounded px-3 py-2 text-sm mb-3"
+                    placeholder="What could we do better?"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleSubscriptionAction("cancel", cancelReason, cancelFeedback)}
+                      disabled={subLoading}
+                      className="bg-red-600 text-white text-sm px-4 py-2 rounded font-semibold disabled:opacity-50"
+                    >
+                      {subLoading ? "Cancelling..." : "Confirm Cancellation"}
+                    </button>
+                    <button onClick={() => { setSubAction(null); setCancelStep(1); }} className="text-sm text-gray-400">
+                      Keep my service
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {isPaused ? (
+                <button
+                  onClick={() => handleSubscriptionAction("resume")}
+                  disabled={subLoading}
+                  className="bg-green-800 text-white text-sm px-4 py-2 rounded font-semibold disabled:opacity-50"
+                >
+                  {subLoading ? "Resuming..." : "Resume Service"}
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleSubscriptionAction("pause", "Customer requested pause")}
+                  disabled={subLoading}
+                  className="bg-amber-500 text-white text-sm px-4 py-2 rounded font-semibold disabled:opacity-50"
+                >
+                  {subLoading ? "Pausing..." : "Pause Service"}
+                </button>
+              )}
+              <button
+                onClick={() => setSubAction("cancel")}
+                className="text-sm text-red-500 hover:text-red-700 px-4 py-2"
+              >
+                Cancel Service
+              </button>
+              {isPaused && (
+                <span className="text-xs text-amber-600 self-center">Service is currently paused</span>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Service History */}
