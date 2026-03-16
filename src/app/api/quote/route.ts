@@ -52,6 +52,29 @@ export async function POST(request: NextRequest) {
     // Calculate price
     const breakdown = calculateQuote(service, body.property_details || {});
 
+    // Apply referral discount if valid code
+    let referralCode: string | null = null;
+    if (body.referral_code) {
+      const { data: referral } = await supabase
+        .from("referrals")
+        .select("*")
+        .eq("referral_code", body.referral_code)
+        .eq("status", "pending")
+        .single();
+
+      if (referral) {
+        const discount = Number(referral.referee_discount_amount) || 25;
+        if (breakdown.total > discount) {
+          breakdown.adjustments.push({
+            label: "Referral discount",
+            amount: -discount,
+          });
+          breakdown.total = Math.round((breakdown.total - discount) * 100) / 100;
+        }
+        referralCode = body.referral_code;
+      }
+    }
+
     // Generate quote number: MHF-Q-YYYYMMDD-NNN
     const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
     const { count } = await supabase
@@ -62,7 +85,7 @@ export async function POST(request: NextRequest) {
     const quoteNumber = `MHF-Q-${today}-${seq}`;
 
     const status = service.requires_site_visit ? "pending_site_visit" : "pending";
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
     // Insert quote into Supabase
     const { data: quote, error: insertError } = await supabase
@@ -81,12 +104,27 @@ export async function POST(request: NextRequest) {
         requires_site_visit: service.requires_site_visit,
         source: body.source || "form",
         chat_session_id: body.chat_session_id || null,
+        referral_code: referralCode,
         expires_at: expiresAt,
       })
       .select()
       .single();
 
     if (insertError) throw new Error(`Supabase insert: ${insertError.message}`);
+
+    // Link referral to this quote
+    if (referralCode) {
+      await supabase
+        .from("referrals")
+        .update({
+          referee_name: body.customer_name,
+          referee_email: body.customer_email,
+          referee_quote_id: quote.id,
+          status: "signed_up",
+        })
+        .eq("referral_code", referralCode)
+        .eq("status", "pending");
+    }
 
     // HubSpot: find or create contact, create deal at Quoted stage
     let hubspotContactId: string | null = null;
@@ -172,6 +210,23 @@ export async function POST(request: NextRequest) {
       }
     } catch (err) {
       console.error("Email send error (non-fatal):", err);
+    }
+
+    // Send SMS notification (non-fatal)
+    if (!service.requires_site_visit && body.customer_phone) {
+      try {
+        const { sendSMS, quoteReadySMS } = await import("@/lib/twilio");
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
+        const sms = quoteReadySMS(
+          body.customer_name,
+          breakdown.total,
+          service.display_name,
+          `${siteUrl}/quote/${quote.id}`,
+        );
+        await sendSMS(body.customer_phone, sms);
+      } catch (err) {
+        console.error("SMS send error (non-fatal):", err);
+      }
     }
 
     return NextResponse.json({

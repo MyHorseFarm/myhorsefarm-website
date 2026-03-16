@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DateTimePicker from "./DateTimePicker";
 import { trackEvent } from "@/lib/analytics";
 
@@ -44,7 +44,6 @@ export default function QuoteDisplay({
 }) {
   const expired = new Date(quote.expires_at) < new Date();
 
-  // Determine initial phase
   function getInitialPhase(): Phase {
     if (existingBooking || quote.status === "booked") return "confirmed";
     if (quote.status === "accepted") return "schedule";
@@ -56,10 +55,29 @@ export default function QuoteDisplay({
   const [bookingInProgress, setBookingInProgress] = useState(false);
   const [error, setError] = useState("");
   const [bookingData, setBookingData] = useState<BookingData | null>(existingBooking ?? null);
+  const [slotsThisWeek, setSlotsThisWeek] = useState<number | null>(null);
 
-  // Date/time picker state
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<"morning" | "afternoon">("morning");
+
+  // Fetch real availability for urgency counter
+  useEffect(() => {
+    async function fetchAvailability() {
+      try {
+        const res = await fetch("/api/availability?days=7");
+        if (!res.ok) return;
+        const data = await res.json();
+        const totalSlots = (data.dates ?? []).reduce(
+          (sum: number, d: { slots_available: number }) => sum + d.slots_available,
+          0
+        );
+        setSlotsThisWeek(totalSlots);
+      } catch {
+        // Non-critical — don't show counter if it fails
+      }
+    }
+    if (phase === "review") fetchAvailability();
+  }, [phase]);
 
   async function handleAcceptAndSchedule() {
     setAccepting(true);
@@ -112,7 +130,6 @@ export default function QuoteDisplay({
     }
   }
 
-  // Google Calendar link for the customer
   function getGoogleCalUrl() {
     if (!bookingData) return "#";
     const calDate = bookingData.scheduled_date.replace(/-/g, "");
@@ -125,6 +142,12 @@ export default function QuoteDisplay({
   }
 
   const canAccept = quote.status === "pending" && !expired;
+
+  // Days until expiry
+  const daysUntilExpiry = Math.max(
+    0,
+    Math.ceil((new Date(quote.expires_at).getTime() - Date.now()) / (24 * 60 * 60 * 1000))
+  );
 
   return (
     <div className="max-w-lg mx-auto">
@@ -164,7 +187,17 @@ export default function QuoteDisplay({
           {/* ─── PHASE: REVIEW ─── */}
           {phase === "review" && (
             <>
-              <table className="w-full mb-6">
+              {/* Availability urgency bar */}
+              {slotsThisWeek != null && slotsThisWeek <= 8 && canAccept && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-4 flex items-center gap-2">
+                  <i className="fas fa-clock text-amber-600 text-sm" />
+                  <span className="text-sm text-amber-800 font-medium">
+                    Only {slotsThisWeek} slot{slotsThisWeek !== 1 ? "s" : ""} left this week
+                  </span>
+                </div>
+              )}
+
+              <table className="w-full mb-4">
                 <tbody>
                   <tr className="border-b border-gray-100">
                     <td className="py-3 text-gray-500 text-sm">Service</td>
@@ -195,14 +228,33 @@ export default function QuoteDisplay({
                 </tbody>
               </table>
 
-              <p className="text-xs text-gray-400 mb-6">
-                Valid until{" "}
-                {new Date(quote.expires_at).toLocaleDateString("en-US", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </p>
+              {/* Price lock messaging */}
+              {canAccept && daysUntilExpiry > 0 && (
+                <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 mb-4">
+                  <p className="text-sm text-green-800">
+                    <i className="fas fa-lock text-green-600 mr-1.5" />
+                    Price locked until{" "}
+                    <strong>
+                      {new Date(quote.expires_at).toLocaleDateString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </strong>
+                    {" "}&mdash; rates may increase after.
+                  </p>
+                </div>
+              )}
+
+              {!canAccept && (
+                <p className="text-xs text-gray-400 mb-6">
+                  Valid until{" "}
+                  {new Date(quote.expires_at).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </p>
+              )}
 
               {error && (
                 <div className="bg-red-50 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
@@ -225,13 +277,33 @@ export default function QuoteDisplay({
                     : "This quote is no longer available."}
                 </p>
               )}
+
+              {/* Trust badges & social proof */}
+              <div className="mt-6 pt-5 border-t border-gray-100">
+                <div className="flex items-center justify-center gap-6 text-gray-400 text-xs mb-3">
+                  <span className="flex items-center gap-1.5">
+                    <i className="fas fa-shield-alt" />
+                    Insured
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <i className="fas fa-star" />
+                    5-Star Rated
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <i className="fas fa-check-circle" />
+                    Licensed
+                  </span>
+                </div>
+                <p className="text-center text-xs text-gray-400">
+                  Trusted by 400+ farm owners across South Florida
+                </p>
+              </div>
             </>
           )}
 
           {/* ─── PHASE: SCHEDULE ─── */}
           {phase === "schedule" && (
             <>
-              {/* Compact quote summary */}
               <div className="flex justify-between items-center bg-gray-50 rounded-lg px-4 py-3 mb-6">
                 <div>
                   <p className="font-semibold">{quote.service_display_name}</p>
@@ -339,7 +411,6 @@ export default function QuoteDisplay({
             </>
           )}
 
-          {/* Confirmed but no booking data (edge case: returning user with booked quote) */}
           {phase === "confirmed" && !bookingData && (
             <div className="text-center py-4">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">

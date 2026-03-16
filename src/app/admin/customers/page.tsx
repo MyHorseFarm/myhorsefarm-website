@@ -19,6 +19,9 @@ interface Customer {
   charge_frequency: "daily" | "weekly" | "biweekly" | "monthly" | null;
   next_charge_date: string | null;
   default_bins: number;
+  contract_type: string;
+  contract_end_date: string | null;
+  contract_discount_pct: number;
   created_at: string;
 }
 
@@ -87,6 +90,9 @@ const emptyForm: FormData = {
   charge_frequency: null,
   next_charge_date: null,
   default_bins: 1,
+  contract_type: "month_to_month",
+  contract_end_date: null,
+  contract_discount_pct: 0,
 };
 
 export default function CustomersPage() {
@@ -170,6 +176,9 @@ export default function CustomersPage() {
       charge_frequency: c.charge_frequency ?? null,
       next_charge_date: c.next_charge_date ?? null,
       default_bins: c.default_bins ?? 1,
+      contract_type: c.contract_type || "month_to_month",
+      contract_end_date: c.contract_end_date ?? null,
+      contract_discount_pct: c.contract_discount_pct ?? 0,
     });
     setShowForm(true);
   };
@@ -816,6 +825,7 @@ export default function CustomersPage() {
                   <th className="px-4 py-3 font-semibold">Rate</th>
                   <th className="px-4 py-3 font-semibold hidden md:table-cell">Square</th>
                   <th className="px-4 py-3 font-semibold hidden md:table-cell">Auto-Charge</th>
+                  <th className="px-4 py-3 font-semibold hidden lg:table-cell">Contract</th>
                   <th className="px-4 py-3 font-semibold">Status</th>
                   <th className="px-4 py-3 font-semibold">Actions</th>
                 </tr>
@@ -855,6 +865,27 @@ export default function CustomersPage() {
                         </span>
                       ) : (
                         <span className="text-gray-400 text-xs">Off</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      {c.contract_type && c.contract_type !== "month_to_month" ? (
+                        <div>
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                            c.contract_end_date && new Date(c.contract_end_date) < new Date(Date.now() + 30 * 86400000)
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-blue-100 text-blue-700"
+                          }`}>
+                            {c.contract_type === "annual" ? "Annual" : "6-Mo"}
+                            {c.contract_discount_pct > 0 ? ` (${c.contract_discount_pct}%)` : ""}
+                          </span>
+                          {c.contract_end_date && (
+                            <p className="text-[10px] text-gray-400 mt-0.5">
+                              ends {new Date(c.contract_end_date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-xs">M2M</span>
                       )}
                     </td>
                     <td className="px-4 py-3">

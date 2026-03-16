@@ -54,8 +54,13 @@ function ServiceSchema() {
   );
 }
 
-export default async function QuotePage() {
+export default async function QuotePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ref?: string }>;
+}) {
   const services = await getActiveServices();
+  const { ref: referralCode } = await searchParams;
 
   return (
     <>
@@ -69,8 +74,16 @@ export default async function QuotePage() {
             <p className="text-gray-600 mt-2 max-w-xl mx-auto">
               Select a service, tell us about your property, and get an instant price. Takes less than 2 minutes.
             </p>
+            {referralCode && (
+              <div className="mt-4 inline-block bg-green-50 border border-green-200 rounded-lg px-5 py-2">
+                <p className="text-sm text-green-800 font-medium">
+                  <i className="fas fa-gift mr-1.5" />
+                  Referral discount will be applied to your quote!
+                </p>
+              </div>
+            )}
           </div>
-          <QuoteForm services={services} />
+          <QuoteForm services={services} referralCode={referralCode} />
         </div>
       </main>
       <Footer />

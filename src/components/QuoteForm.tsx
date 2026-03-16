@@ -6,6 +6,7 @@ import { trackEvent } from "@/lib/analytics";
 
 interface QuoteFormProps {
   services: ServicePricing[];
+  referralCode?: string;
 }
 
 type Step = "service" | "details" | "location" | "contact" | "confirmation";
@@ -19,7 +20,7 @@ const LOCATION_OPTIONS = [
   { value: "loxahatchee_groves", label: "Loxahatchee Groves" },
 ];
 
-export default function QuoteForm({ services }: QuoteFormProps) {
+export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
   const [step, setStep] = useState<Step>("service");
   const [selectedService, setSelectedService] = useState<ServicePricing | null>(null);
   const [details, setDetails] = useState<Record<string, unknown>>({});
@@ -89,6 +90,7 @@ export default function QuoteForm({ services }: QuoteFormProps) {
           customer_location: location,
           property_details: details,
           source: "form",
+          ...(referralCode ? { referral_code: referralCode } : {}),
         }),
       });
 

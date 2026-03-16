@@ -4,7 +4,9 @@ import LandingTrustStrip from "@/components/LandingTrustStrip";
 import LandingForm from "@/components/LandingForm";
 import LandingTestimonials from "@/components/LandingTestimonials";
 import LandingFooter from "@/components/LandingFooter";
+import LandingStickyMobileCTA from "@/components/LandingStickyMobileCTA";
 import { PHONE_OFFICE, PHONE_OFFICE_TEL } from "@/lib/constants";
+import { getLandingPageData } from "@/lib/landing-data";
 
 export const metadata: Metadata = {
   title: "Junk Removal Loxahatchee FL | Call (561) 576-7667 | My Horse Farm",
@@ -28,14 +30,17 @@ const JUNK_OPTIONS = [
   { value: "Full Property Cleanout", label: "Full Property Cleanout" },
 ];
 
-export default function LpJunkLoxahatchee() {
+export default async function LpJunkLoxahatchee() {
+  const { slotsLeft, reviewCount, avgRating } = await getLandingPageData();
+
   return (
     <>
       <LandingHero
         title="Loxahatchee Junk Removal"
         subtitle="Starting at $75/ton &middot; Same-Day Service Available"
+        slotsLeft={slotsLeft}
       />
-      <LandingTrustStrip items={TRUST_ITEMS} />
+      <LandingTrustStrip items={TRUST_ITEMS} reviewCount={reviewCount} avgRating={avgRating} />
       <main>
         <section className="flex flex-wrap gap-10 max-w-[1100px] mx-auto py-12 px-5 max-md:flex-col max-md:py-8 max-md:px-4">
           <LandingForm
@@ -65,7 +70,7 @@ export default function LpJunkLoxahatchee() {
           </div>
         </section>
         <LandingTestimonials />
-        <section className="text-center py-12 px-5 bg-white">
+        <section className="text-center py-12 px-5 bg-white max-md:pb-20">
           <h2 className="mb-2.5">Ready to Clear Out the Junk?</h2>
           <p className="text-gray-600 mb-5 text-[1.05rem]">Call now for same-day service or fill out the form above for a free quote.</p>
           <a href={`tel:${PHONE_OFFICE_TEL}`} className="inline-block px-8 py-3.5 bg-primary text-white rounded font-bold text-lg hover:bg-primary-dark transition-colors no-underline">
@@ -74,6 +79,7 @@ export default function LpJunkLoxahatchee() {
         </section>
       </main>
       <LandingFooter />
+      <LandingStickyMobileCTA quoteUrl="/quote?service=junk_removal" />
     </>
   );
 }

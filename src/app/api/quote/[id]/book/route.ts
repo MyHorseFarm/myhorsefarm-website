@@ -189,6 +189,21 @@ export async function POST(
       console.error("Email send error (non-fatal):", err);
     }
 
+    // Send SMS confirmation (non-fatal)
+    if (quote.customer_phone) {
+      try {
+        const { sendSMS, bookingConfirmedSMS } = await import("@/lib/twilio");
+        const smsDate = new Date(scheduled_date + "T12:00:00").toLocaleDateString(
+          "en-US",
+          { weekday: "short", month: "short", day: "numeric" },
+        );
+        const sms = bookingConfirmedSMS(quote.customer_name, smsDate, time_slot);
+        await sendSMS(quote.customer_phone, sms);
+      } catch (err) {
+        console.error("SMS send error (non-fatal):", err);
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       booking: {

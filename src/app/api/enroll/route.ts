@@ -18,7 +18,24 @@ import {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, email, phone, address, billingAddress, notes, nonce, signatureData } = body;
+    const { name, email, phone, address, billingAddress, notes, contractType, nonce, signatureData } = body;
+
+    // Contract setup
+    const validContracts = ["month_to_month", "6_month", "annual"];
+    const contract = validContracts.includes(contractType) ? contractType : "month_to_month";
+    const discountMap: Record<string, number> = { month_to_month: 0, "6_month": 5, annual: 10 };
+    const discount = discountMap[contract] || 0;
+    const contractStart = new Date().toISOString().split("T")[0];
+    let contractEnd: string | null = null;
+    if (contract === "6_month") {
+      const end = new Date();
+      end.setMonth(end.getMonth() + 6);
+      contractEnd = end.toISOString().split("T")[0];
+    } else if (contract === "annual") {
+      const end = new Date();
+      end.setFullYear(end.getFullYear() + 1);
+      contractEnd = end.toISOString().split("T")[0];
+    }
 
     if (!name || !nonce) {
       return NextResponse.json(
@@ -74,6 +91,11 @@ export async function POST(req: Request) {
             notes: dbNotes,
             signature_data: signatureData || null,
             active: true,
+            contract_type: contract,
+            contract_start_date: contractStart,
+            contract_end_date: contractEnd,
+            contract_discount_pct: discount,
+            auto_renew: true,
           })
           .eq("id", existing.id);
 
@@ -90,6 +112,11 @@ export async function POST(req: Request) {
             notes: dbNotes,
             signature_data: signatureData || null,
             active: true,
+            contract_type: contract,
+            contract_start_date: contractStart,
+            contract_end_date: contractEnd,
+            contract_discount_pct: discount,
+            auto_renew: true,
           });
 
         if (dbError) console.error("Supabase insert error:", dbError);
@@ -107,6 +134,11 @@ export async function POST(req: Request) {
           notes: dbNotes,
           signature_data: signatureData || null,
           active: true,
+          contract_type: contract,
+          contract_start_date: contractStart,
+          contract_end_date: contractEnd,
+          contract_discount_pct: discount,
+          auto_renew: true,
         });
 
       if (dbError) console.error("Supabase insert error:", dbError);

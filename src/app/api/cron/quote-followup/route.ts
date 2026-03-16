@@ -12,6 +12,7 @@ import {
   quoteFollowup1Email,
   quoteFollowup2Email,
   quoteExpiringEmail,
+  quoteExpiredRecoveryEmail,
 } from "@/lib/emails";
 
 export const runtime = "nodejs";
@@ -21,6 +22,20 @@ const TAGS = {
   FOLLOWUP_1: "[AUTO:QUOTE_FOLLOWUP_1]",
   FOLLOWUP_2: "[AUTO:QUOTE_FOLLOWUP_2]",
   EXPIRING: "[AUTO:QUOTE_EXPIRING]",
+  EXPIRED_RECOVERY: "[AUTO:QUOTE_EXPIRED_RECOVERY]",
+};
+
+// Service display names for expired recovery email
+const SERVICE_NAMES: Record<string, string> = {
+  manure_removal: "Manure Removal",
+  trash_bin_service: "Trash Bin Service",
+  junk_removal: "Junk Removal",
+  sod_installation: "Sod Installation",
+  fill_dirt: "Fill Dirt Delivery",
+  dumpster_rental: "Dumpster Rental",
+  farm_repairs: "Farm Repairs & Maintenance",
+  millings_asphalt: "Millings Asphalt Delivery",
+  shipping_container: "Shipping Container",
 };
 
 function daysAgo(days: number): string {
@@ -43,32 +58,26 @@ export async function GET(request: NextRequest) {
 
   try {
     // -----------------------------------------------------------------------
-    // Followup 1: Quotes created 2–4 days ago, still pending
+    // Followup 1: Quotes created 1–2 days ago, still pending (was 2-4)
     // -----------------------------------------------------------------------
     const { data: followup1Quotes } = await supabase
       .from("quotes")
       .select("*")
       .eq("status", "pending")
-      .gte("created_at", daysAgo(4))
-      .lte("created_at", daysAgo(2));
+      .gte("created_at", daysAgo(2))
+      .lte("created_at", daysAgo(1));
 
     for (const quote of followup1Quotes ?? []) {
       try {
-        // Re-check status
         const { data: fresh } = await supabase
           .from("quotes")
           .select("status")
           .eq("id", quote.id)
           .single();
         if (fresh?.status !== "pending") continue;
-
-        // Check expiry
         if (new Date(quote.expires_at) < new Date()) continue;
-
-        // Check subscription
         if (!(await isSubscribed(quote.customer_email))) continue;
 
-        // Resolve HubSpot contact
         const contactId =
           quote.hubspot_contact_id ||
           (await findContactByEmail(quote.customer_email))?.id;
@@ -77,7 +86,6 @@ export async function GET(request: NextRequest) {
           continue;
         }
 
-        // Dedup
         if (await hasAutomationTag("contacts", contactId, TAGS.FOLLOWUP_1))
           continue;
 
@@ -88,8 +96,21 @@ export async function GET(request: NextRequest) {
           quote.quote_number,
           acceptUrl,
           unsub,
+          quote.service_key,
         );
         await sendEmail(quote.customer_email, template.subject, template.html);
+
+        // SMS followup at day 1 (email + SMS)
+        if (quote.customer_phone) {
+          try {
+            const { sendSMS, quoteFollowupSMS } = await import("@/lib/twilio");
+            const sms = quoteFollowupSMS(quote.customer_name, acceptUrl);
+            await sendSMS(quote.customer_phone, sms);
+          } catch (smsErr) {
+            console.error("SMS followup error (non-fatal):", smsErr);
+          }
+        }
+
         await createContactNote(
           contactId,
           `${TAGS.FOLLOWUP_1} Sent for ${quote.quote_number} on ${new Date().toISOString()}`,
@@ -101,14 +122,14 @@ export async function GET(request: NextRequest) {
     }
 
     // -----------------------------------------------------------------------
-    // Followup 2: Quotes created 5–8 days ago, still pending, has followup 1
+    // Followup 2: Quotes created 3–4 days ago, still pending (was 5-8)
     // -----------------------------------------------------------------------
     const { data: followup2Quotes } = await supabase
       .from("quotes")
       .select("*")
       .eq("status", "pending")
-      .gte("created_at", daysAgo(8))
-      .lte("created_at", daysAgo(5));
+      .gte("created_at", daysAgo(4))
+      .lte("created_at", daysAgo(3));
 
     for (const quote of followup2Quotes ?? []) {
       try {
@@ -126,7 +147,6 @@ export async function GET(request: NextRequest) {
           (await findContactByEmail(quote.customer_email))?.id;
         if (!contactId) continue;
 
-        // Requires followup 1, no followup 2
         if (!(await hasAutomationTag("contacts", contactId, TAGS.FOLLOWUP_1)))
           continue;
         if (await hasAutomationTag("contacts", contactId, TAGS.FOLLOWUP_2))
@@ -139,6 +159,7 @@ export async function GET(request: NextRequest) {
           quote.quote_number,
           acceptUrl,
           unsub,
+          quote.service_key,
         );
         await sendEmail(quote.customer_email, template.subject, template.html);
         await createContactNote(
@@ -152,14 +173,14 @@ export async function GET(request: NextRequest) {
     }
 
     // -----------------------------------------------------------------------
-    // Expiration warning: Quotes expiring in 4–6 days, still pending
+    // Expiration warning: Quotes expiring in 1–2 days (was 4-6 days)
     // -----------------------------------------------------------------------
     const { data: expiringQuotes } = await supabase
       .from("quotes")
       .select("*")
       .eq("status", "pending")
-      .gte("expires_at", daysFromNow(4))
-      .lte("expires_at", daysFromNow(6));
+      .gte("expires_at", daysFromNow(1))
+      .lte("expires_at", daysFromNow(2));
 
     for (const quote of expiringQuotes ?? []) {
       try {
@@ -194,6 +215,18 @@ export async function GET(request: NextRequest) {
           unsub,
         );
         await sendEmail(quote.customer_email, template.subject, template.html);
+
+        // SMS expiry warning (email + SMS)
+        if (quote.customer_phone) {
+          try {
+            const { sendSMS, quoteExpiringSMS } = await import("@/lib/twilio");
+            const sms = quoteExpiringSMS(quote.customer_name, daysLeft, acceptUrl);
+            await sendSMS(quote.customer_phone, sms);
+          } catch (smsErr) {
+            console.error("SMS expiring error (non-fatal):", smsErr);
+          }
+        }
+
         await createContactNote(
           contactId,
           `${TAGS.EXPIRING} Sent for ${quote.quote_number} (${daysLeft}d left) on ${new Date().toISOString()}`,
@@ -201,6 +234,57 @@ export async function GET(request: NextRequest) {
         results.push(`expiring → ${quote.customer_email} (${quote.quote_number}, ${daysLeft}d)`);
       } catch (err) {
         results.push(`expiring FAIL ${quote.quote_number}: ${err}`);
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // Expired recovery: Quotes expired 1–3 days ago
+    // -----------------------------------------------------------------------
+    const { data: expiredQuotes } = await supabase
+      .from("quotes")
+      .select("*")
+      .eq("status", "pending")
+      .gte("expires_at", daysAgo(3))
+      .lte("expires_at", daysAgo(0));
+
+    for (const quote of expiredQuotes ?? []) {
+      try {
+        // Only for actually expired quotes
+        if (new Date(quote.expires_at) > new Date()) continue;
+        if (!(await isSubscribed(quote.customer_email))) continue;
+
+        const contactId =
+          quote.hubspot_contact_id ||
+          (await findContactByEmail(quote.customer_email))?.id;
+        if (!contactId) continue;
+
+        if (await hasAutomationTag("contacts", contactId, TAGS.EXPIRED_RECOVERY))
+          continue;
+
+        // Mark the quote as expired
+        await supabase
+          .from("quotes")
+          .update({ status: "expired" })
+          .eq("id", quote.id)
+          .eq("status", "pending");
+
+        const unsub = createUnsubscribeUrl(quote.customer_email);
+        const newQuoteUrl = `${siteUrl}/quote`;
+        const serviceName = SERVICE_NAMES[quote.service_key] || quote.service_key;
+        const template = quoteExpiredRecoveryEmail(
+          quote.customer_name.split(" ")[0],
+          serviceName,
+          newQuoteUrl,
+          unsub,
+        );
+        await sendEmail(quote.customer_email, template.subject, template.html);
+        await createContactNote(
+          contactId,
+          `${TAGS.EXPIRED_RECOVERY} Sent for expired ${quote.quote_number} on ${new Date().toISOString()}`,
+        );
+        results.push(`expired_recovery → ${quote.customer_email} (${quote.quote_number})`);
+      } catch (err) {
+        results.push(`expired_recovery FAIL ${quote.quote_number}: ${err}`);
       }
     }
   } catch (err) {

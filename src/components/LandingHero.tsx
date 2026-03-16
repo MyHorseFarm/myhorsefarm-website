@@ -3,9 +3,11 @@ import { PHONE_OFFICE, PHONE_OFFICE_TEL } from "@/lib/constants";
 export default function LandingHero({
   title,
   subtitle,
+  slotsLeft,
 }: {
   title: string;
   subtitle?: string;
+  slotsLeft?: number;
 }) {
   return (
     <header
@@ -27,12 +29,20 @@ export default function LandingHero({
             {subtitle}
           </p>
         )}
-        <a
-          href={`tel:${PHONE_OFFICE_TEL}`}
-          className="inline-block px-8 py-3.5 bg-primary text-white rounded font-bold text-lg hover:bg-primary-dark transition-colors no-underline max-[480px]:px-6 max-[480px]:py-3 max-[480px]:text-base"
-        >
-          <i className="fas fa-phone" /> Call {PHONE_OFFICE}
-        </a>
+        {typeof slotsLeft === "number" && slotsLeft <= 8 && (
+          <div className="inline-flex items-center gap-2 bg-red-600/90 text-white text-sm font-semibold px-4 py-1.5 rounded-full mb-4">
+            <span className="inline-block w-2 h-2 bg-white rounded-full animate-pulse" />
+            Only {slotsLeft} slot{slotsLeft !== 1 ? "s" : ""} left this week
+          </div>
+        )}
+        <div>
+          <a
+            href={`tel:${PHONE_OFFICE_TEL}`}
+            className="inline-block px-8 py-3.5 bg-primary text-white rounded font-bold text-lg hover:bg-primary-dark transition-colors no-underline max-[480px]:px-6 max-[480px]:py-3 max-[480px]:text-base"
+          >
+            <i className="fas fa-phone" /> Call {PHONE_OFFICE}
+          </a>
+        </div>
       </div>
     </header>
   );

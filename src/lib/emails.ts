@@ -815,7 +815,46 @@ ${signoff()}
 }
 
 // ---------------------------------------------------------------------------
-// Quote Follow-Up Email 1 – "Just checking in"
+// Service-specific urgency hooks for follow-ups
+// ---------------------------------------------------------------------------
+
+const SERVICE_HOOKS: Record<string, { followup1: string; followup2: string }> = {
+  manure_removal: {
+    followup1: "Manure piles only get worse with time — let\u2019s get it handled before it becomes a bigger (and smellier) problem.",
+    followup2: "Lock in your rate before peak season pricing kicks in. Our crews are booking up fast.",
+  },
+  junk_removal: {
+    followup1: "That debris isn\u2019t going anywhere on its own. Let\u2019s clear it out before the rains make access harder.",
+    followup2: "We have a truck in your area this week — perfect time to knock this out while we\u2019re close by.",
+  },
+  sod_installation: {
+    followup1: "The best time to lay sod in South Florida is right now — your new paddock turf will establish quickly in this weather.",
+    followup2: "Sod projects book out 2\u20133 weeks. If you want it done this month, now\u2019s the time to lock in your spot.",
+  },
+  trash_bin_service: {
+    followup1: "Overflowing bins attract pests and create health issues for your horses. Let\u2019s get you on a regular schedule.",
+    followup2: "Our recurring bin service keeps your farm clean without you lifting a finger. Most clients start with weekly pickup.",
+  },
+  fill_dirt: {
+    followup1: "Low spots and drainage issues only get worse with rain. Fill dirt now means a dry, safe paddock all season.",
+    followup2: "We have fill dirt loads ready to go this week. Lock in your quote before material prices go up.",
+  },
+  dumpster_rental: {
+    followup1: "A dumpster on-site makes barn cleanouts 10x faster. Our 20-yard containers handle even the biggest jobs.",
+    followup2: "Dumpster availability is limited — we only have a few containers, and they go fast during season.",
+  },
+};
+
+function getServiceHook(serviceKey: string, type: "followup1" | "followup2"): string {
+  return SERVICE_HOOKS[serviceKey]?.[type] || (
+    type === "followup1"
+      ? "We put together the details based on your property needs, and I wanted to make sure you had everything you need to move forward."
+      : "Our schedule fills up fast, especially during season \u2014 locking in your spot now guarantees we can get to your property on your preferred timeline."
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Quote Follow-Up Email 1 – "Just checking in" (service-specific)
 // ---------------------------------------------------------------------------
 
 export function quoteFollowup1Email(
@@ -823,8 +862,10 @@ export function quoteFollowup1Email(
   quoteNumber: string,
   acceptUrl: string,
   unsubscribeUrl: string,
+  serviceKey?: string,
 ): EmailTemplate {
   const name = escapeHtml(firstname || "there");
+  const hook = getServiceHook(serviceKey || "", "followup1");
 
   return {
     subject: `Just Checking In — Your Quote ${escapeHtml(quoteNumber)} Is Waiting`,
@@ -833,7 +874,7 @@ export function quoteFollowup1Email(
 ${header("Your Quote Is Ready")}
 <div style="padding:30px 20px;">
 <p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
-<p style="font-size:16px;line-height:1.6;">I wanted to follow up on your recent quote (<strong>${escapeHtml(quoteNumber)}</strong>). We put together the details based on your property needs, and I wanted to make sure you had everything you need to move forward.</p>
+<p style="font-size:16px;line-height:1.6;">I wanted to follow up on your recent quote (<strong>${escapeHtml(quoteNumber)}</strong>). ${hook}</p>
 <p style="font-size:16px;line-height:1.6;">If you have any questions about the pricing or what's included, I'm happy to chat — just reply to this email or give me a call.</p>
 <div style="text-align:center;margin:30px 0;">
 <a href="${escapeHtml(acceptUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">View Your Quote</a>
@@ -846,7 +887,7 @@ ${signoff()}
 }
 
 // ---------------------------------------------------------------------------
-// Quote Follow-Up Email 2 – "Last reminder"
+// Quote Follow-Up Email 2 – "Last reminder" (service-specific)
 // ---------------------------------------------------------------------------
 
 export function quoteFollowup2Email(
@@ -854,8 +895,10 @@ export function quoteFollowup2Email(
   quoteNumber: string,
   acceptUrl: string,
   unsubscribeUrl: string,
+  serviceKey?: string,
 ): EmailTemplate {
   const name = escapeHtml(firstname || "there");
+  const hook = getServiceHook(serviceKey || "", "followup2");
 
   return {
     subject: `Last Reminder — Your Quote ${escapeHtml(quoteNumber)} Expires Soon`,
@@ -864,12 +907,84 @@ export function quoteFollowup2Email(
 ${header("Don't Miss Out")}
 <div style="padding:30px 20px;">
 <p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
-<p style="font-size:16px;line-height:1.6;">This is a friendly last reminder that your quote <strong>${escapeHtml(quoteNumber)}</strong> is still open. We'd love to help get your property taken care of.</p>
-<p style="font-size:16px;line-height:1.6;">Our schedule fills up fast, especially during season — locking in your spot now guarantees we can get to your property on your preferred timeline.</p>
+<p style="font-size:16px;line-height:1.6;">This is a friendly last reminder that your quote <strong>${escapeHtml(quoteNumber)}</strong> is still open. ${hook}</p>
 <div style="text-align:center;margin:30px 0;">
 <a href="${escapeHtml(acceptUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">View Your Quote</a>
 </div>
 <p style="font-size:16px;line-height:1.6;">Questions? Just call <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> — I'm happy to help.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Expired Quote Recovery Email – "Your quote expired — get a fresh one"
+// ---------------------------------------------------------------------------
+
+export function quoteExpiredRecoveryEmail(
+  firstname: string,
+  serviceName: string,
+  newQuoteUrl: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+
+  return {
+    subject: "Your Quote Expired — Get a Fresh One in 30 Seconds",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Let's Try Again")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">Your quote for <strong>${escapeHtml(serviceName)}</strong> has expired, but don't worry — getting a new one takes less than a minute.</p>
+<p style="font-size:16px;line-height:1.6;">If you're still interested, click below and we'll have a fresh quote ready for you right away. Same great service, same team you can count on.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="${escapeHtml(newQuoteUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a New Quote</a>
+</div>
+<p style="font-size:16px;line-height:1.6;">Or call me directly — I'll take care of everything over the phone.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Referral Request Email (with personalized link)
+// ---------------------------------------------------------------------------
+
+export function referralRequestWithLinkEmail(
+  firstname: string,
+  referralUrl: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+
+  return {
+    subject: "Give $25, Get $50 — Share My Horse Farm",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Refer a Friend, Get Rewarded")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">Thanks for being a valued My Horse Farm client! We\u2019d love your help spreading the word.</p>
+<div style="background-color:#f9f7f2;padding:25px;border-radius:8px;margin:20px 0;text-align:center;">
+<p style="font-size:18px;font-weight:bold;color:#2d5016;margin:0 0 10px;">Your Referral Link</p>
+<p style="font-size:14px;color:#666;margin:0 0 15px;">Share this with any farm owner who could use our services:</p>
+<a href="${escapeHtml(referralUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:12px 28px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:15px;">Share My Link</a>
+<p style="font-size:13px;color:#999;margin:15px 0 0;">Or copy: ${escapeHtml(referralUrl)}</p>
+</div>
+<div style="margin:20px 0;">
+<p style="font-size:15px;line-height:1.8;"><strong>How it works:</strong></p>
+<ol style="font-size:15px;line-height:2.0;color:#555;">
+<li>Share your link with a fellow farm owner</li>
+<li>They get <strong>$25 off</strong> their first service</li>
+<li>You get <strong>$50 credit</strong> after their first job is done</li>
+</ol>
+</div>
+<p style="font-size:16px;line-height:1.6;">No limit on referrals. The more friends you send, the more you earn!</p>
 ${signoff()}
 </div></div>`,
       unsubscribeUrl,

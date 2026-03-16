@@ -12,8 +12,10 @@ import {
   createUnsubscribeUrl,
   loyaltyMilestoneEmail,
   referralRequestEmail,
+  referralRequestWithLinkEmail,
   serviceUpsellEmail,
 } from "@/lib/emails";
+import { supabase } from "@/lib/supabase";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -170,14 +172,42 @@ export async function GET(request: NextRequest) {
           if (!already) {
             if (await isSubscribed(email)) {
               const unsub = createUnsubscribeUrl(email);
-              const template = referralRequestEmail(
+              const customerName = [
                 contactSummary.properties.firstname || "",
-                unsub,
-              );
+                contactSummary.properties.lastname || "",
+              ].filter(Boolean).join(" ") || "Customer";
+
+              // Generate a personalized referral link
+              let referralUrl = "";
+              try {
+                const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
+                const refRes = await fetch(`${siteUrl}/api/referral`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ name: customerName, email }),
+                });
+                if (refRes.ok) {
+                  const refData = await refRes.json();
+                  referralUrl = refData.referral_url;
+                }
+              } catch {
+                // Fall back to generic referral email
+              }
+
+              const template = referralUrl
+                ? referralRequestWithLinkEmail(
+                    contactSummary.properties.firstname || "",
+                    referralUrl,
+                    unsub,
+                  )
+                : referralRequestEmail(
+                    contactSummary.properties.firstname || "",
+                    unsub,
+                  );
               await sendEmail(email, template.subject, template.html);
               await createContactNote(
                 contactSummary.id,
-                `${REFERRAL_TAG} Sent referral request on ${new Date().toISOString()}`,
+                `${REFERRAL_TAG} Sent referral request${referralUrl ? ` (link: ${referralUrl})` : ""} on ${new Date().toISOString()}`,
               );
               results.push(`referral → ${email}`);
               sent = true;

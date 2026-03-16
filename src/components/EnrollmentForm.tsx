@@ -41,6 +41,7 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
   const [hasDifferentBilling, setHasDifferentBilling] = useState(false);
   const [billingAddress, setBillingAddress] = useState("");
   const [notes, setNotes] = useState("");
+  const [contractType, setContractType] = useState<"month_to_month" | "6_month" | "annual">("month_to_month");
   const [authorized, setAuthorized] = useState(false);
 
   // Square card
@@ -225,6 +226,7 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
           address: address || undefined,
           billingAddress: hasDifferentBilling && billingAddress ? billingAddress : undefined,
           notes: notes || undefined,
+          contractType,
           nonce,
           signatureData,
         }),
@@ -371,6 +373,47 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
               />
             </div>
           )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Service Plan
+            </label>
+            <div className="space-y-2">
+              {[
+                { value: "month_to_month" as const, label: "Month-to-Month", desc: "Full rate, cancel anytime" },
+                { value: "6_month" as const, label: "6-Month Commitment", desc: "5% discount on every service", badge: "Save 5%" },
+                { value: "annual" as const, label: "Annual Commitment", desc: "10% discount on every service", badge: "Save 10%" },
+              ].map((plan) => (
+                <label
+                  key={plan.value}
+                  className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                    contractType === plan.value
+                      ? "border-green-800 bg-green-50"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="contract"
+                    value={plan.value}
+                    checked={contractType === plan.value}
+                    onChange={() => setContractType(plan.value)}
+                    className="w-4 h-4 accent-green-800"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">{plan.label}</span>
+                      {plan.badge && (
+                        <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">
+                          {plan.badge}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500">{plan.desc}</p>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Notes

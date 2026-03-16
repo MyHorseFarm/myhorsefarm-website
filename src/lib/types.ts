@@ -177,6 +177,12 @@ export interface RecurringCustomer {
   charge_frequency: "daily" | "weekly" | "biweekly" | "monthly" | null;
   next_charge_date: string | null;
   default_bins: number;
+  contract_type: "month_to_month" | "6_month" | "annual";
+  contract_start_date: string | null;
+  contract_end_date: string | null;
+  contract_discount_pct: number;
+  auto_renew: boolean;
+  sms_opted_in: boolean;
   created_at: string;
 }
 

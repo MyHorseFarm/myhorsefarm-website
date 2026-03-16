@@ -65,7 +65,9 @@ export async function GET(request: NextRequest) {
     for (const customer of customers ?? []) {
       const bins = customer.default_bins || 1;
       const binRate = customer.default_bin_rate;
-      const totalAmount = bins * binRate;
+      const discountPct = Number(customer.contract_discount_pct) || 0;
+      const baseAmount = bins * binRate;
+      const totalAmount = Math.round(baseAmount * (1 - discountPct / 100) * 100) / 100;
       const amountCents = Math.round(totalAmount * 100);
 
       try {

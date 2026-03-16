@@ -8,6 +8,7 @@ const navItems = [
   { href: "/admin/daily", label: "Daily", icon: "fa-calendar-day" },
   { href: "/admin/customers", label: "Customers", icon: "fa-users" },
   { href: "/admin/crew", label: "Crew", icon: "fa-hard-hat" },
+  { href: "/admin/pricing", label: "Pricing", icon: "fa-dollar-sign" },
   { href: "/admin/analytics", label: "Analytics", icon: "fa-chart-line" },
   { href: "/admin/schedule", label: "Schedule", icon: "fa-calendar-alt" },
 ];
