@@ -6,6 +6,7 @@ import {
   hasAutomationTag,
   createDealNote,
   createContactNote,
+  findContactByEmail,
   isSubscribed,
 } from "@/lib/hubspot";
 import {
@@ -13,6 +14,7 @@ import {
   createUnsubscribeUrl,
   reviewRequestEmail,
 } from "@/lib/emails";
+import { supabase } from "@/lib/supabase";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -46,6 +48,22 @@ async function recentlyAskedForReview(contactId: string): Promise<boolean> {
   return false;
 }
 
+/** Check if Supabase last_review_request_at is within cooldown */
+function supabaseRecentlyAsked(lastRequestAt: string | null): boolean {
+  if (!lastRequestAt) return false;
+  const cooldownMs = REVIEW_COOLDOWN_MONTHS * 30 * 24 * 60 * 60 * 1000;
+  return Date.now() - new Date(lastRequestAt).getTime() < cooldownMs;
+}
+
+/** Cross-update last_review_request_at in Supabase for a given email */
+async function updateSupabaseReviewTimestamp(email: string): Promise<void> {
+  await supabase
+    .from("recurring_customers")
+    .update({ last_review_request_at: new Date().toISOString() })
+    .eq("email", email)
+    .eq("active", true);
+}
+
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -53,9 +71,13 @@ export async function GET(request: NextRequest) {
   }
 
   const results: string[] = [];
+  // Track emails sent in Phase 1 so Phase 2 can skip them
+  const sentEmails = new Set<string>();
 
   try {
-    // Find deals in "Completed" stage that closed in the last 30 days
+    // -----------------------------------------------------------------------
+    // Phase 1: HubSpot deals in "Completed" stage (existing logic)
+    // -----------------------------------------------------------------------
     const thirtyDaysAgo = new Date(
       Date.now() - 30 * 24 * 60 * 60 * 1000,
     ).toISOString();
@@ -116,6 +138,7 @@ export async function GET(request: NextRequest) {
           unsub,
         );
         await sendEmail(email, template.subject, template.html);
+        sentEmails.add(email.toLowerCase());
 
         const tag = currentReviewTag();
         // Tag the deal so we don't process it again
@@ -128,9 +151,93 @@ export async function GET(request: NextRequest) {
           contactId,
           `${tag} Review request sent to ${email} on ${new Date().toISOString()}`,
         );
+        // Cross-update Supabase so both systems stay in sync
+        await updateSupabaseReviewTimestamp(email);
         results.push(`review → ${email} (deal ${deal.id})`);
       } catch (err) {
         results.push(`review FAIL deal ${deal.id}: ${err}`);
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 2: Supabase recurring customers with recent charged service logs
+    // -----------------------------------------------------------------------
+    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    const { data: recentLogs, error: logsError } = await supabase
+      .from("service_logs")
+      .select("customer_id")
+      .eq("status", "charged")
+      .gte("charged_at", sevenDaysAgo)
+      .lte("charged_at", twoDaysAgo);
+
+    if (logsError) {
+      results.push(`Phase 2 FAIL fetching logs: ${logsError.message}`);
+    } else if (recentLogs && recentLogs.length > 0) {
+      // Deduplicate by customer_id
+      const uniqueCustomerIds = [...new Set(recentLogs.map((l: { customer_id: string }) => l.customer_id))];
+
+      const { data: customers, error: custError } = await supabase
+        .from("recurring_customers")
+        .select("id, name, email, last_review_request_at")
+        .in("id", uniqueCustomerIds)
+        .eq("active", true)
+        .not("email", "is", null);
+
+      if (custError) {
+        results.push(`Phase 2 FAIL fetching customers: ${custError.message}`);
+      } else if (customers) {
+        for (const customer of customers) {
+          try {
+            const email = customer.email as string;
+
+            // Skip if already sent in Phase 1
+            if (sentEmails.has(email.toLowerCase())) continue;
+
+            // Skip if Supabase cooldown applies (6 months)
+            if (supabaseRecentlyAsked(customer.last_review_request_at)) continue;
+
+            // Check HubSpot subscription + cooldown if contact exists there
+            let hubspotContactId: string | null = null;
+            try {
+              const hsContact = await findContactByEmail(email);
+              if (hsContact) {
+                hubspotContactId = hsContact.id;
+                // Respect HubSpot unsubscribe
+                if (!(await isSubscribed(email))) continue;
+                // Respect HubSpot contact-level cooldown
+                if (await recentlyAskedForReview(hsContact.id)) continue;
+              }
+            } catch {
+              // Contact not in HubSpot — proceed (active paying customer)
+            }
+
+            const unsub = createUnsubscribeUrl(email);
+            const firstname = (customer.name || "").split(" ")[0];
+            const template = reviewRequestEmail(firstname, unsub);
+            await sendEmail(email, template.subject, template.html);
+
+            // Update Supabase timestamp
+            await supabase
+              .from("recurring_customers")
+              .update({ last_review_request_at: new Date().toISOString() })
+              .eq("id", customer.id);
+
+            // If HubSpot contact exists, create note for cross-system consistency
+            if (hubspotContactId) {
+              const tag = currentReviewTag();
+              await createContactNote(
+                hubspotContactId,
+                `${tag} Review request sent to ${email} (via Supabase recurring) on ${new Date().toISOString()}`,
+              );
+            }
+
+            results.push(`review → ${email} (recurring ${customer.id})`);
+          } catch (err) {
+            results.push(`review FAIL recurring ${customer.id}: ${err}`);
+          }
+        }
       }
     }
   } catch (err) {

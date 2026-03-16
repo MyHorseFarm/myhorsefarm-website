@@ -1,6 +1,9 @@
 import { createHmac } from "crypto";
 import { Resend } from "resend";
 
+// Canonical Google review URL — use this everywhere
+export const GOOGLE_REVIEW_URL = "https://g.page/r/CUtJdTADtIsyEBM/review";
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -253,7 +256,7 @@ ${header("Thank You for Choosing Us!")}
 <p style="font-size:16px;line-height:1.6;">Thank you for trusting My Horse Farm with your recent service. We hope everything met your expectations.</p>
 <p style="font-size:16px;line-height:1.6;">If you have a moment, we\u2019d really appreciate a quick Google review. It takes less than a minute and helps other horse farm owners in the area find reliable service.</p>
 <div style="text-align:center;margin:30px 0;">
-<a href="https://g.page/r/CUtJdTADtIsyEBM/review" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:16px 40px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:18px;">Leave a Google Review</a>
+<a href="${GOOGLE_REVIEW_URL}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:16px 40px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:18px;">Leave a Google Review</a>
 </div>
 <p style="font-size:15px;line-height:1.6;color:#555;">Your feedback helps us improve and lets others know what to expect. Even a short review makes a big difference.</p>
 <div style="background-color:#f9f7f2;border-left:4px solid #d4a843;padding:20px;margin:25px 0;border-radius:4px;">
@@ -346,7 +349,7 @@ ${serviceRows || '<tr><td style="padding:8px 0;font-size:15px;">Farm services</t
 <p style="font-size:16px;line-height:1.6;">We hope everything meets your expectations. If anything needs attention, please let us know right away \u2013 your satisfaction is our top priority.</p>
 <p style="font-size:16px;line-height:1.6;">If you have a moment, we\u2019d love to hear how we did:</p>
 <div style="text-align:center;margin:30px 0;">
-<a href="https://g.page/r/CUtJdTADtIsyEBM/review" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Leave a Google Review</a>
+<a href="${GOOGLE_REVIEW_URL}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Leave a Google Review</a>
 </div>
 ${signoff()}
 </div></div>`,
@@ -814,7 +817,7 @@ ${invoiceUrl ? `<div style="text-align:center;margin:20px 0;"><a href="${escapeH
 <h3 style="color:#2d5016;margin:30px 0 10px;">How Did We Do?</h3>
 <p style="font-size:16px;line-height:1.6;">We'd love to hear your feedback! If you have a moment, a quick Google review means the world to us:</p>
 <div style="text-align:center;margin:25px 0;">
-<a href="https://g.page/r/Ccxk3fVm-TL-EBM/review" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Leave a Review</a>
+<a href="${GOOGLE_REVIEW_URL}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Leave a Review</a>
 </div>
 <p style="font-size:16px;line-height:1.6;">See you next time! If you ever need anything, call us at <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a>.</p>
 ${signoff()}

@@ -186,6 +186,7 @@ export interface RecurringCustomer {
   contract_discount_pct: number;
   auto_renew: boolean;
   sms_opted_in: boolean;
+  last_review_request_at: string | null;
   created_at: string;
 }
 
