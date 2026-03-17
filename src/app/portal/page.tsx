@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { trackEvent } from "@/lib/analytics";
 
 interface PortalCustomer {
   name: string;
@@ -81,6 +82,7 @@ function PortalContent() {
       }
       const json = await res.json();
       setData(json);
+      trackEvent("portal_login", { customer_name: json.customer?.name });
     } catch {
       setError("Failed to load portal data");
     } finally {
@@ -213,6 +215,7 @@ function PortalContent() {
         cancel: "Service cancelled. We're sorry to see you go.",
       };
       setSubMessage(msgs[action] || "Updated.");
+      trackEvent(`subscription_${action}`, { reason });
       setSubAction(null);
       setCancelStep(1);
       // Refresh data

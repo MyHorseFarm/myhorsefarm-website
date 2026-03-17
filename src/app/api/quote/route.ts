@@ -17,6 +17,7 @@ import {
   siteVisitRequestEmail,
 } from "@/lib/emails";
 import { EMAIL_SALES } from "@/lib/constants";
+import { sendMetaEvent } from "@/lib/meta-capi";
 import type { QuoteRequest } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -108,6 +109,7 @@ export async function POST(request: NextRequest) {
         referral_code: referralCode,
         expires_at: expiresAt,
         service_tier: tier,
+        ...(body.utm_params ? { utm_params: body.utm_params } : {}),
       })
       .select()
       .single();
@@ -231,7 +233,35 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    // Meta CAPI: send Lead event (non-fatal)
+    try {
+      const nameParts = body.customer_name.split(" ");
+      await sendMetaEvent({
+        event_name: "Lead",
+        event_id: body.event_id,
+        event_source_url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com"}/quote`,
+        user_data: {
+          email: body.customer_email,
+          phone: body.customer_phone,
+          first_name: nameParts[0],
+          last_name: nameParts.slice(1).join(" "),
+          fbc: body.fbc,
+          fbp: body.fbp,
+          client_ip_address: request.headers.get("x-forwarded-for")?.split(",")[0] || undefined,
+          client_user_agent: request.headers.get("user-agent") || undefined,
+        },
+        custom_data: {
+          currency: "USD",
+          value: breakdown.total,
+          content_name: service.display_name,
+        },
+      });
+    } catch (err) {
+      console.error("Meta CAPI error (non-fatal):", err);
+    }
+
+    // Set segment cookie for retargeting
+    const res = NextResponse.json({
       ok: true,
       quote: {
         id: quote.id,
@@ -242,6 +272,12 @@ export async function POST(request: NextRequest) {
         status,
       },
     });
+    res.cookies.set("mhf_segment", "quoted", {
+      maxAge: 60 * 60 * 24 * 90,
+      path: "/",
+      sameSite: "lax",
+    });
+    return res;
   } catch (err) {
     console.error("Quote creation error:", err);
     return NextResponse.json(

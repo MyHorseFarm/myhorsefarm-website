@@ -2,7 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import { PHONE_OFFICE, PHONE_OFFICE_TEL } from "@/lib/constants";
-import { trackEvent } from "@/lib/analytics";
+import { trackConversion, generateEventId } from "@/lib/analytics";
+import { getUtmParams } from "@/lib/utm";
 
 type FormState = "idle" | "submitting" | "success" | "error";
 
@@ -48,6 +49,8 @@ export default function LandingForm({
     if (message) propertyDetails.notes = message;
 
     try {
+      const utm = getUtmParams();
+      const eventId = generateEventId();
       const res = await fetch("/api/quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,6 +62,10 @@ export default function LandingForm({
           customer_location: locationKey,
           property_details: propertyDetails,
           source: "landing_page",
+          ...(utm ? { utm_params: utm } : {}),
+          event_id: eventId,
+          fbc: utm?.fbc,
+          fbp: utm?.fbp,
         }),
       });
 
@@ -71,13 +78,20 @@ export default function LandingForm({
       const quote = result.quote;
       setQuoteNumber(quote?.quote_number || "");
       setState("success");
-      trackEvent("generate_lead", {
+      const customerName = (data.get("name") as string) || "";
+      const nameParts = customerName.split(" ");
+      trackConversion("generate_lead", {
         currency: "USD",
         value: quote?.estimated_amount,
         service: serviceKey,
         source: "landing_page",
         quote_number: quote?.quote_number,
-      });
+      }, {
+        email: (data.get("email") as string) || undefined,
+        phone: (data.get("phone") as string) || undefined,
+        first_name: nameParts[0],
+        last_name: nameParts.slice(1).join(" "),
+      }, eventId);
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setState("error");

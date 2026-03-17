@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import DateTimePicker from "./DateTimePicker";
-import { trackEvent } from "@/lib/analytics";
+import { trackConversion, generateEventId } from "@/lib/analytics";
+import { getUtmParams } from "@/lib/utm";
 
 interface ServiceCalendarProps {
   quoteId?: string;
@@ -53,6 +54,7 @@ export default function ServiceCalendar({
     setError("");
 
     try {
+      const utm = getUtmParams();
       const res = await fetch("/api/booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -65,18 +67,25 @@ export default function ServiceCalendar({
           service_key: serviceKey || "general",
           scheduled_date: selectedDate,
           time_slot: selectedSlot,
+          ...(utm ? { utm_params: utm } : {}),
         }),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      trackEvent("purchase", {
+      const scNameParts = finalName.split(" ");
+      trackConversion("purchase", {
         currency: "USD",
         value: data.booking.amount,
         transaction_id: data.booking.booking_number,
         service: serviceKey || "general",
-      });
+      }, {
+        email: finalEmail,
+        phone: finalPhone,
+        first_name: scNameParts[0],
+        last_name: scNameParts.slice(1).join(" "),
+      }, generateEventId());
 
       if (onBooked) {
         onBooked(data.booking);

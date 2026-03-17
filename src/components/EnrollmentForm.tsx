@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { trackEvent } from "@/lib/analytics";
+import { getUtmParams } from "@/lib/utm";
 
 // Square Web Payments SDK types
 interface SquarePayments {
@@ -216,6 +218,7 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
       const signatureData = canvasRef.current?.toDataURL("image/png") || "";
       const nonce = nonceRef.current;
 
+      const utm = getUtmParams();
       const res = await fetch("/api/enroll", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -229,6 +232,7 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
           contractType,
           nonce,
           signatureData,
+          ...(utm ? { utm_params: utm } : {}),
         }),
       });
 
@@ -239,6 +243,12 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
       setCardBrand(data.cardBrand || "");
       nonceRef.current = "";
       setStep("success");
+      trackEvent("purchase", {
+        currency: "USD",
+        value: 0,
+        transaction_id: `enroll-${Date.now()}`,
+        item_name: `${contractType} enrollment`,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Enrollment failed");
     } finally {

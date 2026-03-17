@@ -14,6 +14,12 @@ import {
   quoteExpiringEmail,
   quoteExpiredRecoveryEmail,
 } from "@/lib/emails";
+import {
+  getActiveTest,
+  pickVariant,
+  getVariantSubject,
+  recordSend,
+} from "@/lib/ab-testing";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -98,7 +104,27 @@ export async function GET(request: NextRequest) {
           unsub,
           quote.service_key,
         );
-        await sendEmail(quote.customer_email, template.subject, template.html);
+
+        // A/B test: override subject if active test exists for this template
+        let finalSubject = template.subject;
+        let abVariant: "a" | "b" | null = null;
+        let abTest: Awaited<ReturnType<typeof getActiveTest>> = null;
+        try {
+          abTest = await getActiveTest("quote_followup_1");
+          if (abTest) {
+            abVariant = pickVariant(abTest);
+            finalSubject = getVariantSubject(abTest, abVariant);
+          }
+        } catch { /* A/B test lookup non-fatal */ }
+
+        const emailId = await sendEmail(quote.customer_email, finalSubject, template.html);
+
+        // Record A/B send if test is active
+        if (abTest && abVariant) {
+          try {
+            await recordSend(abTest.id, quote.customer_email, abVariant, emailId);
+          } catch { /* recording non-fatal */ }
+        }
 
         // SMS followup at day 1 (email + SMS)
         if (quote.customer_phone) {
@@ -161,7 +187,26 @@ export async function GET(request: NextRequest) {
           unsub,
           quote.service_key,
         );
-        await sendEmail(quote.customer_email, template.subject, template.html);
+
+        // A/B test: override subject if active test exists for this template
+        let finalSubject2 = template.subject;
+        let abVariant2: "a" | "b" | null = null;
+        let abTest2: Awaited<ReturnType<typeof getActiveTest>> = null;
+        try {
+          abTest2 = await getActiveTest("quote_followup_2");
+          if (abTest2) {
+            abVariant2 = pickVariant(abTest2);
+            finalSubject2 = getVariantSubject(abTest2, abVariant2);
+          }
+        } catch { /* non-fatal */ }
+
+        const emailId2 = await sendEmail(quote.customer_email, finalSubject2, template.html);
+
+        if (abTest2 && abVariant2) {
+          try {
+            await recordSend(abTest2.id, quote.customer_email, abVariant2, emailId2);
+          } catch { /* non-fatal */ }
+        }
         await createContactNote(
           contactId,
           `${TAGS.FOLLOWUP_2} Sent for ${quote.quote_number} on ${new Date().toISOString()}`,

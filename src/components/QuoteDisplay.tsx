@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DateTimePicker from "./DateTimePicker";
-import { trackEvent } from "@/lib/analytics";
+import { trackConversion, generateEventId } from "@/lib/analytics";
 
 interface QuoteData {
   id: string;
@@ -87,12 +87,18 @@ export default function QuoteDisplay({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setPhase("schedule");
-      trackEvent("begin_checkout", {
+      const nameParts = quote.customer_name.split(" ");
+      trackConversion("begin_checkout", {
         currency: "USD",
         value: quote.pricing_breakdown.total,
         service: quote.service_display_name,
         quote_number: quote.quote_number,
-      });
+      }, {
+        email: quote.customer_email,
+        phone: quote.customer_phone,
+        first_name: nameParts[0],
+        last_name: nameParts.slice(1).join(" "),
+      }, generateEventId());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to accept quote");
     } finally {
@@ -117,12 +123,18 @@ export default function QuoteDisplay({
       if (!res.ok) throw new Error(data.error);
       setBookingData(data.booking);
       setPhase("confirmed");
-      trackEvent("purchase", {
+      const bNameParts = quote.customer_name.split(" ");
+      trackConversion("purchase", {
         currency: "USD",
         value: quote.pricing_breakdown.total,
         transaction_id: data.booking.booking_number,
         service: quote.service_display_name,
-      });
+      }, {
+        email: quote.customer_email,
+        phone: quote.customer_phone,
+        first_name: bNameParts[0],
+        last_name: bNameParts.slice(1).join(" "),
+      }, generateEventId());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create booking");
     } finally {

@@ -15,6 +15,7 @@ import {
   createUnsubscribeUrl,
   bookingConfirmationEmail,
 } from "@/lib/emails";
+import { sendMetaEvent } from "@/lib/meta-capi";
 import type { BookingRequest } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -79,6 +80,7 @@ export async function POST(request: NextRequest) {
         service_key: body.service_key,
         scheduled_date: body.scheduled_date,
         time_slot: body.time_slot,
+        ...(body.utm_params ? { utm_params: body.utm_params } : {}),
       })
       .select()
       .single();
@@ -208,7 +210,35 @@ export async function POST(request: NextRequest) {
       console.error("Google Calendar error (non-fatal):", err);
     }
 
-    return NextResponse.json({
+    // Meta CAPI: send Purchase event (non-fatal)
+    try {
+      const nameParts = body.customer_name.split(" ");
+      await sendMetaEvent({
+        event_name: "Purchase",
+        event_id: body.event_id,
+        event_source_url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com"}/booking`,
+        user_data: {
+          email: body.customer_email,
+          phone: body.customer_phone,
+          first_name: nameParts[0],
+          last_name: nameParts.slice(1).join(" "),
+          fbc: body.fbc,
+          fbp: body.fbp,
+          client_ip_address: request.headers.get("x-forwarded-for")?.split(",")[0] || undefined,
+          client_user_agent: request.headers.get("user-agent") || undefined,
+        },
+        custom_data: {
+          currency: "USD",
+          value: 0,
+          content_name: serviceName,
+        },
+      });
+    } catch (err) {
+      console.error("Meta CAPI error (non-fatal):", err);
+    }
+
+    // Set segment cookie for retargeting
+    const res = NextResponse.json({
       ok: true,
       booking: {
         id: booking.id,
@@ -218,6 +248,12 @@ export async function POST(request: NextRequest) {
         service_name: serviceName,
       },
     });
+    res.cookies.set("mhf_segment", "booked", {
+      maxAge: 60 * 60 * 24 * 90,
+      path: "/",
+      sameSite: "lax",
+    });
+    return res;
   } catch (err) {
     console.error("Booking creation error:", err);
     return NextResponse.json(

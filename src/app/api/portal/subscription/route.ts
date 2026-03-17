@@ -74,7 +74,9 @@ export async function POST(request: NextRequest) {
       }
     } catch { /* non-fatal */ }
 
-    return NextResponse.json({ ok: true, status: "paused" });
+    const pauseRes = NextResponse.json({ ok: true, status: "paused" });
+    pauseRes.cookies.set("mhf_segment", "churned", { maxAge: 60 * 60 * 24 * 90, path: "/", sameSite: "lax" });
+    return pauseRes;
   }
 
   if (action === "resume") {
@@ -101,7 +103,9 @@ export async function POST(request: NextRequest) {
       }
     } catch { /* non-fatal */ }
 
-    return NextResponse.json({ ok: true, status: "active" });
+    const resumeRes = NextResponse.json({ ok: true, status: "active" });
+    resumeRes.cookies.set("mhf_segment", "recurring", { maxAge: 60 * 60 * 24 * 90, path: "/", sameSite: "lax" });
+    return resumeRes;
   }
 
   if (action === "cancel") {
@@ -127,7 +131,9 @@ export async function POST(request: NextRequest) {
       }
     } catch { /* non-fatal */ }
 
-    return NextResponse.json({ ok: true, status: "cancelled" });
+    const cancelRes = NextResponse.json({ ok: true, status: "cancelled" });
+    cancelRes.cookies.set("mhf_segment", "churned", { maxAge: 60 * 60 * 24 * 90, path: "/", sameSite: "lax" });
+    return cancelRes;
   }
 
   return NextResponse.json({ error: "Unknown action" }, { status: 400 });

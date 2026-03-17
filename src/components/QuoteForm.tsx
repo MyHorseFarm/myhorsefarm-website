@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import type { ServicePricing } from "@/lib/types";
-import { trackEvent } from "@/lib/analytics";
+import { trackConversion, generateEventId } from "@/lib/analytics";
+import { getUtmParams } from "@/lib/utm";
 
 interface QuoteFormProps {
   services: ServicePricing[];
@@ -167,6 +168,8 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
     setError("");
 
     try {
+      const utm = getUtmParams();
+      const eventId = generateEventId();
       const res = await fetch("/api/quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -180,6 +183,10 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
           source: "form",
           service_tier: tier,
           ...(referralCode ? { referral_code: referralCode } : {}),
+          ...(utm ? { utm_params: utm } : {}),
+          event_id: eventId,
+          fbc: utm?.fbc,
+          fbp: utm?.fbp,
         }),
       });
 
@@ -189,13 +196,19 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
       setResult(data.quote);
       setStep("confirmation");
       clearDraft();
-      trackEvent("generate_lead", {
+      const nameParts = contact.name.split(" ");
+      trackConversion("generate_lead", {
         currency: "USD",
         value: data.quote.estimated_amount,
         service: selectedService.display_name,
         source: "form",
         quote_number: data.quote.quote_number,
-      });
+      }, {
+        email: contact.email,
+        phone: contact.phone,
+        first_name: nameParts[0],
+        last_name: nameParts.slice(1).join(" "),
+      }, eventId);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {

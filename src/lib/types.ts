@@ -118,6 +118,10 @@ export interface QuoteRequest {
   chat_session_id?: string;
   referral_code?: string;
   service_tier?: "standard" | "premium";
+  utm_params?: Record<string, string>;
+  event_id?: string;
+  fbc?: string;
+  fbp?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -150,6 +154,10 @@ export interface BookingRequest {
   service_key: string;
   scheduled_date: string;
   time_slot: "morning" | "afternoon";
+  utm_params?: Record<string, string>;
+  event_id?: string;
+  fbc?: string;
+  fbp?: string;
 }
 
 export interface AvailabilityDay {

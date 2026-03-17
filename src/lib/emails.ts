@@ -46,12 +46,12 @@ export async function sendEmail(
   to: string,
   subject: string,
   html: string,
-): Promise<void> {
+): Promise<string | undefined> {
   const from =
     process.env.RESEND_FROM_EMAIL ||
     "My Horse Farm <onboarding@resend.dev>";
 
-  const { error } = await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from,
     to,
     subject,
@@ -59,6 +59,7 @@ export async function sendEmail(
   });
 
   if (error) throw new Error(`Resend: ${JSON.stringify(error)}`);
+  return data?.id;
 }
 
 // ---------------------------------------------------------------------------
@@ -1229,6 +1230,108 @@ ${header("We Saved Your Spot")}
 <a href="${escapeHtml(quoteUrl)}" style="display:inline-block;padding:14px 32px;background-color:#2d5016;color:#fff;text-decoration:none;border-radius:8px;font-size:16px;font-weight:600;">Get My Free Quote</a>
 </div>
 <p style="font-size:14px;color:#666;">Or just reply to this email — we&rsquo;ll take it from there.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Lost Deal Re-Engagement Email
+// ---------------------------------------------------------------------------
+
+export function lostDealReengageEmail(
+  firstname: string,
+  dealName: string,
+  quoteUrl: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+
+  return {
+    subject: `Still need help with ${escapeHtml(dealName)}?`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("We'd Love Another Chance")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">A while back, we talked about <strong>${escapeHtml(dealName)}</strong> for your property. I know timing doesn&rsquo;t always work out, and that&rsquo;s okay.</p>
+<p style="font-size:16px;line-height:1.6;">If your situation has changed or you&rsquo;re ready to move forward, we&rsquo;re here and happy to help. Our team is available and we can get you a fresh quote in under a minute.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="${escapeHtml(quoteUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a New Quote</a>
+</div>
+<p style="font-size:16px;line-height:1.6;">Or just call me directly at <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> &mdash; no pressure, just here to help.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Lapsed Customer Re-Engagement Email
+// ---------------------------------------------------------------------------
+
+export function lapsedCustomerReengageEmail(
+  firstname: string,
+  quoteUrl: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+
+  return {
+    subject: `${escapeHtml(firstname || "Hey")} — it's been a while! Let's catch up`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("It's Been a While")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">It&rsquo;s been a few months since your last service with My Horse Farm, and I wanted to check in. Whether you need manure removal, junk hauling, sod, fill dirt, or farm repairs &mdash; we&rsquo;re still here and ready to help.</p>
+<p style="font-size:16px;line-height:1.6;">A lot of our returning clients are surprised at how much we&rsquo;ve grown. We&rsquo;ve added new services and our scheduling is faster than ever.</p>
+<div style="background-color:#f9f7f2;padding:25px;border-radius:8px;margin:20px 0;text-align:center;">
+<p style="font-size:18px;font-weight:bold;color:#2d5016;margin:0 0 5px;">One call handles everything</p>
+<p style="font-size:14px;color:#666;margin:0;">Manure &middot; Junk &middot; Sod &middot; Fill Dirt &middot; Dumpsters &middot; Repairs</p>
+</div>
+<div style="text-align:center;margin:30px 0;">
+<a href="${escapeHtml(quoteUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a Free Quote</a>
+</div>
+<p style="font-size:16px;line-height:1.6;">Or call me directly &mdash; <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a>. I&rsquo;d love to hear how your farm is doing.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Cold Lead Re-Engagement Email
+// ---------------------------------------------------------------------------
+
+export function coldLeadReengageEmail(
+  firstname: string,
+  quoteUrl: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+
+  return {
+    subject: "Still looking for farm services in Palm Beach County?",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Still Looking for Help?")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">You reached out to My Horse Farm a while back, and I wanted to follow up in case you&rsquo;re still looking for reliable farm services in the Wellington, Loxahatchee, or Royal Palm Beach area.</p>
+<p style="font-size:16px;line-height:1.6;">We handle everything from manure removal to junk hauling, sod, fill dirt, dumpster rentals, and farm repairs &mdash; all with one phone call.</p>
+<div style="background-color:#f9f7f2;border-left:4px solid #d4a843;padding:20px;margin:20px 0;border-radius:4px;">
+<p style="font-style:italic;font-size:15px;line-height:1.6;margin:0;">&ldquo;We&rsquo;ve worked with My Horse Farm for over a year now and they are hands down the most dependable manure removal company in the area.&rdquo;</p>
+<p style="font-size:14px;color:#888;margin:10px 0 0 0;"><strong>&mdash; Sarah M., Wellington, FL</strong></p>
+</div>
+<div style="text-align:center;margin:30px 0;">
+<a href="${escapeHtml(quoteUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a Free Quote</a>
+</div>
+<p style="font-size:16px;line-height:1.6;">Or give me a call at <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> &mdash; happy to answer any questions.</p>
 ${signoff()}
 </div></div>`,
       unsubscribeUrl,

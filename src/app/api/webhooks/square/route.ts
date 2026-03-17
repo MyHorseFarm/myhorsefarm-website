@@ -26,6 +26,7 @@ import {
   createUnsubscribeUrl,
   firstPaymentWelcomeEmail,
 } from "@/lib/emails";
+import { sendMetaEvent } from "@/lib/meta-capi";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -166,6 +167,27 @@ async function handlePaymentCompleted(paymentId: string) {
         emailSent = true;
       }
     }
+  }
+
+  // Meta CAPI: send Purchase event for completed payment (non-fatal)
+  try {
+    await sendMetaEvent({
+      event_name: "Purchase",
+      event_source_url: "https://www.myhorsefarm.com",
+      user_data: {
+        email: customer.email || undefined,
+        phone: customer.phone || undefined,
+        first_name: customer.firstName || undefined,
+        last_name: customer.lastName || undefined,
+      },
+      custom_data: {
+        currency: "USD",
+        value: parseFloat(amount),
+        content_name: services.length > 0 ? services[0] : "Square Payment",
+      },
+    });
+  } catch (err) {
+    console.error("Meta CAPI error (non-fatal):", err);
   }
 
   return {

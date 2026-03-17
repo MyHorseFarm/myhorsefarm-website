@@ -18,7 +18,7 @@ import {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, email, phone, address, billingAddress, notes, contractType, nonce, signatureData } = body;
+    const { name, email, phone, address, billingAddress, notes, contractType, nonce, signatureData, utm_params } = body;
 
     // Contract setup
     const validContracts = ["month_to_month", "6_month", "annual"];
@@ -96,6 +96,7 @@ export async function POST(req: Request) {
             contract_end_date: contractEnd,
             contract_discount_pct: discount,
             auto_renew: true,
+            ...(utm_params ? { utm_params } : {}),
           })
           .eq("id", existing.id);
 
@@ -117,6 +118,7 @@ export async function POST(req: Request) {
             contract_end_date: contractEnd,
             contract_discount_pct: discount,
             auto_renew: true,
+            ...(utm_params ? { utm_params } : {}),
           });
 
         if (dbError) console.error("Supabase insert error:", dbError);
@@ -139,6 +141,7 @@ export async function POST(req: Request) {
           contract_end_date: contractEnd,
           contract_discount_pct: discount,
           auto_renew: true,
+          ...(utm_params ? { utm_params } : {}),
         });
 
       if (dbError) console.error("Supabase insert error:", dbError);
@@ -226,11 +229,18 @@ export async function POST(req: Request) {
       console.error("Email send error (non-fatal):", emailErr);
     }
 
-    return NextResponse.json({
+    // Set segment cookie for retargeting
+    const res = NextResponse.json({
       success: true,
       cardLast4: last4,
       cardBrand: cardBrand,
     });
+    res.cookies.set("mhf_segment", "recurring", {
+      maxAge: 60 * 60 * 24 * 90,
+      path: "/",
+      sameSite: "lax",
+    });
+    return res;
   } catch (err) {
     console.error("Enrollment error:", err);
     const message = err instanceof Error ? err.message : "Enrollment failed";
