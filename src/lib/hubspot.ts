@@ -75,11 +75,27 @@ export async function searchDeals(
   filterGroups: unknown[],
   properties: string[],
 ): Promise<Deal[]> {
-  const data = await hubspotRequest("/crm/v3/objects/deals/search", {
-    method: "POST",
-    body: JSON.stringify({ filterGroups, properties, limit: 100 }),
-  });
-  return data.results;
+  const results: Deal[] = [];
+  let after: string | undefined;
+
+  do {
+    const body: Record<string, unknown> = {
+      filterGroups,
+      properties,
+      limit: 100,
+    };
+    if (after) body.after = after;
+
+    const data = await hubspotRequest("/crm/v3/objects/deals/search", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+
+    results.push(...data.results);
+    after = data.paging?.next?.after;
+  } while (after);
+
+  return results;
 }
 
 export async function getDealContacts(dealId: string): Promise<string[]> {
@@ -332,6 +348,61 @@ export async function findActiveDealForContact(
   );
 
   return activeDeal ?? null;
+}
+
+export interface ContactDealSummary {
+  hasActiveDeal: boolean;
+  mostRecentCloseDate: string | null;
+  dealStages: string[];
+}
+
+/**
+ * Get a summary of all deals for a contact: whether any are active,
+ * the most recent close date, and all deal stages present.
+ */
+export async function getContactDealSummary(
+  contactId: string,
+): Promise<ContactDealSummary> {
+  const assocData = await hubspotRequest(
+    `/crm/v3/objects/contacts/${contactId}/associations/deals`,
+  );
+
+  const dealIds: string[] = assocData.results.map(
+    (r: Record<string, string>) => r.toObjectId ?? r.id,
+  );
+
+  if (dealIds.length === 0) {
+    return { hasActiveDeal: false, mostRecentCloseDate: null, dealStages: [] };
+  }
+
+  const batchData = await hubspotRequest("/crm/v3/objects/deals/batch/read", {
+    method: "POST",
+    body: JSON.stringify({
+      properties: ["dealstage", "pipeline", "closedate"],
+      inputs: dealIds.map((id) => ({ id })),
+    }),
+  });
+
+  let hasActiveDeal = false;
+  let mostRecentCloseDate: string | null = null;
+  const dealStages: string[] = [];
+
+  for (const deal of batchData.results as Deal[]) {
+    if (deal.properties.pipeline !== PIPELINE_ID) continue;
+    const stage = deal.properties.dealstage ?? "";
+    dealStages.push(stage);
+
+    if (stage !== STAGE_COMPLETED && stage !== STAGE_LOST) {
+      hasActiveDeal = true;
+    }
+
+    const close = deal.properties.closedate;
+    if (close && (!mostRecentCloseDate || close > mostRecentCloseDate)) {
+      mostRecentCloseDate = close;
+    }
+  }
+
+  return { hasActiveDeal, mostRecentCloseDate, dealStages };
 }
 
 export async function createDeal(
