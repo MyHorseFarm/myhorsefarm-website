@@ -37,7 +37,7 @@ export default async function LpJunkLoxahatchee() {
     <>
       <LandingHero
         title="Loxahatchee Junk Removal"
-        subtitle="Starting at $75/ton &middot; Same-Day Service Available"
+        subtitle="40-Yard Dump Trailer &middot; Skid Steer &middot; Same-Day Service"
         slotsLeft={slotsLeft}
       />
       <LandingTrustStrip items={TRUST_ITEMS} reviewCount={reviewCount} avgRating={avgRating} />
@@ -54,12 +54,12 @@ export default async function LpJunkLoxahatchee() {
           <div className="flex-1 min-w-[280px]">
             <h3 className="text-primary-dark mt-0">Why Loxahatchee Trusts Us for Junk Removal</h3>
             <ul className="pl-5 leading-8">
-              <li>Transparent pricing from <strong>$75/ton</strong></li>
+              <li><strong>40-yard dump trailer</strong> for massive property cleanouts</li>
+              <li><strong>Skid steer &amp; loader</strong> — no pile too big</li>
+              <li>Full crew included — we haul it all</li>
               <li>Same-day and next-day service available</li>
-              <li>Heavy-duty dump trailer for large property cleanouts</li>
-              <li>We haul old fencing, tack, equipment, furniture, and more</li>
-              <li>Eco-friendly recycling and disposal</li>
-              <li>Trusted by farms, ranches, and homeowners across Loxahatchee</li>
+              <li>Green waste, old fencing, equipment, construction debris &amp; more</li>
+              <li>Licensed, insured &amp; trusted by Loxahatchee farms and ranches</li>
             </ul>
             <div className="bg-gray-100 rounded-lg p-5 text-center mt-6">
               <p className="m-0 mb-2.5 font-semibold text-gray-800">Prefer to talk? Call us now:</p>

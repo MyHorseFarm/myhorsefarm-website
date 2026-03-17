@@ -37,7 +37,7 @@ export default async function LpJunkWellington() {
     <>
       <LandingHero
         title="Wellington Junk Removal"
-        subtitle="Starting at $75/ton &middot; Same-Day Service Available"
+        subtitle="40-Yard Dump Trailer &middot; Skid Steer &middot; Same-Day Service"
         slotsLeft={slotsLeft}
       />
       <LandingTrustStrip items={TRUST_ITEMS} reviewCount={reviewCount} avgRating={avgRating} />
@@ -54,12 +54,12 @@ export default async function LpJunkWellington() {
           <div className="flex-1 min-w-[280px]">
             <h3 className="text-primary-dark mt-0">Why Wellington Chooses Us for Junk Removal</h3>
             <ul className="pl-5 leading-8">
-              <li>Transparent pricing from <strong>$75/ton</strong></li>
+              <li><strong>40-yard dump trailer</strong> for massive loads in one trip</li>
+              <li><strong>Skid steer &amp; loader</strong> — we handle the heavy stuff</li>
+              <li>Full crew included — we do the lifting</li>
               <li>Same-day and next-day service available</li>
-              <li>We haul furniture, appliances, yard waste, construction debris, and more</li>
-              <li>Dump trailer for large loads — farms, estates, renovations</li>
-              <li>Eco-friendly recycling and disposal</li>
-              <li>Trusted by homeowners, farms, and businesses in Wellington</li>
+              <li>Green waste, construction debris, barn cleanouts &amp; more</li>
+              <li>Licensed, insured &amp; trusted by Wellington farms and homeowners</li>
             </ul>
             <div className="bg-gray-100 rounded-lg p-5 text-center mt-6">
               <p className="m-0 mb-2.5 font-semibold text-gray-800">Prefer to talk? Call us now:</p>

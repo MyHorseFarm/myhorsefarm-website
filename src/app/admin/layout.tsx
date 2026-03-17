@@ -11,6 +11,7 @@ const navItems = [
   { href: "/admin/pricing", label: "Pricing", icon: "fa-dollar-sign" },
   { href: "/admin/analytics", label: "Analytics", icon: "fa-chart-line" },
   { href: "/admin/schedule", label: "Schedule", icon: "fa-calendar-alt" },
+  { href: "/admin/ads", label: "Ad Generator", icon: "fa-bullhorn" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

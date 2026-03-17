@@ -1,0 +1,179 @@
+import { NextRequest, NextResponse } from "next/server";
+import Anthropic from "@anthropic-ai/sdk";
+
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
+
+let _anthropic: Anthropic | null = null;
+function getClient(): Anthropic {
+  if (!_anthropic) {
+    _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  }
+  return _anthropic;
+}
+
+const SYSTEM_PROMPT = `You are an expert advertising copywriter for My Horse Farm, a junk removal and farm services company in Royal Palm Beach, Florida.
+
+BUSINESS INFO:
+- Company: My Horse Farm
+- Phone: (561) 576-7667
+- Website: myhorsefarm.com
+- Service Area: Royal Palm Beach, Wellington, Loxahatchee, West Palm Beach, Palm Beach Gardens, Loxahatchee Groves (Palm Beach County FL)
+- Equipment: 40-yard dump trailer, skid steer, front-end loader, experienced crew
+- Services: Junk removal, green waste pickup, construction debris, property cleanouts, farm/barn cleanup, furniture & appliance removal, bulk material hauling, manure removal, dumpster rental
+
+BRAND VOICE:
+- Direct, confident, no-nonsense
+- Local and personal — owner-operated by Jose Gomez
+- Emphasize equipment capabilities (40-yard dump trailer is a differentiator)
+- Not corporate — real people, real work
+- Use urgency and social proof when appropriate
+
+IMPORTANT RULES:
+- Never use emojis in Google Ads copy
+- Facebook ads can use 1-2 emojis max, tastefully
+- All copy must be factual — don't make up statistics
+- Include specific equipment mentions (40-yard dump trailer, skid steer, loader)
+- Target homeowners, property managers, contractors, and farm/equestrian owners
+- Emphasize same-day service, licensed & insured, eco-friendly disposal
+- Google Ads headlines must be 30 characters max each
+- Google Ads descriptions must be 90 characters max each
+
+Return your response as valid JSON with this exact structure:
+{
+  "google_ads": [
+    {
+      "headline1": "string (max 30 chars)",
+      "headline2": "string (max 30 chars)",
+      "headline3": "string (max 30 chars)",
+      "description1": "string (max 90 chars)",
+      "description2": "string (max 90 chars)"
+    }
+  ],
+  "facebook_ads": [
+    {
+      "primary_text": "string (the main ad copy, 2-4 sentences)",
+      "headline": "string (short headline for the ad)",
+      "description": "string (link description)",
+      "cta": "string (call to action button text)"
+    }
+  ],
+  "video_script": {
+    "duration": "string (e.g. '30 seconds')",
+    "scenes": [
+      {
+        "timestamp": "string (e.g. '0-5s')",
+        "visual": "string (what's shown)",
+        "voiceover": "string (what's said)",
+        "text_overlay": "string (on-screen text)"
+      }
+    ]
+  }
+}`;
+
+export async function POST(request: NextRequest) {
+  // Auth check
+  const auth = request.headers.get("authorization");
+  if (!ADMIN_SECRET || auth !== `Bearer ${ADMIN_SECRET}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const {
+      serviceType = "junk_removal",
+      targetArea = "Palm Beach County",
+      platform = "both",
+      additionalContext = "",
+      images = [],
+    } = body;
+
+    const serviceLabels: Record<string, string> = {
+      junk_removal: "Junk Removal & Hauling",
+      manure_removal: "Manure Removal",
+      green_waste: "Green Waste Pickup",
+      construction_debris: "Construction Debris Removal",
+      property_cleanout: "Property Cleanout",
+      dumpster_rental: "Dumpster Rental",
+      farm_cleanup: "Farm & Barn Cleanup",
+    };
+
+    const serviceLabel = serviceLabels[serviceType] || serviceType;
+
+    let userPrompt = `Generate advertising copy for our ${serviceLabel} service targeting customers in ${targetArea}.
+
+Platform: ${platform === "both" ? "Google Ads AND Facebook" : platform}
+Service Focus: ${serviceLabel}
+Target Area: ${targetArea}
+
+Generate:
+- 3 Google Ads variations (if platform includes Google)
+- 3 Facebook ad variations (if platform includes Facebook)
+- 1 video commercial script (30 seconds)`;
+
+    if (additionalContext) {
+      userPrompt += `\n\nAdditional context from the business owner: ${additionalContext}`;
+    }
+
+    // Build message content with optional images
+    const content: Anthropic.Messages.ContentBlockParam[] = [];
+
+    // Add images if provided (up to 4)
+    for (const img of images.slice(0, 4)) {
+      if (typeof img === "string" && img.startsWith("data:image/")) {
+        const [meta, base64] = img.split(",");
+        const mediaType = meta.split(":")[1].split(";")[0] as
+          | "image/jpeg"
+          | "image/png"
+          | "image/gif"
+          | "image/webp";
+        content.push({
+          type: "image",
+          source: { type: "base64", media_type: mediaType, data: base64 },
+        });
+      }
+    }
+
+    if (images.length > 0) {
+      userPrompt +=
+        "\n\nI've attached photos of our work/equipment. Reference what you see in the images to make the ad copy more specific and authentic.";
+    }
+
+    content.push({ type: "text", text: userPrompt });
+
+    const client = getClient();
+    const response = await client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 4000,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: "user", content }],
+    });
+
+    // Extract text from response
+    const text =
+      response.content
+        .filter((b): b is Anthropic.Messages.TextBlock => b.type === "text")
+        .map((b) => b.text)
+        .join("") || "";
+
+    // Parse JSON from response (handle markdown code blocks)
+    let parsed;
+    try {
+      const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+      parsed = JSON.parse(jsonMatch ? jsonMatch[1].trim() : text.trim());
+    } catch {
+      // If JSON parsing fails, return raw text
+      return NextResponse.json({ raw: text, parsed: null });
+    }
+
+    return NextResponse.json({ ads: parsed });
+  } catch (err) {
+    console.error("Ad generation error:", err);
+    return NextResponse.json(
+      { error: "Failed to generate ads" },
+      { status: 500 },
+    );
+  }
+}
