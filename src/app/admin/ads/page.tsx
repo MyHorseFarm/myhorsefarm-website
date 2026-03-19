@@ -297,8 +297,15 @@ export default function AdsPage() {
         }),
       });
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to start render");
+        let msg = `Render failed (${res.status})`;
+        try {
+          const data = await res.json();
+          msg = data.error || msg;
+        } catch {
+          // Response wasn't JSON (e.g. Vercel timeout page)
+          if (res.status === 504) msg = "Request timed out. Try with fewer/smaller images.";
+        }
+        throw new Error(msg);
       }
       const data = await res.json();
       setRenderJobId(data.job.id);

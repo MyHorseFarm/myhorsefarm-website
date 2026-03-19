@@ -1,8 +1,4 @@
-import {
-  renderMediaOnLambda,
-  getRenderProgress,
-  type AwsRegion,
-} from "@remotion/lambda/client";
+import type { AwsRegion } from "@remotion/lambda/client";
 import { supabase } from "./supabase";
 
 const REMOTION_AWS_REGION = (process.env.REMOTION_AWS_REGION ||
@@ -16,6 +12,14 @@ const SITE_URL =
   (process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000");
+
+// Lazy-load heavy Remotion Lambda SDK to avoid cold start timeouts
+async function getLambdaClient() {
+  const { renderMediaOnLambda, getRenderProgress } = await import(
+    "@remotion/lambda/client"
+  );
+  return { renderMediaOnLambda, getRenderProgress };
+}
 
 interface TriggerAdRenderParams {
   inputProps: {
@@ -48,6 +52,8 @@ export async function triggerAdRender({ inputProps }: TriggerAdRenderParams) {
   }
 
   try {
+    const { renderMediaOnLambda } = await getLambdaClient();
+
     const renderResult = await renderMediaOnLambda({
       region: REMOTION_AWS_REGION,
       functionName: REMOTION_FUNCTION_NAME,
@@ -95,6 +101,8 @@ export async function triggerAdRender({ inputProps }: TriggerAdRenderParams) {
  * Check render progress from Lambda (polling fallback).
  */
 export async function checkAdRenderProgress(renderId: string) {
+  const { getRenderProgress } = await getLambdaClient();
+
   const progress = await getRenderProgress({
     renderId,
     bucketName: REMOTION_FUNCTION_NAME.replace(
