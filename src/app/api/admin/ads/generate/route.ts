@@ -70,6 +70,11 @@ Return your response as valid JSON with this exact structure:
         "text_overlay": "string (on-screen text)"
       }
     ]
+  },
+  "video_render": {
+    "headline": "string (short punchy headline for the video, max 60 chars — shown on scene 1)",
+    "description": "string (supporting benefit statement, max 80 chars — shown on scene 2)",
+    "cta_text": "string (call to action, max 30 chars — shown on scene 3 and outro, e.g. 'Call Now!', 'Book Today!')"
   }
 }`;
 

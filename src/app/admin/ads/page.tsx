@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { getAdminToken, setAdminToken, adminHeaders } from "@/lib/admin-auth";
 
 interface GoogleAd {
@@ -30,10 +30,17 @@ interface VideoScript {
   scenes: VideoScene[];
 }
 
+interface VideoRender {
+  headline: string;
+  description: string;
+  cta_text: string;
+}
+
 interface GeneratedAds {
   google_ads: GoogleAd[];
   facebook_ads: FacebookAd[];
   video_script: VideoScript;
+  video_render?: VideoRender;
 }
 
 const SERVICE_TYPES = [
@@ -79,6 +86,16 @@ export default function AdsPage() {
 
   // Clipboard state
   const [copied, setCopied] = useState<string | null>(null);
+
+  // Video render state
+  const [renderJobId, setRenderJobId] = useState<string | null>(null);
+  const [renderStatus, setRenderStatus] = useState<string | null>(null);
+  const [renderProgress, setRenderProgress] = useState(0);
+  const [renderVideoUrl, setRenderVideoUrl] = useState<string | null>(null);
+  const [renderError, setRenderError] = useState("");
+  const [postingVideo, setPostingVideo] = useState(false);
+  const [videoPostResult, setVideoPostResult] = useState("");
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -146,6 +163,14 @@ export default function AdsPage() {
     setError("");
     setAds(null);
     setRawText("");
+    // Reset render state
+    setRenderJobId(null);
+    setRenderStatus(null);
+    setRenderProgress(0);
+    setRenderVideoUrl(null);
+    setRenderError("");
+    setVideoPostResult("");
+    if (pollRef.current) clearInterval(pollRef.current);
     try {
       const res = await fetch("/api/admin/ads/generate", {
         method: "POST",
@@ -215,6 +240,99 @@ export default function AdsPage() {
     setCopied(id);
     setTimeout(() => setCopied(null), 2000);
   }, []);
+
+  // Clean up polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
+
+  const pollRenderStatus = useCallback((jobId: string) => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    pollRef.current = setInterval(async () => {
+      try {
+        const res = await fetch(
+          `/api/admin/ads/render-status?jobId=${jobId}`,
+          { headers: adminHeaders() }
+        );
+        const data = await res.json();
+        if (!data.job) return;
+        setRenderProgress(Math.round((data.job.progress || 0) * 100));
+        if (data.job.status === "completed") {
+          setRenderStatus("completed");
+          setRenderVideoUrl(data.job.output_url);
+          setRenderProgress(100);
+          if (pollRef.current) clearInterval(pollRef.current);
+        } else if (data.job.status === "failed") {
+          setRenderStatus("failed");
+          setRenderError(data.job.error_message || "Render failed");
+          if (pollRef.current) clearInterval(pollRef.current);
+        }
+      } catch {
+        // Keep polling on transient errors
+      }
+    }, 3000);
+  }, []);
+
+  const renderVideo = async () => {
+    if (!ads?.video_render || images.length === 0) return;
+    setRenderError("");
+    setRenderStatus("rendering");
+    setRenderProgress(0);
+    setRenderVideoUrl(null);
+    setVideoPostResult("");
+    try {
+      const serviceLabel =
+        SERVICE_TYPES.find((s) => s.value === serviceType)?.label || serviceType;
+      const res = await fetch("/api/admin/ads/render", {
+        method: "POST",
+        headers: adminHeaders(),
+        body: JSON.stringify({
+          images,
+          headline: ads.video_render.headline,
+          description: ads.video_render.description,
+          ctaText: ads.video_render.cta_text,
+          serviceName: serviceLabel,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to start render");
+      }
+      const data = await res.json();
+      setRenderJobId(data.job.id);
+      pollRenderStatus(data.job.id);
+    } catch (err) {
+      setRenderStatus("failed");
+      setRenderError(err instanceof Error ? err.message : "Render failed");
+    }
+  };
+
+  const postVideoToFacebook = async () => {
+    if (!renderVideoUrl || !ads?.facebook_ads?.[0]) return;
+    setPostingVideo(true);
+    setVideoPostResult("");
+    try {
+      const fb = ads.facebook_ads[0];
+      const message = `${fb.primary_text}\n\n${fb.headline}\n\n${fb.cta} at myhorsefarm.com/quote?service=${serviceType}`;
+      const res = await fetch("/api/admin/ads/post-facebook", {
+        method: "POST",
+        headers: adminHeaders(),
+        body: JSON.stringify({ message, videoUrl: renderVideoUrl }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setVideoPostResult(`Video posted to Facebook! Post ID: ${data.postId}`);
+      } else {
+        setVideoPostResult(`Error: ${data.error}`);
+      }
+    } catch {
+      setVideoPostResult("Failed to post video to Facebook");
+    } finally {
+      setPostingVideo(false);
+    }
+  };
 
   // Login screen
   if (!authed) {
@@ -664,6 +782,147 @@ export default function AdsPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Video Render */}
+            {ads.video_render && images.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <i className="fas fa-film text-purple-500" />
+                  Video Ad Renderer
+                </h2>
+
+                {/* Render info */}
+                <div className="bg-gray-50 rounded-lg p-4 mb-4 text-sm">
+                  <p className="text-gray-600 mb-2">
+                    Renders a 25-second branded video ad using your uploaded
+                    photos with Ken Burns effects, text overlays, and MHF
+                    branding.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs text-gray-500">
+                    <div>
+                      <span className="font-medium text-gray-700">Headline:</span>{" "}
+                      {ads.video_render.headline}
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Description:</span>{" "}
+                      {ads.video_render.description}
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">CTA:</span>{" "}
+                      {ads.video_render.cta_text}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Render button */}
+                {!renderStatus && (
+                  <button
+                    onClick={renderVideo}
+                    className="px-6 py-3 bg-purple-700 text-white rounded-lg font-semibold hover:bg-purple-600 transition-colors"
+                  >
+                    <i className="fas fa-magic mr-2" />
+                    Render Video
+                  </button>
+                )}
+
+                {/* Progress bar */}
+                {renderStatus === "rendering" && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <i className="fas fa-spinner fa-spin text-purple-600" />
+                      <span className="text-sm text-gray-700">
+                        Rendering video... {renderProgress}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div
+                        className="bg-purple-600 h-3 rounded-full transition-all duration-500"
+                        style={{ width: `${renderProgress}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      This takes 1-3 minutes. Do not close this page.
+                    </p>
+                  </div>
+                )}
+
+                {/* Error */}
+                {renderStatus === "failed" && (
+                  <div className="space-y-3">
+                    <div className="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">
+                      {renderError || "Video render failed"}
+                    </div>
+                    <button
+                      onClick={() => {
+                        setRenderStatus(null);
+                        setRenderError("");
+                      }}
+                      className="text-sm text-purple-600 hover:text-purple-800"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                )}
+
+                {/* Completed — video preview + actions */}
+                {renderStatus === "completed" && renderVideoUrl && (
+                  <div className="space-y-4">
+                    <div className="bg-green-50 text-green-700 px-4 py-2 rounded-lg text-sm">
+                      Video rendered successfully!
+                    </div>
+
+                    {/* Video player */}
+                    <div className="max-w-sm mx-auto">
+                      <video
+                        src={renderVideoUrl}
+                        controls
+                        className="w-full rounded-lg shadow-md"
+                        style={{ aspectRatio: "9/16", maxHeight: 500 }}
+                      />
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex flex-wrap gap-3">
+                      <a
+                        href={renderVideoUrl}
+                        download="mhf-ad-video.mp4"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-5 py-2 bg-gray-800 text-white rounded-lg text-sm font-semibold hover:bg-gray-700 transition-colors inline-flex items-center"
+                      >
+                        <i className="fas fa-download mr-2" />
+                        Download Video
+                      </a>
+                      <button
+                        onClick={postVideoToFacebook}
+                        disabled={postingVideo}
+                        className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                      >
+                        {postingVideo ? (
+                          <>
+                            <i className="fas fa-spinner fa-spin mr-2" />
+                            Posting Video...
+                          </>
+                        ) : (
+                          <>
+                            <i className="fab fa-facebook mr-2" />
+                            Post Video to FB
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {videoPostResult && (
+                      <div
+                        className={`text-sm px-3 py-2 rounded ${videoPostResult.startsWith("Error") ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"}`}
+                      >
+                        {videoPostResult}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
