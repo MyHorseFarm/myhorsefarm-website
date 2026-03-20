@@ -3,7 +3,7 @@ import { triggerAdRender } from "@/lib/remotion";
 import { uploadAdImages } from "@/lib/supabase-storage";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 export async function POST(req: NextRequest) {
   // Auth check
