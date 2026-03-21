@@ -278,18 +278,37 @@ export default function AdsPage() {
   const renderVideo = async () => {
     if (!ads?.video_render || images.length === 0) return;
     setRenderError("");
-    setRenderStatus("rendering");
+    setRenderStatus("uploading");
     setRenderProgress(0);
     setRenderVideoUrl(null);
     setVideoPostResult("");
     try {
+      // Step 1: Upload images one-by-one to Supabase Storage
+      const imageUrls: string[] = [];
+      for (let i = 0; i < images.length; i++) {
+        const uploadRes = await fetch("/api/admin/ads/upload-image", {
+          method: "POST",
+          headers: adminHeaders(),
+          body: JSON.stringify({ image: images[i], index: i }),
+        });
+        if (!uploadRes.ok) {
+          const data = await uploadRes.json().catch(() => null);
+          throw new Error(data?.error || `Failed to upload image ${i + 1}`);
+        }
+        const { url } = await uploadRes.json();
+        imageUrls.push(url);
+        setRenderProgress(Math.round(((i + 1) / images.length) * 20)); // 0-20% for uploads
+      }
+
+      // Step 2: Trigger render with URLs (no base64 payload)
+      setRenderStatus("rendering");
       const serviceLabel =
         SERVICE_TYPES.find((s) => s.value === serviceType)?.label || serviceType;
       const res = await fetch("/api/admin/ads/render", {
         method: "POST",
         headers: adminHeaders(),
         body: JSON.stringify({
-          images,
+          imageUrls,
           headline: ads.video_render.headline,
           description: ads.video_render.description,
           ctaText: ads.video_render.cta_text,
@@ -302,13 +321,13 @@ export default function AdsPage() {
           const data = await res.json();
           msg = data.error || msg;
         } catch {
-          // Response wasn't JSON (e.g. Vercel timeout page)
-          if (res.status === 504) msg = "Request timed out. Try with fewer/smaller images.";
+          if (res.status === 504) msg = "Render trigger timed out. Please try again.";
         }
         throw new Error(msg);
       }
       const data = await res.json();
       setRenderJobId(data.job.id);
+      setRenderProgress(25);
       pollRenderStatus(data.job.id);
     } catch (err) {
       setRenderStatus("failed");
@@ -835,12 +854,14 @@ export default function AdsPage() {
                 )}
 
                 {/* Progress bar */}
-                {renderStatus === "rendering" && (
+                {(renderStatus === "uploading" || renderStatus === "rendering") && (
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
                       <i className="fas fa-spinner fa-spin text-purple-600" />
                       <span className="text-sm text-gray-700">
-                        Rendering video... {renderProgress}%
+                        {renderStatus === "uploading"
+                          ? `Uploading images... ${renderProgress}%`
+                          : `Rendering video... ${renderProgress}%`}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-3">
