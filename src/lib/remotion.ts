@@ -13,12 +13,28 @@ const SITE_URL =
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000");
 
+// Extract bucket name from serve URL: https://{bucket}.s3.{region}.amazonaws.com/...
+function getBucketName(): string {
+  const match = REMOTION_MHF_SERVE_URL?.match(/https?:\/\/(.+?)\.s3\./);
+  return match ? match[1] : "";
+}
+
 // Lazy-load heavy Remotion Lambda SDK to avoid cold start timeouts
 async function getLambdaClient() {
   const { renderMediaOnLambda, getRenderProgress } = await import(
     "@remotion/lambda/client"
   );
   return { renderMediaOnLambda, getRenderProgress };
+}
+
+// Timeout wrapper — fail gracefully instead of 504
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms / 1000}s`)), ms)
+    ),
+  ]);
 }
 
 interface TriggerAdRenderParams {
@@ -54,23 +70,27 @@ export async function triggerAdRender({ inputProps }: TriggerAdRenderParams) {
   try {
     const { renderMediaOnLambda } = await getLambdaClient();
 
-    const renderResult = await renderMediaOnLambda({
-      region: REMOTION_AWS_REGION,
-      functionName: REMOTION_FUNCTION_NAME,
-      serveUrl: REMOTION_MHF_SERVE_URL,
-      composition: "AdVideo",
-      inputProps,
-      codec: "h264",
-      maxRetries: 3,
-      framesPerLambda: 360,
-      webhook: REMOTION_WEBHOOK_SECRET
-        ? {
-            url: `${SITE_URL}/api/admin/ads/render-webhook`,
-            secret: REMOTION_WEBHOOK_SECRET,
-            customData: { jobId: job.id },
-          }
-        : undefined,
-    });
+    const renderResult = await withTimeout(
+      renderMediaOnLambda({
+        region: REMOTION_AWS_REGION,
+        functionName: REMOTION_FUNCTION_NAME,
+        serveUrl: REMOTION_MHF_SERVE_URL,
+        composition: "AdVideo",
+        inputProps,
+        codec: "h264",
+        maxRetries: 3,
+        framesPerLambda: 360,
+        webhook: REMOTION_WEBHOOK_SECRET
+          ? {
+              url: `${SITE_URL}/api/admin/ads/render-webhook`,
+              secret: REMOTION_WEBHOOK_SECRET,
+              customData: { jobId: job.id },
+            }
+          : undefined,
+      }),
+      120_000, // 2 minute timeout for Lambda invocation
+      "Lambda render trigger"
+    );
 
     // Update job with render ID
     await supabase
@@ -102,13 +122,15 @@ export async function triggerAdRender({ inputProps }: TriggerAdRenderParams) {
  */
 export async function checkAdRenderProgress(renderId: string) {
   const { getRenderProgress } = await getLambdaClient();
+  const bucketName = getBucketName();
+
+  if (!bucketName) {
+    throw new Error("Cannot determine S3 bucket name from REMOTION_MHF_SERVE_URL");
+  }
 
   const progress = await getRenderProgress({
     renderId,
-    bucketName: REMOTION_FUNCTION_NAME.replace(
-      /^remotion-render-/,
-      "remotionlambda-"
-    ),
+    bucketName,
     functionName: REMOTION_FUNCTION_NAME,
     region: REMOTION_AWS_REGION,
   });

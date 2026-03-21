@@ -1,14 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  validateWebhookSignature,
-  type WebhookPayload,
-} from "@remotion/lambda/client";
+import { createHmac } from "crypto";
 import {
   handleAdRenderComplete,
   handleAdRenderFailed,
 } from "@/lib/remotion";
 
 export const runtime = "nodejs";
+
+interface WebhookPayload {
+  type: "success" | "error" | "timeout";
+  renderId: string;
+  expectedBucketOwner: string;
+  outputUrl?: string;
+  errors?: { message: string }[];
+  customData?: Record<string, unknown>;
+}
+
+function validateSignature(secret: string, body: string, signature: string): boolean {
+  const expected = createHmac("sha512", secret).update(body).digest("hex");
+  return `sha512=${expected}` === signature;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,20 +30,7 @@ export async function POST(req: NextRequest) {
     const secret = process.env.REMOTION_WEBHOOK_SECRET;
     if (secret) {
       const signature = req.headers.get("x-remotion-signature");
-      if (!signature) {
-        return NextResponse.json(
-          { error: "Missing signature" },
-          { status: 401 }
-        );
-      }
-
-      try {
-        validateWebhookSignature({
-          secret,
-          body,
-          signatureHeader: signature,
-        });
-      } catch {
+      if (!signature || !validateSignature(secret, body, signature)) {
         return NextResponse.json(
           { error: "Invalid signature" },
           { status: 401 }
@@ -46,8 +44,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing jobId" }, { status: 400 });
     }
 
-    if (payload.type === "success") {
-      await handleAdRenderComplete(jobId, payload.outputUrl!);
+    if (payload.type === "success" && payload.outputUrl) {
+      await handleAdRenderComplete(jobId, payload.outputUrl);
     } else if (payload.type === "error" || payload.type === "timeout") {
       const errMsg =
         payload.type === "timeout"
