@@ -77,6 +77,18 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    // Job is still pending (Lambda trigger running in background)
+    // If it's been pending for more than 3 minutes, mark as failed
+    const createdAt = new Date(job.created_at).getTime();
+    const now = Date.now();
+    if (job.status === "pending" && now - createdAt > 3 * 60 * 1000) {
+      const { handleAdRenderFailed } = await import("@/lib/remotion");
+      await handleAdRenderFailed(job.id, "Lambda trigger timed out — please try again");
+      return NextResponse.json({
+        job: { ...job, status: "failed", error_message: "Lambda trigger timed out — please try again" },
+      });
+    }
+
     return NextResponse.json({ job });
   } catch (err) {
     console.error("Render status error:", err);

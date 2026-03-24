@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { triggerAdRender } from "@/lib/remotion";
+import { after } from "next/server";
+import { triggerAdRender, triggerLambdaInBackground } from "@/lib/remotion";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -21,15 +22,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Trigger Lambda render (images are already uploaded as URLs)
-    const job = await triggerAdRender({
-      inputProps: {
-        images: imageUrls,
-        headline,
-        description,
-        ctaText,
-        serviceName,
-      },
+    const inputProps = { images: imageUrls, headline, description, ctaText, serviceName };
+
+    // Create the job record and return immediately
+    const job = await triggerAdRender({ inputProps });
+
+    // Trigger Lambda in the background — runs after the response is sent
+    after(async () => {
+      await triggerLambdaInBackground(job.id, inputProps);
     });
 
     return NextResponse.json({ job });

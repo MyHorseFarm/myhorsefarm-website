@@ -27,16 +27,6 @@ async function getLambdaClient() {
   return { renderMediaOnLambda, getRenderProgress };
 }
 
-// Timeout wrapper — fail gracefully instead of 504
-function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error(`${label} timed out after ${ms / 1000}s`)), ms)
-    ),
-  ]);
-}
-
 interface TriggerAdRenderParams {
   inputProps: {
     images: string[];
@@ -48,7 +38,8 @@ interface TriggerAdRenderParams {
 }
 
 /**
- * Create a render job in Supabase and trigger Lambda render.
+ * Create a render job in Supabase and return immediately.
+ * The actual Lambda trigger runs in the background via `after()`.
  */
 export async function triggerAdRender({ inputProps }: TriggerAdRenderParams) {
   // Create job record
@@ -67,32 +58,35 @@ export async function triggerAdRender({ inputProps }: TriggerAdRenderParams) {
     throw new Error(`Failed to create render job: ${jobError?.message}`);
   }
 
+  return { ...job, status: "pending" };
+}
+
+/**
+ * Trigger the Lambda render in the background (called via after()).
+ * Updates the Supabase job row with render_id on success or error on failure.
+ */
+export async function triggerLambdaInBackground(jobId: string, inputProps: TriggerAdRenderParams["inputProps"]) {
   try {
     const { renderMediaOnLambda } = await getLambdaClient();
 
-    const renderResult = await withTimeout(
-      renderMediaOnLambda({
-        region: REMOTION_AWS_REGION,
-        functionName: REMOTION_FUNCTION_NAME,
-        serveUrl: REMOTION_MHF_SERVE_URL,
-        composition: "AdVideo",
-        inputProps,
-        codec: "h264",
-        maxRetries: 3,
-        framesPerLambda: 360,
-        webhook: REMOTION_WEBHOOK_SECRET
-          ? {
-              url: `${SITE_URL}/api/admin/ads/render-webhook`,
-              secret: REMOTION_WEBHOOK_SECRET,
-              customData: { jobId: job.id },
-            }
-          : undefined,
-      }),
-      120_000, // 2 minute timeout for Lambda invocation
-      "Lambda render trigger"
-    );
+    const renderResult = await renderMediaOnLambda({
+      region: REMOTION_AWS_REGION,
+      functionName: REMOTION_FUNCTION_NAME,
+      serveUrl: REMOTION_MHF_SERVE_URL,
+      composition: "AdVideo",
+      inputProps,
+      codec: "h264",
+      maxRetries: 3,
+      framesPerLambda: 360,
+      webhook: REMOTION_WEBHOOK_SECRET
+        ? {
+            url: `${SITE_URL}/api/admin/ads/render-webhook`,
+            secret: REMOTION_WEBHOOK_SECRET,
+            customData: { jobId },
+          }
+        : undefined,
+    });
 
-    // Update job with render ID
     await supabase
       .from("ad_render_jobs")
       .update({
@@ -100,10 +94,9 @@ export async function triggerAdRender({ inputProps }: TriggerAdRenderParams) {
         status: "rendering",
         updated_at: new Date().toISOString(),
       })
-      .eq("id", job.id);
-
-    return { ...job, render_id: renderResult.renderId, status: "rendering" };
+      .eq("id", jobId);
   } catch (err) {
+    console.error("Background Lambda trigger failed:", err);
     await supabase
       .from("ad_render_jobs")
       .update({
@@ -111,9 +104,7 @@ export async function triggerAdRender({ inputProps }: TriggerAdRenderParams) {
         error_message: err instanceof Error ? err.message : String(err),
         updated_at: new Date().toISOString(),
       })
-      .eq("id", job.id);
-
-    throw err;
+      .eq("id", jobId);
   }
 }
 
