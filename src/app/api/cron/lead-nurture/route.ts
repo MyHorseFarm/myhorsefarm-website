@@ -4,6 +4,13 @@ import {
   createContactNote,
   isSubscribed,
 } from "@/lib/hubspot";
+import { supabase } from "@/lib/supabase";
+import {
+  getActiveTest,
+  pickVariant,
+  getVariantSubject,
+  recordSend,
+} from "@/lib/ab-testing";
 import {
   sendEmail,
   createUnsubscribeUrl,
@@ -44,11 +51,18 @@ export const maxDuration = 300;
  */
 
 const MAX_PER_RUN = 80; // Stay within Resend free tier (100/day, leave room for other crons)
+const MAX_RESENDS = 20; // Bonus budget for step-1 non-opener re-sends
 const DRIP_DAYS = [0, 3, 7, 14, 21]; // Days after step 1 for each step
 
 const API_BASE = "https://api.hubapi.com";
 
 type Segment = "equestrian" | "fitness" | "mhf";
+
+const RESEND_SUBJECTS: Record<Segment, string> = {
+  equestrian: "Did you see this? $50 off farm services",
+  fitness: "Your Wellington neighbor perk — $50 off",
+  mhf: "$50 still waiting for you",
+};
 type EmailFn = (firstname: string, unsubscribeUrl: string) => { subject: string; html: string };
 
 const EMAIL_MAP: Record<Segment, EmailFn[]> = {
@@ -146,6 +160,7 @@ export async function GET(request: NextRequest) {
 
   const results: string[] = [];
   let emailsSent = 0;
+  let resendCount = 0;
   const now = new Date();
 
   try {
@@ -225,7 +240,27 @@ export async function GET(request: NextRequest) {
         const unsubUrl = createUnsubscribeUrl(email);
         const { subject, html } = emailFn(firstname, unsubUrl);
 
-        await sendEmail(email, subject, html);
+        // A/B test: override subject if active test exists for this template
+        const templateKey = `nurture_${segment}_${nextStep}`;
+        let finalSubject = subject;
+        let abVariant: "a" | "b" | null = null;
+        let abTest: Awaited<ReturnType<typeof getActiveTest>> = null;
+        try {
+          abTest = await getActiveTest(templateKey);
+          if (abTest) {
+            abVariant = pickVariant(abTest);
+            finalSubject = getVariantSubject(abTest, abVariant);
+          }
+        } catch { /* A/B test lookup non-fatal */ }
+
+        const emailId = await sendEmail(email, finalSubject, html);
+
+        // Record A/B send if test is active
+        if (abTest && abVariant) {
+          try {
+            await recordSend(abTest.id, email, abVariant, emailId);
+          } catch { /* recording non-fatal */ }
+        }
 
         // SMS for steps 1 and 5 (non-fatal)
         if (phone && (nextStep === 1 || nextStep === 5)) {
@@ -259,11 +294,96 @@ export async function GET(request: NextRequest) {
     }
 
     results.push(`Complete: ${emailsSent} nurture emails sent`);
+
+    // ---------------------------------------------------------------
+    // Re-send step 1 to non-openers (bonus budget, doesn't eat into MAX_PER_RUN)
+    // ---------------------------------------------------------------
+    try {
+      const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString();
+
+      // Find all contacts who received a step-1 nurture email 3+ days ago
+      const { data: step1Sent } = await supabase
+        .from("email_events")
+        .select("recipient_email")
+        .eq("event_type", "sent")
+        .like("subject", "%$50 off%") // step-1 subjects all contain "$50 off"
+        .lte("event_at", threeDaysAgo);
+
+      if (step1Sent?.length) {
+        // Deduplicate recipient emails
+        const candidates = [...new Set(step1Sent.map((e: { recipient_email: string }) => e.recipient_email))];
+
+        // Find which of those have opened ANY email (filter them out)
+        const { data: openers } = await supabase
+          .from("email_events")
+          .select("recipient_email")
+          .eq("event_type", "opened")
+          .in("recipient_email", candidates);
+
+        const openerSet = new Set((openers || []).map((e: { recipient_email: string }) => e.recipient_email));
+        const nonOpeners = candidates.filter((e: string) => !openerSet.has(e));
+
+        results.push(`Step-1 non-openers found: ${nonOpeners.length}`);
+
+        for (const recipientEmail of nonOpeners) {
+          if (resendCount >= MAX_RESENDS) break;
+
+          try {
+            // Look up contact in HubSpot
+            const matches = await searchContacts(
+              [{ filters: [{ propertyName: "email", operator: "EQ", value: recipientEmail }] }],
+              ["email", "firstname"],
+            );
+            if (!matches.length) continue;
+
+            const contact = matches[0];
+            const notes = await getContactNotes(contact.id);
+
+            // Must have NURTURE_1 tag but NOT NURTURE_1_RESEND tag
+            if (!notes.some((n: string) => n.includes("[AUTO:NURTURE_1]"))) continue;
+            if (notes.some((n: string) => n.includes("[AUTO:NURTURE_1_RESEND]"))) continue;
+
+            const segment = detectSegment(notes);
+            if (!segment) continue;
+
+            if (!(await isSubscribed(recipientEmail))) continue;
+
+            // Re-send step 1 with alternate subject
+            const emailFn = EMAIL_MAP[segment][0];
+            if (!emailFn) continue;
+
+            const firstname = contact.properties.firstname || "";
+            const unsubUrl = createUnsubscribeUrl(recipientEmail);
+            const { html } = emailFn(firstname, unsubUrl);
+            const resendSubject = RESEND_SUBJECTS[segment];
+
+            await sendEmail(recipientEmail, resendSubject, html);
+
+            await createContactNote(
+              contact.id,
+              `[AUTO:NURTURE_1_RESEND] Re-sent step 1 (${segment}) to ${recipientEmail} on ${now.toISOString()} — non-opener re-engagement`,
+            );
+
+            resendCount++;
+          } catch (err) {
+            results.push(
+              `Resend error ${recipientEmail}: ${err instanceof Error ? err.message : String(err)}`,
+            );
+          }
+        }
+      }
+
+      results.push(`Step-1 re-sends: ${resendCount}`);
+    } catch (err) {
+      results.push(
+        `Resend phase error: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
   } catch (err) {
     results.push(
       `Fatal: ${err instanceof Error ? err.message : String(err)}`,
     );
   }
 
-  return NextResponse.json({ ok: true, emailsSent, results });
+  return NextResponse.json({ ok: true, emailsSent, resendCount, results });
 }

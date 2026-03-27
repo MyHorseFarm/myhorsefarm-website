@@ -1709,3 +1709,105 @@ export function nurtureMHF5(
 ): EmailTemplate {
   return nurtureEquestrian5(firstname, unsubscribeUrl);
 }
+
+// ---------------------------------------------------------------------------
+// Monthly Newsletter
+// ---------------------------------------------------------------------------
+
+interface NewsletterContent {
+  greeting: string;
+  tip: string;
+  spotlight: { title: string; description: string };
+}
+
+function getNewsletterContent(month: number): NewsletterContent {
+  // Service spotlight rotates by month (0-indexed): manure removal, sod, fill dirt, junk removal, farm repairs, dumpster rental
+  const spotlights = [
+    { title: "Manure Removal", description: "Keep your paddocks clean and fly-free with our scheduled manure pickup. Leak-proof bins provided at no extra cost, weight tickets on every load." },
+    { title: "Sod Installation", description: "Professional paddock sod for safe, lush footing. We handle grading, installation, and follow-up care instructions so your pastures look their best." },
+    { title: "Fill Dirt Delivery", description: "Screened fill dirt for leveling paddocks, improving drainage, and building up low spots. Delivered and spread on your schedule." },
+    { title: "Junk Removal", description: "Old fencing, broken equipment, storm debris \u2014 we haul it all starting at $75/ton. Fast turnaround, clean results." },
+    { title: "Farm Repairs", description: "Fencing, gates, stalls, driveways, and more. We handle the repairs so you can focus on your horses." },
+    { title: "Dumpster Rental", description: "20-yard containers perfect for barn cleanouts, renovations, and large-scale property cleanup." },
+  ];
+
+  const spotlight = spotlights[month % spotlights.length];
+
+  // Seasonal greeting
+  let greeting: string;
+  if (month >= 0 && month <= 2) {
+    greeting = "WEF season is in full swing! With Wellington buzzing and barns at full capacity, now\u2019s the time to make sure your farm operations are running smoothly.";
+  } else if (month >= 3 && month <= 4) {
+    greeting = "Spring is here in South Florida! As the show season winds down, it\u2019s the perfect time to catch up on maintenance and get your property in top shape.";
+  } else if (month >= 5 && month <= 9) {
+    greeting = "Summer in South Florida means heat, humidity, and hurricane season. Stay ahead of the weather with proper farm maintenance and storm prep.";
+  } else {
+    greeting = "Fall is a great time to prep your farm for the upcoming season. Whether you\u2019re getting ready for WEF or just want to tighten things up, we\u2019re here to help.";
+  }
+
+  // Seasonal tip
+  let tip: string;
+  if (month >= 0 && month <= 2) {
+    tip = "During peak season, manure builds up faster with more horses on site. Consider bumping your pickup schedule to twice a week to stay compliant with Wellington ordinances and keep flies under control.";
+  } else if (month >= 3 && month <= 4) {
+    tip = "Spring is the best time to resod worn paddocks. Warm-season grass establishes fast in April and May, and you\u2019ll have lush footing before summer rains hit.";
+  } else if (month >= 5 && month <= 7) {
+    tip = "Hurricane prep starts now. Clear loose debris, secure fencing, and make sure drainage ditches are clean. Need a dumpster for a pre-storm cleanout? We can have one to you within 24 hours.";
+  } else if (month >= 8 && month <= 9) {
+    tip = "Late hurricane season is no time to relax. Keep emergency supplies stocked, have a debris removal plan in place, and check that all gates and latches are secure.";
+  } else {
+    tip = "Pre-season is the time to fix fencing, grade driveways, and address any drainage issues before the winter rains and WEF traffic arrive. Book early \u2014 our schedule fills up fast in November.";
+  }
+
+  return { greeting, tip, spotlight };
+}
+
+export function monthlyNewsletterEmail(
+  firstname: string,
+  month: number,
+  year: number,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  const { greeting, tip, spotlight } = getNewsletterContent(month);
+
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const monthName = monthNames[month] ?? "This Month";
+
+  return {
+    subject: `My Horse Farm \u2013 ${monthName} ${year} Newsletter`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("My Horse Farm", `${monthName} ${year} Newsletter`)}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">${greeting}</p>
+
+<h2 style="color:#2d5016;font-size:18px;margin-top:30px;border-bottom:2px solid #d4a843;padding-bottom:8px;">Current Offers</h2>
+<ul style="font-size:15px;line-height:1.8;color:#555;">
+<li><strong>$50 Off Your First Service</strong> \u2013 New customers save $50 on any service over $200. Mention this newsletter when you book.</li>
+<li><strong>Resilient Fitness Program</strong> \u2013 Comprehensive farm maintenance packages to keep your property in peak condition year-round.</li>
+<li><strong>Starpoint Partnership</strong> \u2013 Premium equestrian property services with our trusted partners for large-scale projects.</li>
+</ul>
+<div style="text-align:center;margin:25px 0;">
+<a href="https://www.myhorsefarm.com/offers" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">View All Offers</a>
+</div>
+
+<h2 style="color:#2d5016;font-size:18px;margin-top:30px;border-bottom:2px solid #d4a843;padding-bottom:8px;">Service Spotlight: ${spotlight.title}</h2>
+<p style="font-size:15px;line-height:1.6;color:#555;">${spotlight.description}</p>
+<div style="text-align:center;margin:25px 0;">
+<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#2d5016;color:#ffffff;padding:12px 28px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:15px;">Get a Free Quote</a>
+</div>
+
+<h2 style="color:#2d5016;font-size:18px;margin-top:30px;border-bottom:2px solid #d4a843;padding-bottom:8px;">Farm Tip of the Month</h2>
+<div style="background-color:#f9f7f2;border-left:4px solid #d4a843;padding:20px;margin:15px 0;border-radius:4px;">
+<p style="font-size:15px;line-height:1.6;margin:0;color:#555;">${tip}</p>
+</div>
+
+<p style="font-size:16px;line-height:1.6;margin-top:30px;">Questions or ready to schedule? Call us at <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> or reply to this email.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}

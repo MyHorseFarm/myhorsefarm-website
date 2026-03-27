@@ -59,6 +59,10 @@
     {
       "path": "/api/cron/hot-leads",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/newsletter",
+      "schedule": "0 14 1 * *"
     }
   ]
 }
