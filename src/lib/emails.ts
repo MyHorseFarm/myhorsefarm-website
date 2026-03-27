@@ -1440,7 +1440,7 @@ ${header("Real Results from Real Farms")}
 </div>
 <p style="font-size:16px;line-height:1.6;">We've served <strong>275+ farms</strong> across Palm Beach County. That's 20 years of showing up and doing the job right.</p>
 <div style="text-align:center;margin:30px 0;">
-<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a Free Quote</a>
+<a href="https://www.myhorsefarm.com/offers" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a Free Quote</a>
 </div>
 <p style="font-size:14px;color:#666;">Don't forget — $50 off any service $300+ for first-time or returning clients.</p>
 ${signoff()}
@@ -1577,7 +1577,7 @@ ${header("Resilient Fitness x My Horse Farm")}
 </div>
 <p style="font-size:16px;line-height:1.6;">Whether you own a farm, know someone who does, or your property needs work — we handle it all in Wellington, Loxahatchee, Royal Palm Beach, and surrounding areas.</p>
 <div style="text-align:center;margin:30px 0;">
-<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a Free Quote</a>
+<a href="https://www.myhorsefarm.com/offers" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a Free Quote</a>
 </div>
 <p style="font-size:16px;line-height:1.6;">Or call <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> — we respond within one hour.</p>
 ${signoff()}
@@ -1618,7 +1618,7 @@ ${header("More Than Manure Removal")}
 </div>
 <p style="font-size:16px;line-height:1.6;">Know someone who needs any of this? Share this email — they'll get $50 off and you'll help a local business.</p>
 <div style="text-align:center;margin:30px 0;">
-<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a Free Quote</a>
+<a href="https://www.myhorsefarm.com/offers" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a Free Quote</a>
 </div>
 ${signoff()}
 </div></div>`,
@@ -1673,7 +1673,7 @@ ${header("Good to See You Again")}
 </div>
 <p style="font-size:16px;line-height:1.6;">Everything you remember about us is still true — reliable crews, fair pricing, weight tickets on every load. Plus we've added AI-powered quoting on our website so you can get a price in minutes.</p>
 <div style="text-align:center;margin:30px 0;">
-<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get Your $50 Off Quote</a>
+<a href="https://www.myhorsefarm.com/offers" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get Your $50 Off Quote</a>
 </div>
 ${signoff()}
 </div></div>`,
