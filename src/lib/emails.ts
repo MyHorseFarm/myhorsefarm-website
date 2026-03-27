@@ -51,11 +51,15 @@ export async function sendEmail(
     process.env.RESEND_FROM_EMAIL ||
     "My Horse Farm <onboarding@resend.dev>";
 
+  // BCC Jose on all outgoing emails so he can monitor
+  const bcc = process.env.EMAIL_BCC_ADDRESS || undefined;
+
   const { data, error } = await resend.emails.send({
     from,
     to,
     subject,
     html,
+    ...(bcc ? { bcc } : {}),
   });
 
   if (error) throw new Error(`Resend: ${JSON.stringify(error)}`);
@@ -1365,4 +1369,343 @@ ${signoff()}
       unsubscribeUrl,
     ),
   };
+}
+
+// ===========================================================================
+// LEAD NURTURE CAMPAIGN — 3 segments x 5 emails
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// EQUESTRIAN SEGMENT (Nona Garson list + farm leads)
+// ---------------------------------------------------------------------------
+
+export function nurtureEquestrian1(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  return {
+    subject: "Palm Beach County's Most Trusted Farm Service — $50 Off Your First Job",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("My Horse Farm", "Serving Palm Beach County Since 2005")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">I'm Jose Gomez. For over 20 years my team has been keeping farms clean and running in Wellington, Loxahatchee, and the surrounding equestrian corridor.</p>
+<p style="font-size:16px;line-height:1.6;">If you've been dealing with manure pile-ups, need a property cleanout, or want a reliable service that shows up on time — we should talk.</p>
+<div style="background:#f0fdf4;border:2px solid #2d5016;border-radius:8px;padding:25px;text-align:center;margin:25px 0;">
+<p style="font-size:22px;font-weight:bold;color:#2d5016;margin:0;">$50 OFF</p>
+<p style="font-size:16px;color:#555;margin:8px 0 0;">Any service $300 or more — first-time or returning clients</p>
+</div>
+<p style="font-size:16px;line-height:1.6;">Our services:</p>
+<ul style="font-size:15px;line-height:1.8;color:#555;">
+<li><strong>Manure Removal</strong> — leak-proof bins, scheduled pickups, weight tickets</li>
+<li><strong>Bulk Manure Service</strong> — $50 off for new clients</li>
+<li><strong>Junk &amp; Debris Removal</strong> — old fencing, equipment, trash starting at $75/ton</li>
+<li><strong>Sod Installation</strong> — professional paddock sod</li>
+<li><strong>Fill Dirt</strong> — screened fill for leveling and drainage</li>
+<li><strong>Farm Repairs</strong> — fencing, gates, stalls, driveways</li>
+</ul>
+<div style="text-align:center;margin:30px 0;">
+<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get Your $50 Off Quote</a>
+</div>
+<p style="font-size:16px;line-height:1.6;">Or call <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> — mention this email for the discount.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+export function nurtureEquestrian2(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  return {
+    subject: "Why 275+ Farms Trust My Horse Farm",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Real Results from Real Farms")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">A few days ago I reached out about our farm services. Today I want to show you what our clients say:</p>
+<div style="background:#f9f7f2;border-left:4px solid #d4a843;padding:20px;margin:20px 0;border-radius:4px;">
+<p style="font-size:15px;line-height:1.6;margin:0;font-style:italic;">"Jose and his team are the most reliable service we've used in Wellington. They show up on time, every time, and the property looks great after every visit."</p>
+<p style="font-size:13px;color:#888;margin:10px 0 0;">— Farm Owner, Wellington FL</p>
+</div>
+<div style="background:#f9f7f2;border-left:4px solid #d4a843;padding:20px;margin:20px 0;border-radius:4px;">
+<p style="font-size:15px;line-height:1.6;margin:0;font-style:italic;">"We switched from our previous hauler two years ago and haven't looked back. Fair pricing, professional crew, weight tickets on every load."</p>
+<p style="font-size:13px;color:#888;margin:10px 0 0;">— Barn Manager, Loxahatchee FL</p>
+</div>
+<p style="font-size:16px;line-height:1.6;">We've served <strong>275+ farms</strong> across Palm Beach County. That's 20 years of showing up and doing the job right.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a Free Quote</a>
+</div>
+<p style="font-size:14px;color:#666;">Don't forget — $50 off any service $300+ for first-time or returning clients.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+export function nurtureEquestrian3(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  return {
+    subject: `${name === "there" ? "A" : firstname + ", a"} free month at Resilient Fitness — on us`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Book a Service, Get a Bonus")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">We partnered with <strong>Resilient Fitness in Wellington</strong> to offer something special to new and returning clients:</p>
+<div style="background:#2d5016;color:#fff;padding:25px;border-radius:8px;margin:25px 0;">
+<p style="font-size:18px;font-weight:bold;margin:0 0 15px;text-align:center;">Book Any MHF Service &amp; Get:</p>
+<table style="width:100%;color:#fff;">
+<tr><td style="padding:8px 0;font-size:15px;">&#10003; <strong>1 FREE month</strong> at Resilient Fitness</td></tr>
+<tr><td style="padding:8px 0;font-size:15px;">&#10003; <strong>2 FREE personal training sessions</strong></td></tr>
+<tr><td style="padding:8px 0;font-size:15px;">&#10003; <strong>$50 OFF</strong> your service ($300+ jobs)</td></tr>
+</table>
+</div>
+<p style="font-size:16px;line-height:1.6;">That's over <strong>$200 in value</strong> just for booking a service you already need. Whether it's manure removal, a cleanout, or farm repairs — the bonus is yours.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:16px 40px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:18px;">Claim Your Bonus — Get a Quote</a>
+</div>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+export function nurtureEquestrian4(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  return {
+    subject: "Free dance class + farm service savings — limited time",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Even More Perks This Month")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">We keep adding more reasons to work with My Horse Farm. On top of the $50 discount and Resilient Fitness perk, we just added:</p>
+<div style="background:#f9f7f2;padding:20px;border-radius:8px;margin:20px 0;text-align:center;">
+<p style="font-size:20px;font-weight:bold;color:#2d5016;margin:0;">1 FREE Class at Starpoint Dancesport</p>
+<p style="font-size:14px;color:#666;margin:8px 0 0;">Wellington's premier dance studio — salsa, bachata, ballroom &amp; more</p>
+</div>
+<p style="font-size:16px;line-height:1.6;">Here's everything you get when you book:</p>
+<table style="width:100%;border-collapse:collapse;margin:20px 0;">
+<tr><td style="padding:12px;background:#f0fdf4;border-bottom:2px solid #fff;">&#127919; <strong>$50 off</strong> any service $300+</td></tr>
+<tr><td style="padding:12px;background:#f0fdf4;border-bottom:2px solid #fff;">&#128170; <strong>Free month</strong> at Resilient Fitness + 2 PT sessions</td></tr>
+<tr><td style="padding:12px;background:#f0fdf4;">&#128131; <strong>Free class</strong> at Starpoint Dancesport</td></tr>
+</table>
+<p style="font-size:16px;line-height:1.6;">These partner perks are limited and available while supplies last.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Lock In Your Perks — Get a Quote</a>
+</div>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+export function nurtureEquestrian5(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  return {
+    subject: "Last chance — $50 off + $200 in bonuses expires soon",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Last Chance")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">This is my last email about our new client offer. I don't like to spam, but I want to make sure you didn't miss this:</p>
+<div style="background:#2d5016;color:#fff;padding:25px;border-radius:8px;margin:25px 0;text-align:center;">
+<p style="font-size:22px;font-weight:bold;margin:0;">$50 OFF + $200 in Perks</p>
+<p style="font-size:15px;margin:10px 0 0;color:#d4a843;">For first-time or returning My Horse Farm clients</p>
+</div>
+<p style="font-size:16px;line-height:1.6;"><strong>What you get:</strong></p>
+<ul style="font-size:15px;line-height:2;color:#555;">
+<li>$50 off any service $300+ (or $50 off bulk manure service)</li>
+<li>Free month membership at Resilient Fitness in Wellington</li>
+<li>2 free personal training sessions</li>
+<li>Free class at Starpoint Dancesport</li>
+</ul>
+<p style="font-size:16px;line-height:1.6;">Over 275 farms trust us. Let us earn yours.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:16px 40px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:18px;">Get Your Quote Now</a>
+</div>
+<p style="font-size:16px;line-height:1.6;">Or call <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> anytime.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// RESILIENT FITNESS SEGMENT
+// ---------------------------------------------------------------------------
+
+export function nurtureFitness1(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  return {
+    subject: "From the gym to the farm — a Wellington partnership",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Resilient Fitness x My Horse Farm")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">You know Resilient Fitness keeps you in shape. Now meet <strong>My Horse Farm</strong> — we keep Wellington's farms in shape.</p>
+<p style="font-size:16px;line-height:1.6;">As a Resilient Fitness member, we're offering you an exclusive deal:</p>
+<div style="background:#f0fdf4;border:2px solid #2d5016;border-radius:8px;padding:25px;text-align:center;margin:25px 0;">
+<p style="font-size:22px;font-weight:bold;color:#2d5016;margin:0;">$50 OFF</p>
+<p style="font-size:16px;color:#555;margin:8px 0 0;">Any farm service $300 or more</p>
+<p style="font-size:14px;color:#888;margin:5px 0 0;">Manure removal, cleanouts, sod, fill dirt, farm repairs &amp; more</p>
+</div>
+<p style="font-size:16px;line-height:1.6;">Whether you own a farm, know someone who does, or your property needs work — we handle it all in Wellington, Loxahatchee, Royal Palm Beach, and surrounding areas.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a Free Quote</a>
+</div>
+<p style="font-size:16px;line-height:1.6;">Or call <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> — we respond within one hour.</p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+export function nurtureFitness2(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  return {
+    subject: "Farm services most Wellington residents don't know about",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("More Than Manure Removal")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">Most people know us for manure removal. But My Horse Farm handles a lot more than that — and it's not just for horse farms:</p>
+<div style="margin:25px 0;">
+<table style="width:100%;border-collapse:collapse;">
+<tr>
+<td style="padding:15px;background:#f9f7f2;border-bottom:2px solid #fff;width:50%;vertical-align:top;"><strong style="color:#2d5016;">Property Cleanouts</strong><br/><span style="font-size:14px;color:#666;">Old junk, fencing, debris — gone in one visit</span></td>
+<td style="padding:15px;background:#f9f7f2;border-bottom:2px solid #fff;vertical-align:top;"><strong style="color:#2d5016;">Sod &amp; Fill Dirt</strong><br/><span style="font-size:14px;color:#666;">Level your yard, fix drainage, fresh sod</span></td>
+</tr>
+<tr>
+<td style="padding:15px;background:#f9f7f2;border-bottom:2px solid #fff;vertical-align:top;"><strong style="color:#2d5016;">Dumpster Rental</strong><br/><span style="font-size:14px;color:#666;">20-yard containers for any project</span></td>
+<td style="padding:15px;background:#f9f7f2;border-bottom:2px solid #fff;vertical-align:top;"><strong style="color:#2d5016;">Fence &amp; Gate Repair</strong><br/><span style="font-size:14px;color:#666;">Residential &amp; equestrian fencing</span></td>
+</tr>
+<tr>
+<td style="padding:15px;background:#f9f7f2;vertical-align:top;"><strong style="color:#2d5016;">Hauling Services</strong><br/><span style="font-size:14px;color:#666;">We haul anything — farm or residential</span></td>
+<td style="padding:15px;background:#f9f7f2;vertical-align:top;"><strong style="color:#2d5016;">Farm Repairs</strong><br/><span style="font-size:14px;color:#666;">Stalls, driveways, shelters, and more</span></td>
+</tr>
+</table>
+</div>
+<p style="font-size:16px;line-height:1.6;">Know someone who needs any of this? Share this email — they'll get $50 off and you'll help a local business.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a Free Quote</a>
+</div>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+export function nurtureFitness3(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  return nurtureEquestrian3(firstname, unsubscribeUrl);
+}
+
+export function nurtureFitness4(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  return nurtureEquestrian4(firstname, unsubscribeUrl);
+}
+
+export function nurtureFitness5(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  return nurtureEquestrian5(firstname, unsubscribeUrl);
+}
+
+// ---------------------------------------------------------------------------
+// MHF EXISTING CLIENTS SEGMENT (active + inactive)
+// ---------------------------------------------------------------------------
+
+export function nurtureMHF1(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const name = escapeHtml(firstname || "there");
+  return {
+    subject: `${name === "there" ? "Welcome" : firstname + ", welcome"} back — $50 off your next service`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Good to See You Again")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">It's Jose from My Horse Farm. It's been a while, and I wanted to reach out personally.</p>
+<p style="font-size:16px;line-height:1.6;">Whether you're still at the same property or have moved, we'd love to work with you again. To make it easy to reconnect:</p>
+<div style="background:#f0fdf4;border:2px solid #2d5016;border-radius:8px;padding:25px;text-align:center;margin:25px 0;">
+<p style="font-size:22px;font-weight:bold;color:#2d5016;margin:0;">$50 OFF</p>
+<p style="font-size:16px;color:#555;margin:8px 0 0;">Any service $300+ — or $50 off bulk manure service</p>
+<p style="font-size:14px;color:#888;margin:5px 0 0;">For returning clients like you</p>
+</div>
+<p style="font-size:16px;line-height:1.6;">Everything you remember about us is still true — reliable crews, fair pricing, weight tickets on every load. Plus we've added AI-powered quoting on our website so you can get a price in minutes.</p>
+<div style="text-align:center;margin:30px 0;">
+<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get Your $50 Off Quote</a>
+</div>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
+export function nurtureMHF2(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  return nurtureEquestrian2(firstname, unsubscribeUrl);
+}
+
+export function nurtureMHF3(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  return nurtureEquestrian3(firstname, unsubscribeUrl);
+}
+
+export function nurtureMHF4(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  return nurtureEquestrian4(firstname, unsubscribeUrl);
+}
+
+export function nurtureMHF5(
+  firstname: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  return nurtureEquestrian5(firstname, unsubscribeUrl);
 }
