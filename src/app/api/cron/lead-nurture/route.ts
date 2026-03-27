@@ -43,7 +43,7 @@ export const maxDuration = 300;
  *   Step 5: Day 21
  */
 
-const MAX_PER_RUN = 150; // Stay within Resend daily limits
+const MAX_PER_RUN = 80; // Stay within Resend free tier (100/day, leave room for other crons)
 const DRIP_DAYS = [0, 3, 7, 14, 21]; // Days after step 1 for each step
 
 const API_BASE = "https://api.hubapi.com";
@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
           ],
         },
       ],
-      ["email", "firstname", "lastname"],
+      ["email", "firstname", "lastname", "phone"],
     );
 
     results.push(`Found ${contacts.length} contacts with NEW status`);
@@ -168,6 +168,7 @@ export async function GET(request: NextRequest) {
 
       const email = contact.properties.email;
       const firstname = contact.properties.firstname || "";
+      const phone = contact.properties.phone || "";
       if (!email) continue;
 
       try {
@@ -225,6 +226,20 @@ export async function GET(request: NextRequest) {
         const { subject, html } = emailFn(firstname, unsubUrl);
 
         await sendEmail(email, subject, html);
+
+        // SMS for steps 1 and 5 (non-fatal)
+        if (phone && (nextStep === 1 || nextStep === 5)) {
+          try {
+            const { sendSMS } = await import("@/lib/twilio");
+            const smsBody =
+              nextStep === 1
+                ? `Hi ${firstname}! Jose from My Horse Farm here. We're offering $50 off any service $300+. Get a free quote at myhorsefarm.com/offers or call (561) 576-7667`
+                : `Last chance ${firstname}! $50 off + free gym membership + free dance class when you book with My Horse Farm. Details: myhorsefarm.com/offers`;
+            await sendSMS(phone, smsBody);
+          } catch (smsErr) {
+            console.error(`SMS nurture step ${nextStep} error (non-fatal):`, smsErr);
+          }
+        }
 
         // Tag the contact
         await createContactNote(

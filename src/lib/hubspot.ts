@@ -501,9 +501,13 @@ export async function isSubscribed(email: string): Promise<boolean> {
     const marketing = data.subscriptionStatuses?.find(
       (s: { id: string; status: string }) => s.id === "1087420534",
     );
-    return marketing?.status === "SUBSCRIBED";
+    // If explicitly unsubscribed, block. Otherwise allow (imported contacts
+    // won't have a subscription status — treat as opt-in).
+    if (marketing?.status === "NOT_SUBSCRIBED") return false;
+    return true;
   } catch {
-    return false;
+    // API error or contact not found — allow send (fail open for imports)
+    return true;
   }
 }
 

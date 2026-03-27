@@ -55,6 +55,10 @@
     {
       "path": "/api/cron/email-digest",
       "schedule": "0 20 * * *"
+    },
+    {
+      "path": "/api/cron/hot-leads",
+      "schedule": "0 12 * * *"
     }
   ]
 }

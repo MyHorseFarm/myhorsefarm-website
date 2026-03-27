@@ -60,6 +60,9 @@ export async function GET(request: NextRequest) {
         if (!(await isSubscribed(email))) continue;
         if (await hasAutomationTag("contacts", contact.id, TAGS.WELCOME_1))
           continue;
+        // Skip imported contacts — they get the nurture campaign instead
+        if (await hasAutomationTag("contacts", contact.id, "[SOURCE:"))
+          continue;
 
         const unsub = createUnsubscribeUrl(email);
         const template = welcomeEmail1(

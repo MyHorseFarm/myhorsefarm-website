@@ -1407,7 +1407,7 @@ ${header("My Horse Farm", "Serving Palm Beach County Since 2005")}
 <li><strong>Farm Repairs</strong> — fencing, gates, stalls, driveways</li>
 </ul>
 <div style="text-align:center;margin:30px 0;">
-<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get Your $50 Off Quote</a>
+<a href="https://www.myhorsefarm.com/offers" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get Your $50 Off Quote</a>
 </div>
 <p style="font-size:16px;line-height:1.6;">Or call <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> — mention this email for the discount.</p>
 ${signoff()}
@@ -1473,7 +1473,7 @@ ${header("Book a Service, Get a Bonus")}
 </div>
 <p style="font-size:16px;line-height:1.6;">That's over <strong>$200 in value</strong> just for booking a service you already need. Whether it's manure removal, a cleanout, or farm repairs — the bonus is yours.</p>
 <div style="text-align:center;margin:30px 0;">
-<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:16px 40px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:18px;">Claim Your Bonus — Get a Quote</a>
+<a href="https://www.myhorsefarm.com/offers" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:16px 40px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:18px;">Claim Your Bonus — Get a Quote</a>
 </div>
 ${signoff()}
 </div></div>`,
@@ -1507,7 +1507,7 @@ ${header("Even More Perks This Month")}
 </table>
 <p style="font-size:16px;line-height:1.6;">These partner perks are limited and available while supplies last.</p>
 <div style="text-align:center;margin:30px 0;">
-<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Lock In Your Perks — Get a Quote</a>
+<a href="https://www.myhorsefarm.com/offers" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Lock In Your Perks — Get a Quote</a>
 </div>
 ${signoff()}
 </div></div>`,
@@ -1542,7 +1542,7 @@ ${header("Last Chance")}
 </ul>
 <p style="font-size:16px;line-height:1.6;">Over 275 farms trust us. Let us earn yours.</p>
 <div style="text-align:center;margin:30px 0;">
-<a href="https://www.myhorsefarm.com/quote" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:16px 40px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:18px;">Get Your Quote Now</a>
+<a href="https://www.myhorsefarm.com/offers" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:16px 40px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:18px;">Get Your Quote Now</a>
 </div>
 <p style="font-size:16px;line-height:1.6;">Or call <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> anytime.</p>
 ${signoff()}
