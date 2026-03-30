@@ -459,11 +459,11 @@ export default function HomePage() {
                   ))}
                 </div>
 
-                {/* Horses lifestyle image */}
+                {/* MHF truck at a farm */}
                 <div className="relative aspect-[16/9] rounded-2xl overflow-hidden">
                   <Image
-                    src="/images/horses-paddock.jpg"
-                    alt="Horses grazing in a clean paddock"
+                    src="/images/truck-farm.jpg"
+                    alt="My Horse Farm dump truck at an equestrian property"
                     fill
                     className="object-cover"
                     sizes="(max-width: 1024px) 100vw, 50vw"
