@@ -20,6 +20,7 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLLIElement>(null);
 
   const isHome = pathname === "/";
+  const isTransparent = isHome && !scrolled;
 
   function anchorHref(anchor: string) {
     return isHome ? `#${anchor}` : `/#${anchor}`;
@@ -52,8 +53,23 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Color classes based on transparent vs solid state
+  const navLinkClass = isTransparent
+    ? "rounded-lg px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+    : "rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-primary/5 hover:text-primary";
+
+  const servicesBtnClass = isTransparent
+    ? "flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+    : "flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-primary/5 hover:text-primary";
+
   return (
-    <nav className={`sticky top-0 z-50 bg-white transition-shadow duration-300 ${scrolled ? "shadow-md" : "shadow-[0_1px_3px_rgba(0,0,0,0.05)]"}`}>
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isTransparent
+          ? "bg-transparent"
+          : "bg-white shadow-md"
+      }`}
+    >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5">
         {/* Logo */}
         <Link href="/" className="flex shrink-0 items-center gap-2.5">
@@ -65,7 +81,11 @@ export default function Navbar() {
             className="h-10 w-10"
           />
           <div className="hidden sm:block">
-            <span className="text-lg font-bold text-primary font-[family-name:var(--font-heading)] tracking-tight">
+            <span
+              className={`text-lg font-bold font-[family-name:var(--font-heading)] tracking-tight transition-colors duration-300 ${
+                isTransparent ? "text-white" : "text-primary"
+              }`}
+            >
               My Horse Farm
             </span>
           </div>
@@ -77,7 +97,7 @@ export default function Navbar() {
             <li key={link.label}>
               <Link
                 href={link.href ?? anchorHref(link.anchor!)}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-primary/5 hover:text-primary"
+                className={navLinkClass}
               >
                 {link.label}
               </Link>
@@ -92,7 +112,7 @@ export default function Navbar() {
             onMouseLeave={() => setServicesOpen(false)}
           >
             <button
-              className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-primary/5 hover:text-primary"
+              className={servicesBtnClass}
               onClick={() => setServicesOpen(!servicesOpen)}
               aria-expanded={servicesOpen}
               aria-haspopup="true"
@@ -128,7 +148,7 @@ export default function Navbar() {
             <li key={link.label}>
               <Link
                 href={link.href ?? anchorHref(link.anchor!)}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-primary/5 hover:text-primary"
+                className={navLinkClass}
               >
                 {link.label}
               </Link>
@@ -140,14 +160,22 @@ export default function Navbar() {
         <div className="hidden items-center gap-3 lg:flex">
           <a
             href={`tel:${PHONE_OFFICE_TEL}`}
-            className="flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-primary"
+            className={`flex items-center gap-1.5 text-sm font-medium transition-colors duration-300 ${
+              isTransparent
+                ? "text-white/70 hover:text-white"
+                : "text-gray-500 hover:text-primary"
+            }`}
           >
             <i className="fas fa-phone text-xs" />
             {PHONE_OFFICE}
           </a>
           <Link
             href="/quote"
-            className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-md hover:shadow-primary/30"
+            className={`rounded-xl px-5 py-2.5 text-sm font-semibold shadow-sm transition-all duration-300 ${
+              isTransparent
+                ? "bg-accent text-earth hover:bg-accent-light shadow-accent/25 hover:shadow-md hover:shadow-accent/30"
+                : "bg-primary text-white hover:bg-primary-dark shadow-primary/25 hover:shadow-md hover:shadow-primary/30"
+            }`}
           >
             Get a Quote
           </Link>
@@ -155,7 +183,9 @@ export default function Navbar() {
 
         {/* Mobile hamburger */}
         <button
-          className="rounded-md p-2 text-gray-700 lg:hidden"
+          className={`rounded-md p-2 lg:hidden transition-colors duration-300 ${
+            isTransparent ? "text-white" : "text-gray-700"
+          }`}
           aria-label="Toggle navigation menu"
           onClick={() => setMobileOpen(!mobileOpen)}
         >
@@ -171,7 +201,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu - always white background */}
       {mobileOpen && (
         <div className="border-t border-gray-100 bg-white px-4 pb-4 lg:hidden">
           <ul className="space-y-1 pt-2">

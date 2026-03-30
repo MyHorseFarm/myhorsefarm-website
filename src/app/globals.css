@@ -9,8 +9,14 @@
   --color-star: #f9a825;
   --color-warm: #faf6ee;
   --color-earth: #3d2c1e;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f8f9fa;
   --font-heading: "Outfit", sans-serif;
   --font-body: "Inter", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -28,25 +34,51 @@ h1, h2, h3, h4 {
   letter-spacing: -0.02em;
 }
 
-/* FAQ Accordion */
-.faq-item summary::-webkit-details-marker {
-  display: none;
+/* Glass morphism utility */
+.glass {
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.08);
 }
 
-.faq-item summary {
-  list-style: none;
+/* Staggered fade-up delays */
+.animate-fade-up-1 { animation-delay: 0.1s; }
+.animate-fade-up-2 { animation-delay: 0.2s; }
+.animate-fade-up-3 { animation-delay: 0.3s; }
+
+/* Parallax background section */
+.parallax-section {
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
 }
 
-.faq-item summary::after {
-  content: "+";
-  font-size: 1.4rem;
-  font-weight: 300;
-  color: var(--color-primary);
-  transition: transform 0.2s ease;
+@media (max-width: 768px) {
+  .parallax-section {
+    background-attachment: scroll;
+  }
 }
 
-.faq-item[open] summary::after {
-  content: "\2212";
+/* FAQ Accordion smooth animation */
+.faq-answer-grid {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.faq-answer-grid.open {
+  grid-template-rows: 1fr;
+}
+
+.faq-answer-grid > div {
+  overflow: hidden;
+}
+
+.faq-chevron {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.faq-chevron.open {
+  transform: rotate(180deg);
 }
 
 /* Chat widget open animation */

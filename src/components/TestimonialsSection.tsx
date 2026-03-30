@@ -21,7 +21,7 @@ export default async function TestimonialsSection() {
     if (cached.reviews.length > 0) {
       reviews = cached.reviews
         .filter((r) => r.rating >= 4 && r.text)
-        .slice(0, 3)
+        .slice(0, 4)
         .map((r) => ({
           author: r.author_name,
           body: r.text!,
@@ -46,43 +46,128 @@ export default async function TestimonialsSection() {
     }));
   }
 
+  const featured = reviews[0];
+  const rest = reviews.slice(1);
+
   return (
-    <section id="testimonials" className="py-16 md:py-20 bg-white">
+    <section id="testimonials" className="py-16 md:py-24 bg-warm">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">What Our Customers Say</h2>
-          <p className="mt-3 text-lg text-gray-500">
-            Trusted by horse farms and homeowners across Palm Beach County
-          </p>
+        {/* Header */}
+        <div className="text-center mb-14">
           {hasGoogleData && totalReviews > 0 && (
-            <div className="flex items-center justify-center gap-2 mt-4">
+            <div className="inline-flex items-center gap-2.5 bg-white rounded-full px-5 py-2.5 shadow-sm border border-gray-100 mb-6">
               <img
                 src="https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png"
                 alt="Google"
-                className="w-5 h-5"
+                className="w-6 h-6"
               />
-              <div className="text-star text-sm flex gap-0.5">
+              <div className="text-star flex gap-0.5">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <i key={i} className={`fas fa-star ${i < Math.round(avgRating) ? "" : "opacity-30"}`} />
                 ))}
               </div>
-              <span className="text-sm text-gray-600 font-medium">
-                {avgRating.toFixed(1)} ({totalReviews} reviews)
+              <span className="text-sm font-bold text-gray-800">
+                {avgRating.toFixed(1)}
+              </span>
+              <span className="text-sm text-gray-500">
+                ({totalReviews} reviews)
               </span>
             </div>
           )}
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 font-heading">
+            What Our Customers Say
+          </h2>
+          <p className="mt-3 text-lg text-gray-500 max-w-xl mx-auto">
+            Trusted by horse farms and homeowners across Palm Beach County
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {reviews.map((t) => (
+        {/* Reviews grid: featured + rest */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Featured review - spans full width on mobile, left column on desktop */}
+          {featured && (
+            <div
+              className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm relative md:row-span-2 flex flex-col justify-between"
+              itemScope
+              itemType="https://schema.org/Review"
+            >
+              {/* Large decorative quote */}
+              <div className="absolute top-6 right-6 text-7xl font-serif text-primary/10 leading-none select-none">
+                &ldquo;
+              </div>
+
+              <div>
+                <div
+                  className="text-star text-base mb-5 flex gap-0.5"
+                  itemProp="reviewRating"
+                  itemScope
+                  itemType="https://schema.org/Rating"
+                >
+                  <meta itemProp="ratingValue" content={String(featured.rating)} />
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <i key={i} className={`fas fa-star ${i < featured.rating ? "" : "opacity-30"}`} />
+                  ))}
+                </div>
+
+                <p className="text-lg text-gray-700 leading-relaxed mb-6 relative z-10" itemProp="reviewBody">
+                  {featured.body}
+                </p>
+              </div>
+
+              <div
+                itemProp="itemReviewed"
+                itemScope
+                itemType="https://schema.org/LocalBusiness"
+              >
+                <meta itemProp="name" content="My Horse Farm" />
+              </div>
+
+              <div className="flex items-center gap-3 pt-5 border-t border-gray-100">
+                {featured.photo ? (
+                  <img
+                    src={featured.photo}
+                    alt={featured.author}
+                    className="w-12 h-12 rounded-full ring-2 ring-primary/20"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center ring-2 ring-primary/20">
+                    <span className="text-white font-bold text-base">{featured.author.charAt(0)}</span>
+                  </div>
+                )}
+                <div>
+                  <div
+                    itemProp="author"
+                    itemScope
+                    itemType="https://schema.org/Person"
+                  >
+                    <div className="font-semibold text-gray-800" itemProp="name">
+                      {featured.author}
+                    </div>
+                  </div>
+                  {featured.location && (
+                    <div className="text-xs text-gray-400">{featured.location}</div>
+                  )}
+                  {featured.timeDesc && (
+                    <div className="text-xs text-gray-400">{featured.timeDesc}</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Remaining reviews */}
+          {rest.map((t) => (
             <div
               key={t.author}
-              className="bg-gray-50 rounded-2xl p-6 border border-gray-100 relative"
+              className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative"
               itemScope
               itemType="https://schema.org/Review"
             >
               {/* Quote mark */}
-              <div className="absolute top-4 right-5 text-4xl font-serif text-primary/10 leading-none">&ldquo;</div>
+              <div className="absolute top-4 right-5 text-5xl font-serif text-primary/10 leading-none select-none">
+                &ldquo;
+              </div>
 
               <div
                 className="text-star text-sm mb-4 flex gap-0.5"
@@ -96,7 +181,7 @@ export default async function TestimonialsSection() {
                 ))}
               </div>
 
-              <p className="text-sm text-gray-600 leading-relaxed mb-5" itemProp="reviewBody">
+              <p className="text-base text-gray-600 leading-relaxed mb-5" itemProp="reviewBody">
                 {t.body}
               </p>
 
@@ -108,17 +193,17 @@ export default async function TestimonialsSection() {
                 <meta itemProp="name" content="My Horse Farm" />
               </div>
 
-              <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
+              <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
                 {t.photo ? (
                   <img
                     src={t.photo}
                     alt={t.author}
-                    className="w-10 h-10 rounded-full"
+                    className="w-12 h-12 rounded-full ring-2 ring-primary/20"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-bold text-sm">{t.author.charAt(0)}</span>
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center ring-2 ring-primary/20">
+                    <span className="text-white font-bold text-sm">{t.author.charAt(0)}</span>
                   </div>
                 )}
                 <div>
@@ -143,7 +228,7 @@ export default async function TestimonialsSection() {
           ))}
         </div>
 
-        <div className="mt-10 text-center">
+        <div className="mt-12 text-center">
           <a
             href={SOCIAL.google}
             target="_blank"

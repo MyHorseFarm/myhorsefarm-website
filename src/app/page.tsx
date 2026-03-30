@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
-import TrustBadges from "@/components/TrustBadges";
+import AnimatedStats from "@/components/AnimatedStats";
+import BeforeAfterShowcase from "@/components/BeforeAfterShowcase";
+import WhyChooseUs from "@/components/WhyChooseUs";
+import CtaBanner from "@/components/CtaBanner";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import FaqAccordion from "@/components/FaqAccordion";
 import ServiceCalendar from "@/components/ServiceCalendar";
@@ -33,17 +37,17 @@ export const metadata: Metadata = {
       "Premier agricultural services for equestrians in Royal Palm Beach, FL. Sod installation, manure removal, junk removal, dumpster rental, fill dirt and farm repairs.",
     type: "website",
     url: "https://www.myhorsefarm.com/",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title:
       "My Horse Farm – Agricultural Service Company in Royal Palm Beach, FL",
     description:
       "Premier agricultural services for equestrians in Royal Palm Beach, FL. Sod installation, manure removal, junk removal, dumpster rental, fill dirt and farm repairs.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 
@@ -56,7 +60,7 @@ const localBusinessSchema = {
     "My Horse Farm provides premier agricultural and equestrian services in Royal Palm Beach, Florida, including sod installation, manure removal, junk removal, dumpster rental, fill dirt delivery and farm repairs.",
   url: "https://www.myhorsefarm.com",
   logo: "https://www.myhorsefarm.com/logo.png",
-  image: "https://www.myhorsefarm.com/logo.png",
+  image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
   telephone: "(561) 576-7667",
   email: "sales@myhorsefarm.com",
   priceRange: "$$",
@@ -74,10 +78,7 @@ const localBusinessSchema = {
     { "@type": "City", name: "West Palm Beach" },
     { "@type": "City", name: "Palm Beach Gardens" },
   ],
-  founder: {
-    "@type": "Person",
-    name: "Jose Gomez",
-  },
+  founder: { "@type": "Person", name: "Jose Gomez" },
   contactPoint: {
     "@type": "ContactPoint",
     telephone: "(561) 576-7667",
@@ -184,60 +185,46 @@ const webSiteSchema = {
 const services = [
   {
     title: "Manure Removal",
-    description: "Scheduled pickups and leak-proof bin rentals keep your property clean and odor-free.",
-    icon: "fas fa-recycle",
+    description: "Scheduled pickups and leak-proof bin rentals keep your property clean and odor-free year-round.",
+    image: "/images/service-manure.jpg",
     href: "/manure-removal",
-    color: "from-green-600 to-green-700",
+    price: "Free Quote",
   },
   {
     title: "Junk Removal",
-    description: "Clear debris, old fencing, and farm waste. Starting at $75/ton with same-day availability.",
-    icon: "fas fa-truck-pickup",
+    description: "Clear debris, old fencing, and farm waste quickly. Same-day availability for urgent jobs.",
+    image: "/images/service-junk.jpg",
     href: "/junk-removal",
-    color: "from-amber-600 to-amber-700",
+    price: "From $75/ton",
   },
   {
     title: "Sod Installation",
     description: "Lush, durable sod for paddocks and arenas. Delivered, graded, and professionally installed.",
-    icon: "fas fa-seedling",
+    image: "/images/service-sod.jpg",
     href: "/sod-installation",
-    color: "from-lime-600 to-lime-700",
+    price: "Free Quote",
   },
   {
     title: "Dumpster Rental",
-    description: "20-yard dumpsters for cleanouts, renovations, and large projects. Drop-off and haul-away.",
-    icon: "fas fa-dumpster",
+    description: "20-yard roll-off dumpsters for cleanouts, renovations, and large projects. Drop-off and haul-away.",
+    image: "/images/service-dumpster.jpg",
     href: "/dumpster-rental",
-    color: "from-sky-600 to-sky-700",
+    price: "From $350",
   },
   {
     title: "Fill Dirt",
-    description: "Quality fill dirt for leveling, berms, and new paddock construction. Delivered direct.",
-    icon: "fas fa-mountain",
+    description: "Quality fill dirt for leveling, berms, and new paddock construction. Delivered direct to your property.",
+    image: "/images/service-fill-dirt.jpg",
     href: "/fill-dirt",
-    color: "from-orange-600 to-orange-700",
+    price: "Free Quote",
   },
   {
     title: "Farm Repairs",
     description: "Fences, stalls, paddocks, driveways. We keep your farm facilities in top working condition.",
-    icon: "fas fa-wrench",
+    image: "/images/service-repairs.jpg",
     href: "/repairs",
-    color: "from-slate-600 to-slate-700",
+    price: "Free Quote",
   },
-  {
-    title: "Season-Ready Package",
-    description: "Full property preparation for equestrian season. Bundled services at a better rate.",
-    icon: "fas fa-horse",
-    href: "/season-ready",
-    color: "from-purple-600 to-purple-700",
-  },
-];
-
-const metrics = [
-  { number: "10+", label: "Years Experience", icon: "fas fa-calendar-check" },
-  { number: "400+", label: "Happy Clients", icon: "fas fa-users" },
-  { number: "1,000+", label: "Tons Hauled", icon: "fas fa-weight-hanging" },
-  { number: "5.0", label: "Google Rating", icon: "fas fa-star" },
 ];
 
 export default function HomePage() {
@@ -246,94 +233,137 @@ export default function HomePage() {
       <Hero
         title="My Horse Farm"
         tagline="Premier agricultural services for equestrian properties across Palm Beach County. Manure removal, junk hauling, sod, fill dirt, and farm repairs."
-        ctaText="Get a Quote"
+        ctaText="Get a Free Quote"
         ctaHref="/quote"
       />
 
       <main>
-        {/* Trust Badges */}
-        <TrustBadges />
+        {/* Stats + Trust Badges */}
+        <AnimatedStats />
 
-        {/* Metrics */}
-        <section className="py-16 md:py-20 bg-white">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-              {metrics.map((m) => (
-                <div key={m.label} className="text-center">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 mb-3">
-                    <i className={`${m.icon} text-primary text-lg`} />
-                  </div>
-                  <div className="text-3xl md:text-4xl font-extrabold text-primary font-[family-name:var(--font-heading)] tracking-tight">
-                    {m.number}
-                  </div>
-                  <div className="mt-1 text-sm font-medium text-gray-500">{m.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Services */}
-        <section id="services" className="py-16 md:py-20 bg-gray-50">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">What We Do</h2>
-              <p className="mt-3 text-lg text-gray-500 max-w-2xl mx-auto">
-                Everything your horse farm needs, from one dependable team.
+        {/* Services with Photos */}
+        <section id="services" className="py-20 md:py-28 bg-white">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-14">
+              <div className="inline-flex items-center gap-2 text-sm font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full mb-4">
+                <i className="fas fa-tools text-xs" />
+                Our Services
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold text-gray-900">
+                Everything Your Farm Needs
+              </h2>
+              <p className="mt-4 text-lg text-gray-500 max-w-2xl mx-auto">
+                Seven services, one dependable team. We handle the heavy lifting so you can focus on your horses.
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((svc) => (
                 <Link
                   key={svc.title}
                   href={svc.href}
-                  className="group bg-white rounded-2xl p-6 shadow-sm border border-gray-100 card-hover block"
+                  className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 card-hover block"
                 >
-                  <div className={`inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br ${svc.color} text-white mb-4`}>
-                    <i className={`${svc.icon} text-base`} />
+                  <div className="relative aspect-[3/2] overflow-hidden">
+                    <Image
+                      src={svc.image}
+                      alt={svc.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                    <div className="absolute top-3 right-3">
+                      <span className="text-xs font-bold text-white bg-primary/90 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                        {svc.price}
+                      </span>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary transition-colors">
-                    {svc.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-500 leading-relaxed">
-                    {svc.description}
-                  </p>
-                  <div className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                    Learn more
-                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary transition-colors">
+                      {svc.title}
+                    </h3>
+                    <p className="mt-2 text-sm text-gray-500 leading-relaxed">
+                      {svc.description}
+                    </p>
+                    <div className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-primary">
+                      Learn more
+                      <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </div>
                   </div>
                 </Link>
               ))}
             </div>
+
+            {/* Season-Ready Featured Banner */}
+            <Link
+              href="/season-ready"
+              className="group mt-6 flex flex-col md:flex-row bg-gradient-to-r from-primary to-primary-dark rounded-2xl overflow-hidden card-hover"
+            >
+              <div className="relative md:w-1/3 aspect-[2/1] md:aspect-auto">
+                <Image
+                  src="/images/service-season.jpg"
+                  alt="Season-Ready Package"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
+              </div>
+              <div className="flex-1 p-8 md:p-10 flex flex-col justify-center text-white">
+                <div className="inline-flex items-center gap-2 text-xs font-bold text-accent tracking-widest mb-2">
+                  <i className="fas fa-horse text-xs" />
+                  FEATURED SERVICE
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold mb-3">Season-Ready Package</h3>
+                <p className="text-white/70 leading-relaxed max-w-lg">
+                  Full property preparation for equestrian season. Bundled services at a better rate &mdash; manure
+                  cleanup, paddock grading, fence repairs, and more in one visit.
+                </p>
+                <div className="mt-5 flex items-center gap-2 text-accent font-semibold">
+                  Get package details
+                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </div>
+              </div>
+            </Link>
           </div>
         </section>
 
         {/* How It Works */}
-        <section className="py-16 md:py-20 bg-gradient-to-br from-[#1a3d1c] via-[#2d6a30] to-[#1e4d20] text-white">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold">How It Works</h2>
-              <p className="mt-3 text-lg text-white/60">Three steps to a cleaner, better farm.</p>
+        <section className="py-20 md:py-28 bg-[#1a2e1c] text-white relative overflow-hidden">
+          <div className="absolute inset-0 opacity-[0.03]" style={{
+            backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+          }} />
+          <div className="relative max-w-6xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-bold">How It Works</h2>
+              <p className="mt-4 text-lg text-white/50">Three steps to a cleaner, better farm.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
               {[
                 { step: "01", title: "Get a Quote", desc: "Tell us what you need online, by phone, or through our AI chat. We respond fast with honest pricing.", icon: "fas fa-comment-dots" },
                 { step: "02", title: "We Show Up", desc: "On-time, every time. Our crew arrives with the right equipment and gets straight to work.", icon: "fas fa-truck" },
                 { step: "03", title: "Job Done Right", desc: "Clean site, weight tickets, eco-friendly disposal. You focus on your horses, we handle the rest.", icon: "fas fa-check-circle" },
-              ].map((item) => (
-                <div key={item.step} className="text-center md:text-left">
-                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-sm mb-4">
-                    <i className={`${item.icon} text-xl text-accent`} />
+              ].map((item, i) => (
+                <div key={item.step} className="relative text-center md:text-left">
+                  {/* Connector line on desktop */}
+                  {i < 2 && (
+                    <div className="hidden md:block absolute top-8 left-[calc(50%+40px)] w-[calc(100%-80px)] h-px bg-white/10" />
+                  )}
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm mb-5">
+                    <i className={`${item.icon} text-2xl text-accent`} />
                   </div>
-                  <div className="text-xs font-bold text-accent tracking-widest mb-1">STEP {item.step}</div>
-                  <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                  <p className="text-white/60 text-sm leading-relaxed">{item.desc}</p>
+                  <div className="text-xs font-bold text-accent tracking-widest mb-2">STEP {item.step}</div>
+                  <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                  <p className="text-white/50 text-sm leading-relaxed max-w-xs mx-auto md:mx-0">{item.desc}</p>
                 </div>
               ))}
             </div>
-            <div className="mt-12 text-center">
+
+            <div className="mt-14 text-center">
               <Link
                 href="/quote"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-earth font-bold text-lg rounded-xl shadow-lg shadow-accent/25 hover:bg-accent-light transition-all"
@@ -347,20 +377,25 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* About */}
-        <section id="about" className="py-16 md:py-20 bg-white">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              {/* Left: text */}
+        {/* Before / After */}
+        <BeforeAfterShowcase />
+
+        {/* Why Choose Us */}
+        <WhyChooseUs />
+
+        {/* About / Founder */}
+        <section id="about" className="py-20 md:py-28 bg-white">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div>
                 <div className="inline-flex items-center gap-2 text-sm font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full mb-4">
                   <i className="fas fa-horse text-xs" />
                   Horse Owners Serving Horse Owners
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                  Built on Consistency. Driven by Grit.
+                <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                  Built on Consistency.<br />Driven by Grit.
                 </h2>
-                <p className="text-gray-500 leading-relaxed mb-6">
+                <p className="text-gray-500 text-lg leading-relaxed mb-6">
                   Based in Royal Palm Beach, My Horse Farm specializes in comprehensive
                   equestrian property services. From installing lush sod and delivering recycled
                   millings asphalt to providing manure bins, waste removal, fill dirt, dumpsters,
@@ -374,13 +409,13 @@ export default function HomePage() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
                     href="/quote"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors"
+                    className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors"
                   >
                     Get Started
                   </Link>
                   <a
                     href={`tel:${PHONE_OFFICE_TEL}`}
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:border-primary hover:text-primary transition-colors"
+                    className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:border-primary hover:text-primary transition-colors"
                   >
                     <i className="fas fa-phone text-sm" />
                     Call Us
@@ -388,12 +423,12 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Right: founder card + highlights */}
-              <div className="space-y-5">
-                <div className="bg-warm rounded-2xl p-6 border border-accent/15">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                      <i className="fas fa-user text-primary" />
+              <div className="space-y-6">
+                {/* Founder card */}
+                <div className="bg-warm rounded-2xl p-7 border border-accent/15">
+                  <div className="flex items-start gap-5">
+                    <div className="flex-shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
+                      <span className="text-white font-bold text-lg">JG</span>
                     </div>
                     <div>
                       <div className="font-bold text-gray-900 text-lg">Jose Gomez</div>
@@ -409,6 +444,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
+                {/* Highlight badges */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {[
                     { icon: "fas fa-shield-halved", text: "Fully Licensed & Insured" },
@@ -416,11 +452,22 @@ export default function HomePage() {
                     { icon: "fas fa-clock", text: "Same-Day Available" },
                     { icon: "fas fa-comments", text: "Bilingual: EN / ES" },
                   ].map((item) => (
-                    <div key={item.text} className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3">
-                      <i className={`${item.icon} text-primary text-sm`} />
-                      <span className="text-sm font-medium text-gray-700">{item.text}</span>
+                    <div key={item.text} className="flex items-center gap-3 bg-gray-50 rounded-xl px-5 py-4">
+                      <i className={`${item.icon} text-primary`} />
+                      <span className="text-sm font-semibold text-gray-700">{item.text}</span>
                     </div>
                   ))}
+                </div>
+
+                {/* Horses lifestyle image */}
+                <div className="relative aspect-[16/9] rounded-2xl overflow-hidden">
+                  <Image
+                    src="/images/horses-paddock.jpg"
+                    alt="Horses grazing in a clean paddock"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                  />
                 </div>
               </div>
             </div>
@@ -428,13 +475,16 @@ export default function HomePage() {
         </section>
 
         {/* Service Areas */}
-        <section className="py-12 bg-gray-50 border-y border-gray-100">
+        <section className="py-16 bg-gray-50 border-y border-gray-100">
           <div className="max-w-6xl mx-auto px-6 text-center">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Proudly Serving Palm Beach County</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+              Proudly Serving Palm Beach County
+            </h2>
+            <p className="text-gray-500 mb-8">Based in Royal Palm Beach, just minutes from your farm.</p>
             <div className="flex flex-wrap justify-center gap-3">
               {["Wellington", "Royal Palm Beach", "Loxahatchee", "Loxahatchee Groves", "West Palm Beach", "Palm Beach Gardens"].map((area) => (
-                <span key={area} className="text-sm font-medium text-gray-600 bg-white px-4 py-2 rounded-full border border-gray-200 shadow-sm">
-                  <i className="fas fa-map-pin text-primary text-xs mr-1.5" />
+                <span key={area} className="text-sm font-medium text-gray-600 bg-white px-5 py-2.5 rounded-full border border-gray-200 shadow-sm">
+                  <i className="fas fa-map-pin text-primary text-xs mr-2" />
                   {area}
                 </span>
               ))}
@@ -448,22 +498,25 @@ export default function HomePage() {
         {/* FAQ */}
         <FaqAccordion />
 
+        {/* CTA Banner */}
+        <CtaBanner />
+
         {/* Calendar */}
         <section id="schedule">
           <ServiceCalendar />
         </section>
 
         {/* Contact */}
-        <section id="contact" className="py-16 md:py-20 bg-white">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Contact Us</h2>
-              <p className="mt-3 text-lg text-gray-500 max-w-2xl mx-auto">
+        <section id="contact" className="py-20 md:py-28 bg-white">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-5xl font-bold text-gray-900">Contact Us</h2>
+              <p className="mt-4 text-lg text-gray-500 max-w-2xl mx-auto">
                 Ready to book a service or have questions? We&apos;d love to hear from you.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
               <div className="lg:col-span-2">
                 <HubSpotForm />
               </div>
@@ -476,7 +529,7 @@ export default function HomePage() {
                   { icon: "fas fa-map-marker-alt", label: "Location", value: ADDRESS },
                 ].map((item) => (
                   <div key={item.label} className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
-                    <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 flex-shrink-0">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 flex-shrink-0">
                       <i className={`${item.icon} text-primary text-sm`} />
                     </div>
                     <div>
@@ -497,7 +550,7 @@ export default function HomePage() {
                   rel="noopener"
                   className="flex items-center gap-3 p-4 bg-primary/5 rounded-xl border border-primary/10 hover:bg-primary/10 transition-colors"
                 >
-                  <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 flex-shrink-0">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 flex-shrink-0">
                     <i className="fab fa-google text-primary text-sm" />
                   </div>
                   <span className="text-sm font-semibold text-primary">Find Us on Google Maps</span>

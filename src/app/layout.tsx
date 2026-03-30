@@ -61,7 +61,9 @@ export default function RootLayout({
           />
         </noscript>
         <Navbar />
-        {children}
+        <div className="pt-[60px]">
+          {children}
+        </div>
         <ChatWidget />
         <ConversionTracker />
         <UtmCapture />
