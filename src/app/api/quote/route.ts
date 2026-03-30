@@ -265,7 +265,7 @@ export async function POST(request: NextRequest) {
           </div>
         </div>
       `;
-      const joseEmail = process.env.ADMIN_EMAIL || "joseadel825@gmail.com";
+      const joseEmail = process.env.ADMIN_EMAIL || "manureservice@gmail.com";
       const { Resend } = await import("resend");
       const resend = new Resend(process.env.RESEND_API_KEY);
       await resend.emails.send({
