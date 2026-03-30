@@ -45,8 +45,7 @@ export default function RootLayout({
         />
         <link
           rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-          integrity="sha512-p1BmVfeNcOGfm2ZN4xV7G49JGmTWq/m+KQpHUWGEdI8QaTdsK7InMy9lg+2Sp0UQG4I1VL0nZsdZ0wN7/Efc4g=="
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
           crossOrigin="anonymous"
           referrerPolicy="no-referrer"
         />
