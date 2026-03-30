@@ -4,7 +4,6 @@ import Link from "next/link";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import AnimatedStats from "@/components/AnimatedStats";
-import BeforeAfterShowcase from "@/components/BeforeAfterShowcase";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import CtaBanner from "@/components/CtaBanner";
 import TestimonialsSection from "@/components/TestimonialsSection";
@@ -376,9 +375,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-        {/* Before / After */}
-        <BeforeAfterShowcase />
 
         {/* Why Choose Us */}
         <WhyChooseUs />
