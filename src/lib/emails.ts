@@ -1,4 +1,4 @@
-import { createHmac } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 import { Resend } from "resend";
 
 // Canonical Google review URL — use this everywhere
@@ -33,7 +33,10 @@ export function verifyUnsubscribeSignature(
   const expected = createHmac("sha256", process.env.UNSUBSCRIBE_SECRET!)
     .update(email)
     .digest("hex");
-  return sig === expected;
+  const expectedBuf = Buffer.from(expected);
+  const sigBuf = Buffer.from(sig);
+  if (expectedBuf.length !== sigBuf.length) return false;
+  return timingSafeEqual(expectedBuf, sigBuf);
 }
 
 // ---------------------------------------------------------------------------

@@ -63,6 +63,12 @@ function PortalContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
+  const [subAction, setSubAction] = useState<"pause" | "cancel" | null>(null);
+  const [cancelStep, setCancelStep] = useState<1 | 2 | 3>(1);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelFeedback, setCancelFeedback] = useState("");
+  const [subLoading, setSubLoading] = useState(false);
+  const [subMessage, setSubMessage] = useState("");
 
   const fetchData = useCallback(async (t: string) => {
     setLoading(true);
@@ -189,13 +195,6 @@ function PortalContent() {
       </div>
     );
   }
-
-  const [subAction, setSubAction] = useState<"pause" | "cancel" | null>(null);
-  const [cancelStep, setCancelStep] = useState<1 | 2 | 3>(1);
-  const [cancelReason, setCancelReason] = useState("");
-  const [cancelFeedback, setCancelFeedback] = useState("");
-  const [subLoading, setSubLoading] = useState(false);
-  const [subMessage, setSubMessage] = useState("");
 
   const handleSubscriptionAction = async (action: "pause" | "resume" | "cancel", reason?: string, feedback?: string) => {
     const t = token || sessionStorage.getItem("portal_token");

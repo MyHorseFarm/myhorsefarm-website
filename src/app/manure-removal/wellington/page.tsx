@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
@@ -110,19 +111,19 @@ export default function ManureRemovalWellingtonPage() {
           <p>
             Based in Royal Palm Beach, we&apos;re just minutes from Wellington.
             We also serve{" "}
-            <a
+            <Link
               href="/manure-removal/loxahatchee"
               className="text-primary-dark hover:text-primary"
             >
               Loxahatchee
-            </a>
+            </Link>
             ,{" "}
-            <a
+            <Link
               href="/manure-removal/west-palm-beach"
               className="text-primary-dark hover:text-primary"
             >
               West Palm Beach
-            </a>
+            </Link>
             , Loxahatchee Groves and Palm Beach Gardens.
           </p>
         </section>
@@ -142,12 +143,12 @@ export default function ManureRemovalWellingtonPage() {
             or book online. We&apos;ll confirm your schedule and answer any
             questions.
           </p>
-          <a
+          <Link
             href="/#calendar"
             className="inline-block px-6 py-2.5 bg-primary text-white rounded font-bold hover:bg-primary-dark transition-colors"
           >
             Schedule Pickup
-          </a>
+          </Link>
         </section>
       </main>
       <Footer />

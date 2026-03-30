@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
@@ -73,12 +74,12 @@ export default function RepairsPage() {
             of the hard work so you can focus on caring for your horses.
           </p>
           <p>
-            <a
+            <Link
               href="/#calendar"
               className="inline-block px-6 py-2.5 bg-primary text-white rounded font-bold hover:bg-primary-dark transition-colors"
             >
               Book Your Repairs
-            </a>
+            </Link>
           </p>
         </section>
       </main>

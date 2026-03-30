@@ -64,7 +64,7 @@ create table quotes (
   estimated_amount numeric(10,2) not null,
   pricing_breakdown jsonb not null default '{}',
   requires_site_visit boolean not null default false,
-  source text not null default 'form' check (source in ('form','chatbot','landing_page')),
+  source text not null default 'form' check (source in ('form','chatbot','landing_page','phone')),
   chat_session_id uuid,
   hubspot_contact_id text,
   hubspot_deal_id text,

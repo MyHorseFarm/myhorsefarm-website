@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Hero from "@/components/Hero";
 
 import Footer from "@/components/Footer";
@@ -272,13 +273,13 @@ export default function SeasonReadyPage() {
               <i className="fas fa-phone" />
               {PHONE_OFFICE}
             </a>
-            <a
+            <Link
               href="/#calendar"
               className="inline-flex items-center gap-2 px-8 py-3 bg-white text-primary border-2 border-primary rounded font-bold text-lg hover:bg-primary hover:text-white transition-colors"
             >
               <i className="fas fa-calendar-alt" />
               Book a Call Online
-            </a>
+            </Link>
           </div>
         </section>
       </main>

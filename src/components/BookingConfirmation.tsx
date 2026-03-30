@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 interface BookingData {
@@ -49,9 +50,9 @@ export default function BookingConfirmation() {
     return (
       <div className="text-center py-20">
         <p className="text-red-600">{error || "Booking not found"}</p>
-        <a href="/" className="text-primary hover:underline mt-4 inline-block">
+        <Link href="/" className="text-primary hover:underline mt-4 inline-block">
           Return to homepage
-        </a>
+        </Link>
       </div>
     );
   }

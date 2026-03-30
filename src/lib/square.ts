@@ -1,4 +1,4 @@
-import { createHmac, randomUUID } from "crypto";
+import { createHmac, randomUUID, timingSafeEqual } from "crypto";
 import { SquareClient, SquareEnvironment } from "square";
 
 // ---------------------------------------------------------------------------
@@ -26,7 +26,10 @@ export function verifyWebhookSignature(
   const expected = createHmac("sha256", process.env.SQUARE_WEBHOOK_SIGNATURE_KEY!)
     .update(payload, "utf8")
     .digest("base64");
-  return expected === signatureHeader;
+  const expectedBuf = Buffer.from(expected);
+  const actualBuf = Buffer.from(signatureHeader);
+  if (expectedBuf.length !== actualBuf.length) return false;
+  return timingSafeEqual(expectedBuf, actualBuf);
 }
 
 // ---------------------------------------------------------------------------

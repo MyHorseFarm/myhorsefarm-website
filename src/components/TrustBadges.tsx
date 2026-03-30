@@ -2,21 +2,23 @@ import { TRUST_BADGES } from "@/lib/constants";
 
 export default function TrustBadges() {
   return (
-    <section className="text-center py-10 px-5 max-w-[1200px] mx-auto">
-      <div className="flex flex-wrap justify-center gap-[30px] mt-5 max-md:gap-5 max-[480px]:gap-4">
-        {TRUST_BADGES.map((badge) => (
-          <div
-            key={badge.label}
-            className="flex flex-col items-center w-[140px] max-md:w-[110px] max-[480px]:w-[90px]"
-          >
-            <i
-              className={`${badge.icon} text-[2rem] text-primary mb-2 max-[480px]:text-2xl`}
-            />
-            <span className="text-sm font-semibold text-gray-800 text-center max-[480px]:text-xs">
-              {badge.label}
-            </span>
-          </div>
-        ))}
+    <section className="py-6 bg-warm border-y border-accent/15">
+      <div className="max-w-6xl mx-auto px-5">
+        <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 md:gap-x-12">
+          {TRUST_BADGES.map((badge) => (
+            <div
+              key={badge.label}
+              className="flex items-center gap-2.5"
+            >
+              <div className="flex items-center justify-center w-9 h-9 rounded-full bg-primary/10">
+                <i className={`${badge.icon} text-sm text-primary`} />
+              </div>
+              <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">
+                {badge.label}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

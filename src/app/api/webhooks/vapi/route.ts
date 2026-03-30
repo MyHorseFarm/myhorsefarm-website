@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHmac } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 import { supabase } from "@/lib/supabase";
 import {
   findContactByPhone,
@@ -25,19 +25,26 @@ export const maxDuration = 60;
 // Webhook signature verification
 // ---------------------------------------------------------------------------
 
-function verifySignature(request: NextRequest, body: string): boolean {
+function verifySignature(
+  request: NextRequest,
+  body: string,
+): { valid: true } | { valid: false; reason: "no_secret" | "bad_signature" } {
   const secret = process.env.VAPI_WEBHOOK_SECRET;
   if (!secret) {
-    // No secret configured — skip verification (dev mode)
-    console.warn("VAPI_WEBHOOK_SECRET not set — skipping signature verification");
-    return true;
+    console.error("VAPI_WEBHOOK_SECRET not set — rejecting request");
+    return { valid: false, reason: "no_secret" };
   }
 
   const signature = request.headers.get("x-vapi-signature");
-  if (!signature) return false;
+  if (!signature) return { valid: false, reason: "bad_signature" };
 
   const expected = createHmac("sha256", secret).update(body).digest("hex");
-  return signature === expected;
+  const expectedBuf = Buffer.from(expected);
+  const sigBuf = Buffer.from(signature);
+  if (expectedBuf.length !== sigBuf.length) return { valid: false, reason: "bad_signature" };
+  return timingSafeEqual(expectedBuf, sigBuf)
+    ? { valid: true }
+    : { valid: false, reason: "bad_signature" };
 }
 
 // ---------------------------------------------------------------------------
@@ -47,7 +54,11 @@ function verifySignature(request: NextRequest, body: string): boolean {
 export async function POST(request: NextRequest) {
   const rawBody = await request.text();
 
-  if (!verifySignature(request, rawBody)) {
+  const sigResult = verifySignature(request, rawBody);
+  if (!sigResult.valid) {
+    if (sigResult.reason === "no_secret") {
+      return NextResponse.json({ error: "Webhook secret not configured" }, { status: 500 });
+    }
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
@@ -337,7 +348,7 @@ async function handleCreateQuote(
       estimated_amount: estimatedAmount,
       pricing_breakdown: pricingBreakdown,
       requires_site_visit: needsSiteVisit,
-      source: "phone",
+      source: "form", // DB constraint: form|chatbot|landing_page — phone calls mapped to form
       expires_at: expiresAt,
       service_tier: "standard",
     })

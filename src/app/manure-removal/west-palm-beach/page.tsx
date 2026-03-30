@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
@@ -89,12 +90,12 @@ export default function ManureRemovalWestPalmBeachPage() {
           <h3 className="text-primary-dark">Also Need Junk Removal?</h3>
           <p>
             Many of our West Palm Beach clients combine manure removal with{" "}
-            <a
+            <Link
               href="/junk-removal/west-palm-beach"
               className="text-primary-dark hover:text-primary"
             >
               junk removal services
-            </a>
+            </Link>
             . Old fencing, broken equipment, barn debris — we haul it all
             starting at $75 per ton.
           </p>
@@ -104,19 +105,19 @@ export default function ManureRemovalWestPalmBeachPage() {
           </h3>
           <p>
             We also serve{" "}
-            <a
+            <Link
               href="/manure-removal/wellington"
               className="text-primary-dark hover:text-primary"
             >
               Wellington
-            </a>
+            </Link>
             ,{" "}
-            <a
+            <Link
               href="/manure-removal/loxahatchee"
               className="text-primary-dark hover:text-primary"
             >
               Loxahatchee
-            </a>
+            </Link>
             , Royal Palm Beach, Loxahatchee Groves and Palm Beach Gardens.
           </p>
         </section>
@@ -136,12 +137,12 @@ export default function ManureRemovalWestPalmBeachPage() {
             or book online. We&apos;ll confirm your schedule and answer any
             questions.
           </p>
-          <a
+          <Link
             href="/#calendar"
             className="inline-block px-6 py-2.5 bg-primary text-white rounded font-bold hover:bg-primary-dark transition-colors"
           >
             Schedule Pickup
-          </a>
+          </Link>
         </section>
       </main>
       <Footer />

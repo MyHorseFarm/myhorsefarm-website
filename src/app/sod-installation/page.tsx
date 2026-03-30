@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
@@ -93,12 +94,12 @@ export default function SodInstallationPage() {
             recommend the right sod solution for your horses.
           </p>
           <p>
-            <a
+            <Link
               href="/#calendar"
               className="inline-block px-6 py-2.5 bg-primary text-white rounded font-bold hover:bg-primary-dark transition-colors"
             >
               Book Sod Installation
-            </a>
+            </Link>
           </p>
         </section>
       </main>

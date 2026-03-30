@@ -1,24 +1,31 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-primary: #689f38;
-  --color-primary-dark: #558b2f;
-  --color-accent: #d4e157;
+  --color-primary: #2d6a30;
+  --color-primary-dark: #1e4d20;
+  --color-primary-light: #4a8f4d;
+  --color-accent: #c8a951;
+  --color-accent-light: #e8d48b;
   --color-star: #f9a825;
+  --color-warm: #faf6ee;
+  --color-earth: #3d2c1e;
+  --font-heading: "Outfit", sans-serif;
+  --font-body: "Inter", sans-serif;
 }
 
 body {
   margin: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-body);
   line-height: 1.6;
-  color: #333;
+  color: #2a2a2a;
   background-color: #fafafa;
+  -webkit-font-smoothing: antialiased;
 }
 
-h1,
-h2,
-h3 {
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
   margin-bottom: 0.5em;
+  letter-spacing: -0.02em;
 }
 
 /* FAQ Accordion */
@@ -34,7 +41,7 @@ h3 {
   content: "+";
   font-size: 1.4rem;
   font-weight: 300;
-  color: #689f38;
+  color: var(--color-primary);
   transition: transform 0.2s ease;
 }
 
@@ -56,4 +63,37 @@ h3 {
 
 .animate-chat-open {
   animation: chat-open 0.25s ease-out;
+}
+
+/* Fade-in animation for scroll reveals */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s ease-out both;
+}
+
+/* Gradient text utility */
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Service card hover lift */
+.card-hover {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.12);
 }

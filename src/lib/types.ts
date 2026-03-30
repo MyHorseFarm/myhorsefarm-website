@@ -32,7 +32,7 @@ export interface ScheduleSettings {
 export interface Quote {
   id: string;
   quote_number: string;
-  status: "pending" | "accepted" | "expired" | "declined" | "pending_site_visit";
+  status: "pending" | "accepted" | "booked" | "expired" | "declined" | "pending_site_visit";
   customer_name: string;
   customer_email: string;
   customer_phone: string;
