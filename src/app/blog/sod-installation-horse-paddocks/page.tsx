@@ -21,7 +21,7 @@ export const metadata: Metadata = {
       "A complete guide to sod installation for horse farms in Florida. Learn the best sod types for paddocks, site preparation, installation process, and post-install care.",
     type: "article",
     url: "https://www.myhorsefarm.com/blog/sod-installation-horse-paddocks",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
@@ -39,7 +39,7 @@ const schema = {
   datePublished: "2026-02-26",
   dateModified: "2026-02-26",
   url: "https://www.myhorsefarm.com/blog/sod-installation-horse-paddocks",
-  image: "https://www.myhorsefarm.com/logo.png",
+  image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
 };
 
 export default function SodInstallationHorsePaddocksPost() {

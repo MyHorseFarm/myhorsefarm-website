@@ -5,28 +5,28 @@ import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
 
 export const metadata: Metadata = {
-  title: "Farm Repairs & Maintenance | My Horse Farm",
+  title: "Farm Repairs & Maintenance",
   description:
     "Professional farm repairs & maintenance services in Royal Palm Beach, Wellington and Loxahatchee. We fix fences, stalls, barns, arenas and driveways with quality craftsmanship and fast response.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/repairs" },
   openGraph: {
-    title: "Farm Repairs & Maintenance | My Horse Farm",
+    title: "Farm Repairs & Maintenance",
     description:
       "Professional farm repairs & maintenance in Royal Palm Beach, Wellington and Loxahatchee. Fences, stalls, barns, arenas and driveways.",
     type: "website",
     url: "https://www.myhorsefarm.com/repairs",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Farm Repairs & Maintenance | My Horse Farm",
+    title: "Farm Repairs & Maintenance",
     description:
       "Professional farm repairs & maintenance in Royal Palm Beach, Wellington and Loxahatchee. Fences, stalls, barns, arenas and driveways.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 
@@ -93,7 +93,7 @@ export default function RepairsPage() {
             "@type": "LocalBusiness",
             "@id": "https://www.myhorsefarm.com/#organization",
             name: "My Horse Farm",
-            image: "https://www.myhorsefarm.com/logo.png",
+            image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
             telephone: "(561) 576-7667",
             email: "sales@myhorsefarm.com",
             priceRange: "$$",

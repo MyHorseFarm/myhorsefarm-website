@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
 
 export const metadata: Metadata = {
-  title: "Manure Removal in Loxahatchee, FL | My Horse Farm",
+  title: "Manure Removal in Loxahatchee, FL",
   description:
     "Horse manure removal in Loxahatchee and Loxahatchee Groves, FL. We handle 40+ stall facilities, provide leak-proof bins and offer flexible pickup schedules for large equestrian properties.",
   robots: "index, follow",
@@ -13,21 +13,21 @@ export const metadata: Metadata = {
     canonical: "https://www.myhorsefarm.com/manure-removal/loxahatchee",
   },
   openGraph: {
-    title: "Manure Removal in Loxahatchee, FL | My Horse Farm",
+    title: "Manure Removal in Loxahatchee, FL",
     description:
       "Horse manure removal in Loxahatchee and Loxahatchee Groves. Leak-proof bins, flexible schedules and eco-friendly disposal for large equestrian properties.",
     type: "website",
     url: "https://www.myhorsefarm.com/manure-removal/loxahatchee",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Manure Removal in Loxahatchee, FL | My Horse Farm",
+    title: "Manure Removal in Loxahatchee, FL",
     description:
       "Horse manure removal in Loxahatchee and Loxahatchee Groves. Leak-proof bins and flexible schedules.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 
@@ -151,7 +151,7 @@ export default function ManureRemovalLoxahatcheePage() {
             "@type": "LocalBusiness",
             "@id": "https://www.myhorsefarm.com/#organization",
             name: "My Horse Farm",
-            image: "https://www.myhorsefarm.com/logo.png",
+            image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
             telephone: "(561) 576-7667",
             email: "sales@myhorsefarm.com",
             priceRange: "$$",

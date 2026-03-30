@@ -19,7 +19,7 @@ export const metadata: Metadata = {
       "Wondering if it's time for a farm property cleanout? Learn the 5 clear signs your barn, paddocks, or acreage need professional junk removal and property cleanup.",
     type: "article",
     url: "https://www.myhorsefarm.com/blog/signs-farm-needs-property-cleanout",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
@@ -36,7 +36,7 @@ const schema = {
   datePublished: "2026-02-26",
   dateModified: "2026-02-26",
   url: "https://www.myhorsefarm.com/blog/signs-farm-needs-property-cleanout",
-  image: "https://www.myhorsefarm.com/logo.png",
+  image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
 };
 
 export default function SignsFarmNeedsPropertyCleanoutPost() {

@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
 
 export const metadata: Metadata = {
-  title: "Junk Removal in Loxahatchee – Same-Day Service | My Horse Farm",
+  title: "Junk Removal in Loxahatchee – Same-Day Service",
   description:
     "Need junk removed in Loxahatchee? My Horse Farm offers same-day junk removal starting at $75 per ton in Loxahatchee and the surrounding Palm Beach County area. Book now!",
   robots: "index, follow",
@@ -13,21 +13,21 @@ export const metadata: Metadata = {
     canonical: "https://www.myhorsefarm.com/junk-removal/loxahatchee",
   },
   openGraph: {
-    title: "Junk Removal in Loxahatchee – Same-Day Service | My Horse Farm",
+    title: "Junk Removal in Loxahatchee – Same-Day Service",
     description:
       "Same-day junk removal starting at $75 per ton in Loxahatchee and surrounding Palm Beach County. Book now!",
     type: "website",
     url: "https://www.myhorsefarm.com/junk-removal/loxahatchee",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Junk Removal in Loxahatchee – Same-Day Service | My Horse Farm",
+    title: "Junk Removal in Loxahatchee – Same-Day Service",
     description:
       "Same-day junk removal starting at $75 per ton in Loxahatchee and surrounding Palm Beach County.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 
@@ -104,7 +104,7 @@ export default function JunkRemovalLoxahatcheePage() {
           "@id": "https://www.myhorsefarm.com/#organization",
           name: "My Horse Farm Junk Removal - Loxahatchee",
           url: "https://www.myhorsefarm.com/junk-removal/loxahatchee",
-          image: "https://www.myhorsefarm.com/logo.png",
+          image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
           telephone: "(561) 576-7667",
           email: "sales@myhorsefarm.com",
           priceRange: "$$",

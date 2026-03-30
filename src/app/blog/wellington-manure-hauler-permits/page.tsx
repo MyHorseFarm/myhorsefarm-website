@@ -19,7 +19,7 @@ export const metadata: Metadata = {
       "Everything horse farm owners need to know about Wellington FL manure hauler permits, waste ordinances, approved disposal sites, and how to stay compliant.",
     type: "article",
     url: "https://www.myhorsefarm.com/blog/wellington-manure-hauler-permits",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
@@ -36,7 +36,7 @@ const schema = {
   datePublished: "2026-02-26",
   dateModified: "2026-02-26",
   url: "https://www.myhorsefarm.com/blog/wellington-manure-hauler-permits",
-  image: "https://www.myhorsefarm.com/logo.png",
+  image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
 };
 
 export default function WellingtonPermitsPost() {

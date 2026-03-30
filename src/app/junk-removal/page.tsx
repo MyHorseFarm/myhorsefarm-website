@@ -7,7 +7,7 @@ import { PHONE_OFFICE, PHONE_OFFICE_TEL } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title:
-    "Junk Removal & Hauling Services | 40-Yard Dump Trailer | My Horse Farm",
+    "Junk Removal & Hauling Services | 40-Yard Dump Trailer",
   description:
     "Professional junk removal in Royal Palm Beach, Wellington & Loxahatchee FL. 40-yard dump trailer, skid steer, loader & crew. Green waste, construction debris, property cleanouts. Same-day service. Call (561) 576-7667.",
   robots: "index, follow",
@@ -15,21 +15,21 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://www.myhorsefarm.com/junk-removal" },
   openGraph: {
     title:
-      "Junk Removal & Hauling | 40-Yard Dump Trailer | My Horse Farm",
+      "Junk Removal & Hauling | 40-Yard Dump Trailer",
     description:
       "Full-service junk removal with heavy equipment. 40-yard dump trailer, skid steer, loader & crew. Green waste, construction debris, property cleanouts in Palm Beach County.",
     type: "website",
     url: "https://www.myhorsefarm.com/junk-removal",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Junk Removal & Hauling | My Horse Farm",
+    title: "Junk Removal & Hauling",
     description:
       "40-yard dump trailer, skid steer, loader & crew. Green waste, construction debris, property cleanouts in Palm Beach County FL.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 
@@ -330,7 +330,7 @@ export default function JunkRemovalPage() {
             "@type": "LocalBusiness",
             "@id": "https://www.myhorsefarm.com/#organization",
             name: "My Horse Farm",
-            image: "https://www.myhorsefarm.com/logo.png",
+            image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
             telephone: "(561) 576-7667",
             email: "sales@myhorsefarm.com",
             priceRange: "$$",

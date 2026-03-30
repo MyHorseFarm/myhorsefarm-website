@@ -5,28 +5,28 @@ import OffersPageTracker from "./OffersPageTracker";
 import { PHONE_OFFICE, PHONE_OFFICE_TEL } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Current Offers & Perks | My Horse Farm",
+  title: "Current Offers & Perks",
   description:
     "Save $50 on your first service of $300+, plus get a free month at Resilient Fitness and a free dance class at Starpoint Dancesport. Limited time offers from My Horse Farm in Wellington & Royal Palm Beach, FL.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/offers" },
   openGraph: {
-    title: "Current Offers & Perks | My Horse Farm",
+    title: "Current Offers & Perks",
     description:
       "Save $50 on your first service of $300+, plus exclusive wellness and dance perks. Limited time offers from My Horse Farm.",
     type: "website",
     url: "https://www.myhorsefarm.com/offers",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Current Offers & Perks | My Horse Farm",
+    title: "Current Offers & Perks",
     description:
       "Save $50 on your first service of $300+, plus exclusive wellness and dance perks. Limited time offers from My Horse Farm.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 

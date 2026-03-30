@@ -9,7 +9,7 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "You've Been Referred! | My Horse Farm",
+  title: "You've Been Referred!",
   description:
     "A friend recommended My Horse Farm for your property. Get $25 off your first service.",
   robots: "noindex",

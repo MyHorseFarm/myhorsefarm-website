@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /portal/
+Disallow: /api/
+Disallow: /enroll
+Disallow: /crew
 
 Sitemap: https://www.myhorsefarm.com/sitemap.xml

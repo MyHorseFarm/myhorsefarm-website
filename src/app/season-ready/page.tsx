@@ -12,28 +12,28 @@ import {
 } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Season-Ready Farm Package | My Horse Farm",
+  title: "Season-Ready Farm Package",
   description:
     "Get your Wellington or Loxahatchee horse farm ready for WEF season. One provider handles manure removal setup, sod installation, fill dirt, farm repairs, junk removal, and dumpster rental.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/season-ready" },
   openGraph: {
-    title: "Season-Ready Farm Package | My Horse Farm",
+    title: "Season-Ready Farm Package",
     description:
       "Get your Wellington or Loxahatchee horse farm ready for WEF season. One provider handles manure removal setup, sod installation, fill dirt, farm repairs, junk removal, and dumpster rental.",
     type: "website",
     url: "https://www.myhorsefarm.com/season-ready",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Season-Ready Farm Package | My Horse Farm",
+    title: "Season-Ready Farm Package",
     description:
       "Get your Wellington or Loxahatchee horse farm ready for WEF season. One provider handles manure removal setup, sod installation, fill dirt, farm repairs, junk removal, and dumpster rental.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 
@@ -296,7 +296,7 @@ export default function SeasonReadyPage() {
             "@type": "LocalBusiness",
             "@id": "https://www.myhorsefarm.com/#organization",
             name: "My Horse Farm",
-            image: "https://www.myhorsefarm.com/logo.png",
+            image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
             telephone: "(561) 576-7667",
             email: "sales@myhorsefarm.com",
             priceRange: "$$",

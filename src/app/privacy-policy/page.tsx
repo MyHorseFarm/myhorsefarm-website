@@ -3,25 +3,25 @@ import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | My Horse Farm",
+  title: "Privacy Policy",
   description: "Privacy Policy for My Horse Farm. Learn how we collect, use and protect your personal information when you use our website and services.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/privacy-policy" },
   openGraph: {
-    title: "Privacy Policy | My Horse Farm",
+    title: "Privacy Policy",
     description: "Privacy Policy for My Horse Farm. Learn how we collect, use and protect your personal information.",
     type: "website",
     url: "https://www.myhorsefarm.com/privacy-policy",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Privacy Policy | My Horse Farm",
+    title: "Privacy Policy",
     description: "Privacy Policy for My Horse Farm. Learn how we collect, use and protect your personal information.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 

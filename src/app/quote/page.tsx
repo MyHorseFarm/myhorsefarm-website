@@ -10,14 +10,14 @@ export const metadata: Metadata = {
   description:
     "Get an instant quote for manure removal, junk hauling, sod installation, fill dirt delivery, dumpster rental and farm repairs from My Horse Farm.",
   openGraph: {
-    title: "Get a Free Quote | My Horse Farm",
+    title: "Get a Free Quote",
     description:
       "Get an instant quote for manure removal, junk hauling, sod installation, fill dirt delivery, dumpster rental and farm repairs.",
     url: "https://www.myhorsefarm.com/quote",
   },
   twitter: {
     card: "summary",
-    title: "Get a Free Quote | My Horse Farm",
+    title: "Get a Free Quote",
     description:
       "Get an instant quote for manure removal, junk hauling, sod installation, fill dirt delivery, dumpster rental and farm repairs.",
   },

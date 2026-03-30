@@ -9,7 +9,7 @@ import { PHONE_OFFICE, PHONE_OFFICE_TEL } from "@/lib/constants";
 import { getLandingPageData } from "@/lib/landing-data";
 
 export const metadata: Metadata = {
-  title: "Junk Removal West Palm Beach FL | Call (561) 576-7667 | My Horse Farm",
+  title: "Junk Removal West Palm Beach FL | Call (561) 576-7667",
   robots: "noindex, nofollow",
 };
 

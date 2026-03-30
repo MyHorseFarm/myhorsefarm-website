@@ -5,28 +5,28 @@ import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
 
 export const metadata: Metadata = {
-  title: "Sod Installation Services | My Horse Farm",
+  title: "Sod Installation Services",
   description:
     "Professional sod installation for equestrian arenas and paddocks in Royal Palm Beach, Wellington & Loxahatchee, Florida. Give your horses safe, lush footing with My Horse Farm\u2019s high\u2011quality sod and expert installation.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/sod-installation" },
   openGraph: {
-    title: "Sod Installation Services | My Horse Farm",
+    title: "Sod Installation Services",
     description:
       "Professional sod installation for equestrian arenas and paddocks in Royal Palm Beach, Wellington & Loxahatchee, FL.",
     type: "website",
     url: "https://www.myhorsefarm.com/sod-installation",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Sod Installation Services | My Horse Farm",
+    title: "Sod Installation Services",
     description:
       "Professional sod installation for equestrian arenas and paddocks in Royal Palm Beach, Wellington & Loxahatchee, FL.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 
@@ -113,7 +113,7 @@ export default function SodInstallationPage() {
             "@type": "LocalBusiness",
             "@id": "https://www.myhorsefarm.com/#organization",
             name: "My Horse Farm",
-            image: "https://www.myhorsefarm.com/logo.png",
+            image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
             telephone: "(561) 576-7667",
             email: "sales@myhorsefarm.com",
             priceRange: "$$",

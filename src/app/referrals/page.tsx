@@ -5,28 +5,28 @@ import { supabase } from "@/lib/supabase";
 import { PHONE_OFFICE, PHONE_OFFICE_TEL } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Referral Leaderboard | My Horse Farm",
+  title: "Referral Leaderboard",
   description:
     "Refer a friend to My Horse Farm and earn rewards. They get $50 off their first service, you get a reward. See our top referrers on the leaderboard.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/referrals" },
   openGraph: {
-    title: "Referral Leaderboard | My Horse Farm",
+    title: "Referral Leaderboard",
     description:
       "Refer a friend to My Horse Farm and earn rewards. They get $50 off, you get rewarded. See our top referrers.",
     type: "website",
     url: "https://www.myhorsefarm.com/referrals",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Referral Leaderboard | My Horse Farm",
+    title: "Referral Leaderboard",
     description:
       "Refer a friend to My Horse Farm and earn rewards. They get $50 off, you get rewarded.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 

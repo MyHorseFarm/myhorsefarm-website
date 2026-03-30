@@ -4,28 +4,28 @@ import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
 
 export const metadata: Metadata = {
-  title: "Dumpster Rental Services | My Horse Farm",
+  title: "Dumpster Rental Services",
   description:
     "Reliable dumpster rental services for equestrian farms and rural properties in Royal Palm Beach, Wellington & Loxahatchee, Florida. Our 20\u2011yard dumpsters and bins help you manage farm cleanups, renovations and projects with ease.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/dumpster-rental" },
   openGraph: {
-    title: "Dumpster Rental Services | My Horse Farm",
+    title: "Dumpster Rental Services",
     description:
       "Reliable dumpster rental for equestrian farms and rural properties in Royal Palm Beach, Wellington & Loxahatchee, FL.",
     type: "website",
     url: "https://www.myhorsefarm.com/dumpster-rental",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Dumpster Rental Services | My Horse Farm",
+    title: "Dumpster Rental Services",
     description:
       "Reliable dumpster rental for equestrian farms and rural properties in Royal Palm Beach, Wellington & Loxahatchee, FL.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 
@@ -104,7 +104,7 @@ export default function DumpsterRentalPage() {
             "@type": "LocalBusiness",
             "@id": "https://www.myhorsefarm.com/#organization",
             name: "My Horse Farm",
-            image: "https://www.myhorsefarm.com/logo.png",
+            image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
             telephone: "(561) 576-7667",
             email: "sales@myhorsefarm.com",
             priceRange: "$$",

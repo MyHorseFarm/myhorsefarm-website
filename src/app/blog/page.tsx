@@ -4,25 +4,25 @@ import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Blog – My Horse Farm",
+  title: "Blog",
   description: "Read the My Horse Farm blog for tips on manure management, paddock maintenance, eco-friendly farm practices and essential equestrian equipment advice.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/blog" },
   openGraph: {
-    title: "Blog – My Horse Farm",
+    title: "Blog",
     description: "Tips on manure management, paddock maintenance, eco-friendly farm practices and essential equestrian equipment advice.",
     type: "website",
     url: "https://www.myhorsefarm.com/blog",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Blog – My Horse Farm",
+    title: "Blog",
     description: "Tips on manure management, paddock maintenance, eco-friendly farm practices and essential equestrian equipment advice.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 

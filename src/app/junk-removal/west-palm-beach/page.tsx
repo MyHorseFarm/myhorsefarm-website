@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
 
 export const metadata: Metadata = {
-  title: "Junk Removal West Palm Beach | My Horse Farm",
+  title: "Junk Removal in West Palm Beach",
   description:
     "Affordable junk removal and hauling services in West Palm Beach, Florida. We remove appliances, furniture, yard waste, construction debris and more with transparent pricing starting at $75 per ton.",
   robots: "index, follow",
@@ -13,21 +13,21 @@ export const metadata: Metadata = {
     canonical: "https://www.myhorsefarm.com/junk-removal/west-palm-beach",
   },
   openGraph: {
-    title: "Junk Removal West Palm Beach | My Horse Farm",
+    title: "Junk Removal in West Palm Beach",
     description:
       "Affordable junk removal and hauling in West Palm Beach, FL. Transparent pricing starting at $75 per ton.",
     type: "website",
     url: "https://www.myhorsefarm.com/junk-removal/west-palm-beach",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Junk Removal West Palm Beach | My Horse Farm",
+    title: "Junk Removal in West Palm Beach",
     description:
       "Affordable junk removal and hauling in West Palm Beach, FL. Starting at $75 per ton.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 
@@ -107,7 +107,7 @@ export default function JunkRemovalWestPalmBeachPage() {
             "@type": "LocalBusiness",
             "@id": "https://www.myhorsefarm.com/#organization",
             name: "My Horse Farm",
-            image: "https://www.myhorsefarm.com/logo.png",
+            image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
             telephone: "(561) 576-7667",
             email: "sales@myhorsefarm.com",
             priceRange: "$$",

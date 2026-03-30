@@ -4,28 +4,28 @@ import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
 
 export const metadata: Metadata = {
-  title: "Fill Dirt Delivery Services | My Horse Farm",
+  title: "Fill Dirt Delivery Services",
   description:
     "High-quality fill dirt delivery for leveling, berm building and paddock projects in Royal Palm Beach, Wellington & Loxahatchee, Florida. We supply screened dirt and expert service for all your farm construction needs.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/fill-dirt" },
   openGraph: {
-    title: "Fill Dirt Delivery Services | My Horse Farm",
+    title: "Fill Dirt Delivery Services",
     description:
       "High-quality fill dirt delivery for leveling, berm building and paddock projects in Royal Palm Beach, Wellington & Loxahatchee, FL.",
     type: "website",
     url: "https://www.myhorsefarm.com/fill-dirt",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Fill Dirt Delivery Services | My Horse Farm",
+    title: "Fill Dirt Delivery Services",
     description:
       "High-quality fill dirt delivery for leveling, berm building and paddock projects in Royal Palm Beach, Wellington & Loxahatchee, FL.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 
@@ -108,7 +108,7 @@ export default function FillDirtPage() {
             "@type": "LocalBusiness",
             "@id": "https://www.myhorsefarm.com/#organization",
             name: "My Horse Farm",
-            image: "https://www.myhorsefarm.com/logo.png",
+            image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
             telephone: "(561) 576-7667",
             email: "sales@myhorsefarm.com",
             priceRange: "$$",

@@ -4,28 +4,28 @@ import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
 
 export const metadata: Metadata = {
-  title: "Horse Manure Removal Services | My Horse Farm",
+  title: "Horse Manure Removal Services",
   description:
     "Reliable horse manure removal services in Royal Palm Beach, Wellington & Loxahatchee, Florida. Keep your barn clean and odor\u2011free with My Horse Farm\u2019s eco\u2011friendly manure removal and waste management solutions.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/manure-removal" },
   openGraph: {
-    title: "Horse Manure Removal Services | My Horse Farm",
+    title: "Horse Manure Removal Services",
     description:
       "Reliable horse manure removal services in Royal Palm Beach, Wellington & Loxahatchee. Eco-friendly manure removal and waste management solutions.",
     type: "website",
     url: "https://www.myhorsefarm.com/manure-removal",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Horse Manure Removal Services | My Horse Farm",
+    title: "Horse Manure Removal Services",
     description:
       "Reliable horse manure removal services in Royal Palm Beach, Wellington & Loxahatchee. Eco-friendly manure removal and waste management.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 
@@ -129,7 +129,7 @@ export default function ManureRemovalPage() {
             "@type": "LocalBusiness",
             "@id": "https://www.myhorsefarm.com/#organization",
             name: "My Horse Farm",
-            image: "https://www.myhorsefarm.com/logo.png",
+            image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
             telephone: "(561) 576-7667",
             email: "sales@myhorsefarm.com",
             priceRange: "$$",

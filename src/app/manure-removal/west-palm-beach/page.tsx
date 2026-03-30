@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
 
 export const metadata: Metadata = {
-  title: "Manure Removal in West Palm Beach, FL | My Horse Farm",
+  title: "Manure Removal in West Palm Beach, FL",
   description:
     "Manure removal and waste hauling in West Palm Beach, FL. My Horse Farm provides scheduled pickups, leak-proof bins and eco-friendly disposal for equestrian properties and hobby farms.",
   robots: "index, follow",
@@ -14,21 +14,21 @@ export const metadata: Metadata = {
     canonical: "https://www.myhorsefarm.com/manure-removal/west-palm-beach",
   },
   openGraph: {
-    title: "Manure Removal in West Palm Beach, FL | My Horse Farm",
+    title: "Manure Removal in West Palm Beach, FL",
     description:
       "Manure removal and waste hauling in West Palm Beach. Scheduled pickups, leak-proof bins and eco-friendly disposal for equestrian properties.",
     type: "website",
     url: "https://www.myhorsefarm.com/manure-removal/west-palm-beach",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Manure Removal in West Palm Beach, FL | My Horse Farm",
+    title: "Manure Removal in West Palm Beach, FL",
     description:
       "Manure removal and waste hauling in West Palm Beach. Scheduled pickups and eco-friendly disposal.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 
@@ -155,7 +155,7 @@ export default function ManureRemovalWestPalmBeachPage() {
             "@type": "LocalBusiness",
             "@id": "https://www.myhorsefarm.com/#organization",
             name: "My Horse Farm",
-            image: "https://www.myhorsefarm.com/logo.png",
+            image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
             telephone: "(561) 576-7667",
             email: "sales@myhorsefarm.com",
             priceRange: "$$",

@@ -23,9 +23,9 @@ import {
 } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "My Horse Farm – Agricultural Service Company",
+  title: "Manure Removal & Farm Services in Royal Palm Beach & Wellington, FL",
   description:
-    "My Horse Farm provides premier agricultural services for equestrians in Royal Palm Beach, Florida.",
+    "Manure removal, junk hauling, sod installation, fill dirt & dumpster rental for equestrian properties in Palm Beach County. Call (561) 576-7667 for a free quote!",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/" },
@@ -230,7 +230,7 @@ export default function HomePage() {
   return (
     <>
       <Hero
-        title="My Horse Farm"
+        title="Farm Services in Palm Beach County"
         tagline="Premier agricultural services for equestrian properties across Palm Beach County. Manure removal, junk hauling, sod, fill dirt, and farm repairs."
         ctaText="Get a Free Quote"
         ctaHref="/quote"

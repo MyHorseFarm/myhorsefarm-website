@@ -19,7 +19,7 @@ export const metadata: Metadata = {
       "A step-by-step guide to preparing your horse farm for the Winter Equestrian Festival. Manure setup, sod, fill dirt, repairs, and more.",
     type: "article",
     url: "https://www.myhorsefarm.com/blog/get-farm-season-ready-wef",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
@@ -36,7 +36,7 @@ const schema = {
   datePublished: "2026-02-26",
   dateModified: "2026-02-26",
   url: "https://www.myhorsefarm.com/blog/get-farm-season-ready-wef",
-  image: "https://www.myhorsefarm.com/logo.png",
+  image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
 };
 
 export default function SeasonReadyPost() {

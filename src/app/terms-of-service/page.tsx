@@ -3,25 +3,25 @@ import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | My Horse Farm",
+  title: "Terms of Service",
   description: "Terms of Service for My Horse Farm. Read our terms covering services, scheduling, cancellation, pricing and liability for agricultural services in Palm Beach County.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/terms-of-service" },
   openGraph: {
-    title: "Terms of Service | My Horse Farm",
+    title: "Terms of Service",
     description: "Terms of Service for My Horse Farm. Read our terms covering services, scheduling, cancellation, pricing and liability.",
     type: "website",
     url: "https://www.myhorsefarm.com/terms-of-service",
-    images: [{ url: "https://www.myhorsefarm.com/logo.png" }],
+    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
     siteName: "My Horse Farm",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
-    title: "Terms of Service | My Horse Farm",
+    title: "Terms of Service",
     description: "Terms of Service for My Horse Farm. Read our terms covering services, scheduling, cancellation, pricing and liability.",
-    images: ["https://www.myhorsefarm.com/logo.png"],
+    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
 
