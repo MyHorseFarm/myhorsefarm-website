@@ -25,6 +25,7 @@ import {
   sendEmail,
   createUnsubscribeUrl,
   firstPaymentWelcomeEmail,
+  paymentReceivedEmail,
 } from "@/lib/emails";
 import { sendMetaEvent } from "@/lib/meta-capi";
 
@@ -153,19 +154,25 @@ async function handlePaymentCompleted(paymentId: string) {
       PAYMENT_TAG_PREFIX,
     );
     // priorPayments includes the note we just wrote, so 1 means this is the first
-    if (priorPayments <= 1) {
-      const subscribed = await isSubscribed(customer.email);
-      if (subscribed) {
-        const unsub = createUnsubscribeUrl(customer.email);
-        const template = firstPaymentWelcomeEmail(
-          customer.firstName ?? "",
-          amount,
-          services,
-          unsub,
-        );
-        await sendEmail(customer.email, template.subject, template.html);
-        emailSent = true;
-      }
+    const subscribed = await isSubscribed(customer.email);
+    if (subscribed) {
+      const unsub = createUnsubscribeUrl(customer.email);
+      const template =
+        priorPayments <= 1
+          ? firstPaymentWelcomeEmail(
+              customer.firstName ?? "",
+              amount,
+              services,
+              unsub,
+            )
+          : paymentReceivedEmail(
+              customer.firstName ?? "",
+              amount,
+              services,
+              unsub,
+            );
+      await sendEmail(customer.email, template.subject, template.html);
+      emailSent = true;
     }
   }
 
