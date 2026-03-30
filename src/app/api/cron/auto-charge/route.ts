@@ -4,6 +4,7 @@ import { chargeCard } from "@/lib/square";
 import {
   afterServiceEmail,
   autoChargeSummaryEmail,
+  paymentFailedEmail,
   createUnsubscribeUrl,
   sendEmail,
 } from "@/lib/emails";
@@ -249,6 +250,26 @@ export async function GET(request: NextRequest) {
         }
 
         // Do NOT advance next_charge_date on failure
+
+        // Notify customer of failed payment (non-fatal)
+        if (customer.email) {
+          try {
+            const unsubUrl = createUnsubscribeUrl(customer.email);
+            const failEmail = paymentFailedEmail(
+              customer.name.split(" ")[0],
+              totalAmount.toFixed(2),
+              unsubUrl,
+            );
+            await sendEmail(customer.email, failEmail.subject, failEmail.html);
+          } catch { /* non-fatal */ }
+        }
+        if (customer.phone) {
+          try {
+            const { sendSMS, paymentFailedSMS } = await import("@/lib/twilio");
+            await sendSMS(customer.phone, paymentFailedSMS(customer.name));
+          } catch { /* non-fatal */ }
+        }
+
         chargeResults.push({
           name: customer.name,
           amount: totalAmount.toFixed(2),

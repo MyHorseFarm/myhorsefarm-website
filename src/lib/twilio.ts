@@ -90,6 +90,26 @@ export function quoteFollowupSMS(
   return `Hi ${first}, just checking in on your My Horse Farm quote. We'd love to help get your property taken care of. View: ${quoteUrl}\n\nReply STOP to opt out.`;
 }
 
+export function newLeadAlertSMS(
+  customerName: string,
+  amount: number,
+  serviceName: string,
+  phone: string,
+  location: string,
+  source: string,
+): string {
+  const isPaid = source === "google_ads" || source === "facebook";
+  const tag = isPaid ? " [PAID AD]" : "";
+  return `🚨 NEW LEAD${tag}\n${customerName} - ${phone}\n${serviceName} - $${amount.toFixed(2)}\n📍 ${location}\n\nCall them NOW!`;
+}
+
+export function paymentFailedSMS(
+  customerName: string,
+): string {
+  const first = customerName.split(" ")[0];
+  return `Hi ${first}, we couldn't process your payment for My Horse Farm service. Please update your payment method or call us at (561) 576-7667 to resolve this.\n\nReply STOP to opt out.`;
+}
+
 export function quoteExpiringSMS(
   customerName: string,
   daysLeft: number,

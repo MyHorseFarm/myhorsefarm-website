@@ -1047,6 +1047,33 @@ ${signoff()}
 }
 
 // ---------------------------------------------------------------------------
+// Payment Failed Email (to customer)
+// ---------------------------------------------------------------------------
+
+export function paymentFailedEmail(
+  firstName: string,
+  amount: string,
+  unsubscribeUrl: string,
+): { subject: string; html: string } {
+  return {
+    subject: "Action Needed: Payment Issue – My Horse Farm",
+    html: emailDoc(`
+      ${header("Payment Issue")}
+      <p>Hi ${escapeHtml(firstName)},</p>
+      <p>We tried to process your scheduled payment of <strong>$${escapeHtml(amount)}</strong> for your My Horse Farm service, but the charge didn't go through.</p>
+      <p>This can happen if your card expired, the bank declined the charge, or your payment details changed.</p>
+      <p><strong>What to do next:</strong></p>
+      <ul>
+        <li>Call us at <a href="tel:+15615767667">(561) 576-7667</a> to update your payment method</li>
+        <li>Or reply to this email and we'll get it sorted out</li>
+      </ul>
+      <p>We'll try again in a few days, but please reach out so your service isn't interrupted.</p>
+      ${signoff()}
+    `, unsubscribeUrl),
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Auto-Charge Summary Email (internal – to Jose)
 // ---------------------------------------------------------------------------
 

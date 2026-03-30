@@ -16,7 +16,7 @@ import {
   quoteConfirmationEmail,
   siteVisitRequestEmail,
 } from "@/lib/emails";
-import { EMAIL_SALES } from "@/lib/constants";
+import { EMAIL_SALES, PHONE_CELL_TEL } from "@/lib/constants";
 import { sendMetaEvent } from "@/lib/meta-capi";
 import type { QuoteRequest } from "@/lib/types";
 
@@ -216,7 +216,7 @@ export async function POST(request: NextRequest) {
       console.error("Email send error (non-fatal):", err);
     }
 
-    // Send SMS notification (non-fatal)
+    // Send SMS notification to customer (non-fatal)
     if (!service.requires_site_visit && body.customer_phone) {
       try {
         const { sendSMS, quoteReadySMS } = await import("@/lib/twilio");
@@ -231,6 +231,25 @@ export async function POST(request: NextRequest) {
       } catch (err) {
         console.error("SMS send error (non-fatal):", err);
       }
+    }
+
+    // Instant SMS alert to Jose — speed to lead (non-fatal)
+    try {
+      const { sendSMS, newLeadAlertSMS } = await import("@/lib/twilio");
+      const utmSource = body.utm_params?.utm_medium === "cpc" ? "google_ads"
+        : body.utm_params?.utm_source === "facebook" ? "facebook"
+        : body.source || "form";
+      const alertSms = newLeadAlertSMS(
+        body.customer_name,
+        breakdown.total,
+        service.display_name,
+        body.customer_phone,
+        body.customer_location,
+        utmSource,
+      );
+      await sendSMS(PHONE_CELL_TEL, alertSms);
+    } catch (err) {
+      console.error("Lead alert SMS error (non-fatal):", err);
     }
 
     // Meta CAPI: send Lead event (non-fatal)
