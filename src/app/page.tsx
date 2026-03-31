@@ -20,17 +20,17 @@ import {
 } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Manure Removal & Farm Services in Royal Palm Beach & Wellington, FL",
+  title: "Farm & Property Services in Palm Beach County | My Horse Farm",
   description:
-    "Manure removal, junk hauling, sod installation, fill dirt & dumpster rental for equestrian properties in Palm Beach County. Call (561) 576-7667 for a free quote!",
+    "Dumpster rentals, junk hauling, sod installation, fill dirt & farm services at the lowest prices in Palm Beach County. Call (561) 576-7667 for a free quote!",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/" },
   openGraph: {
     title:
-      "My Horse Farm – Agricultural Service Company in Royal Palm Beach, FL",
+      "My Horse Farm – Farm & Property Services in Palm Beach County, FL",
     description:
-      "Premier agricultural services for equestrians in Royal Palm Beach, FL. Sod installation, manure removal, junk removal, dumpster rental, fill dirt and farm repairs.",
+      "Your property, our problem. Dumpster rentals, junk removal, sod installation, fill dirt and farm services at the lowest prices in Palm Beach County.",
     type: "website",
     url: "https://www.myhorsefarm.com/",
     images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
@@ -40,9 +40,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title:
-      "My Horse Farm – Agricultural Service Company in Royal Palm Beach, FL",
+      "My Horse Farm – Farm & Property Services in Palm Beach County, FL",
     description:
-      "Premier agricultural services for equestrians in Royal Palm Beach, FL. Sod installation, manure removal, junk removal, dumpster rental, fill dirt and farm repairs.",
+      "Your property, our problem. Dumpster rentals, junk removal, sod installation, fill dirt and farm services at the lowest prices in Palm Beach County.",
     images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
@@ -199,7 +199,7 @@ const services = [
     description: "20-yard roll-off dumpsters for cleanouts, renovations, and large projects. Drop-off and haul-away.",
     image: "/images/service-dumpster.jpg",
     href: "/dumpster-rental",
-    price: "From $350",
+    price: "From $75/ton",
   },
   {
     title: "Fill Dirt",
@@ -221,8 +221,8 @@ export default function HomePage() {
   return (
     <>
       <Hero
-        title="Manure Removal & Farm Services in Palm Beach County"
-        tagline="Premier agricultural services for equestrian properties across Palm Beach County. Manure removal, junk hauling, sod, fill dirt, and farm repairs."
+        title="Your Property. Our Problem."
+        tagline="Farm services, dumpster rentals, and hauling at the lowest prices in Palm Beach County. No hidden fees, no hassle."
         ctaText="Get a Free Quote"
         ctaHref="/quote"
       />

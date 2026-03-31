@@ -52,7 +52,7 @@ export default function Hero({
         <div className="max-w-2xl">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-accent-light text-sm font-medium px-4 py-1.5 rounded-full mb-6">
             <i className="fas fa-horse text-xs" />
-            Palm Beach County&apos;s Trusted Farm Service
+            Lowest Prices in Palm Beach County
           </div>
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.08]">
