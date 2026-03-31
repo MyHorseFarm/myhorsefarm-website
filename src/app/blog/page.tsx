@@ -74,42 +74,6 @@ const staticPosts = [
   },
 ];
 
-// Legacy posts without dedicated pages
-const legacyPosts = [
-  {
-    title: "Benefits of Proper Manure Management",
-    description:
-      "Keeping barns clean isn\u2019t just about aesthetics\u2014it\u2019s essential for horse health and environmental stewardship. In this post, we explore why regular manure removal prevents pests, reduces odors and improves pasture quality.",
-    date: "February 25, 2026",
-    dateValue: "2026-02-25",
-    category: "Manure Management",
-  },
-  {
-    title: "Maintaining Safe, Lush Paddocks",
-    description:
-      "A well-kept paddock provides sure footing and reduces risk of injury. Discover how sod installation and regular resurfacing can make arenas safer and more comfortable for your horses.",
-    date: "February 25, 2026",
-    dateValue: "2026-02-25",
-    category: "Paddock Care",
-  },
-  {
-    title: "Eco-Friendly Equestrian Practices",
-    description:
-      "From reducing runoff to recycling materials, sustainability is part of modern farm management. Learn how choosing recycled asphalt millings and scheduling waste removal can reduce your environmental impact.",
-    date: "February 25, 2026",
-    dateValue: "2026-02-25",
-    category: "Farm Tips",
-  },
-  {
-    title: "Essential Equipment for Farm Maintenance",
-    description:
-      "Running a farm requires the right tools. We look at indispensable equipment\u2014like dumpsters for clean-ups, compact tractors for hauling, and the right fencing materials.",
-    date: "February 25, 2026",
-    dateValue: "2026-02-25",
-    category: "Farm Tips",
-  },
-];
-
 interface BlogPost {
   title: string;
   description: string;
@@ -171,7 +135,6 @@ export default async function BlogPage() {
   const allPosts: BlogPost[] = [
     ...supabasePosts,
     ...staticPosts,
-    ...legacyPosts,
   ].sort(
     (a, b) =>
       new Date(b.dateValue).getTime() - new Date(a.dateValue).getTime(),

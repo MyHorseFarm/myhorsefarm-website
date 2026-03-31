@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function BookingConfirmationPage() {
   return (
     <>
-      <main className="pt-20 pb-15 px-5 max-md:px-4">
+      <main className="pt-20 pb-16 px-5 max-md:px-4">
         <Suspense
           fallback={
             <div className="text-center py-20">

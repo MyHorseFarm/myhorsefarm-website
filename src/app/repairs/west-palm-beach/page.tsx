@@ -42,7 +42,7 @@ export default function RepairsWestPalmBeachPage() {
         ctaHref="/quote?service=repairs"
       />
       <main>
-        <section className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
+        <section className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
           <h2 className="text-2xl max-md:text-xl">
             West Palm Beach Farm & Property Repair Services
           </h2>
@@ -148,7 +148,7 @@ export default function RepairsWestPalmBeachPage() {
 
         <section
           id="contact"
-          className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4"
+          className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4"
         >
           <h2 className="text-2xl max-md:text-xl">
             Schedule Repairs in West Palm Beach

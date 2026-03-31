@@ -75,6 +75,14 @@
     {
       "path": "/api/cron/blog-generate",
       "schedule": "0 10 * * 3"
+    },
+    {
+      "path": "/api/cron/seo-agent",
+      "schedule": "0 10 * * 1"
+    },
+    {
+      "path": "/api/cron/gbp-post",
+      "schedule": "0 14 * * 3"
     }
   ]
 }

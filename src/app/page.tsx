@@ -14,10 +14,7 @@ import SchemaMarkup from "@/components/SchemaMarkup";
 import {
   PHONE_OFFICE,
   PHONE_OFFICE_TEL,
-  PHONE_CELL,
-  PHONE_CELL_TEL,
   EMAIL_SALES,
-  EMAIL_FORM,
   SOCIAL,
   ADDRESS,
 } from "@/lib/constants";
@@ -540,8 +537,6 @@ export default function HomePage() {
               <div className="space-y-4">
                 {[
                   { icon: "fas fa-phone", label: "Office", value: PHONE_OFFICE, href: `tel:${PHONE_OFFICE_TEL}` },
-                  { icon: "fas fa-phone", label: "Cell", value: PHONE_CELL, href: `tel:${PHONE_CELL_TEL}` },
-                  { icon: "fas fa-envelope", label: "Email", value: EMAIL_FORM, href: `mailto:${EMAIL_FORM}` },
                   { icon: "fas fa-envelope", label: "Sales", value: EMAIL_SALES, href: `mailto:${EMAIL_SALES}` },
                   { icon: "fas fa-map-marker-alt", label: "Location", value: ADDRESS },
                 ].map((item) => (

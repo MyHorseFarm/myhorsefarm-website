@@ -103,7 +103,7 @@ export default function DumpsterRentalPage() {
             <h2 className="text-3xl font-bold text-center mb-3 md:text-4xl text-gray-900">
               Bigger Than a Dumpster. Faster Than a Roll-Off.
             </h2>
-            <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+            <p className="text-center text-gray-500 mb-10 max-w-2xl mx-auto">
               Our 40-yard dump trailer holds more than a standard roll-off
               dumpster and comes with the crew and equipment to load it. No
               waiting days for pickup — we load, haul, and dump in one
@@ -134,7 +134,7 @@ export default function DumpsterRentalPage() {
               ].map((item) => (
                 <div
                   key={item.title}
-                  className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 text-center"
+                  className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center"
                 >
                   <i
                     className={`${item.icon} text-3xl text-primary mb-4 block`}
@@ -155,7 +155,7 @@ export default function DumpsterRentalPage() {
             <h2 className="text-3xl font-bold text-center mb-3 md:text-4xl text-gray-900">
               What Goes In the Trailer
             </h2>
-            <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+            <p className="text-center text-gray-500 mb-10 max-w-2xl mx-auto">
               If it&apos;s not hazardous, it goes in. Construction debris, green
               waste, farm junk, furniture — we take it all.
             </p>
@@ -163,7 +163,7 @@ export default function DumpsterRentalPage() {
               {WHAT_GOES_IN.map((item) => (
                 <div
                   key={item.title}
-                  className="border border-gray-200 rounded-lg p-6 hover:border-primary/30 hover:shadow-md transition-all"
+                  className="border border-gray-200 rounded-2xl p-6 hover:border-primary/30 hover:shadow-md transition-all"
                 >
                   <h3 className="text-lg font-bold text-primary-dark mb-2">
                     {item.title}
@@ -280,7 +280,7 @@ export default function DumpsterRentalPage() {
                 <li className="flex gap-3">
                   <i className="fas fa-check-circle text-primary mt-1" />
                   <span>
-                    <strong>10+ years experience</strong> &mdash; serving 400+
+                    <strong>12+ years experience</strong> &mdash; serving 400+
                     clients across PBC
                   </span>
                 </li>
@@ -295,7 +295,7 @@ export default function DumpsterRentalPage() {
             <h2 className="text-3xl font-bold mb-4 md:text-4xl text-gray-900">
               Service Area
             </h2>
-            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+            <p className="text-gray-500 mb-6 max-w-2xl mx-auto">
               We provide dumpster rental and dump trailer service throughout
               Palm Beach County. Farms, construction sites, residential
               properties — if you&apos;re in our area, we can get to you.
@@ -332,7 +332,7 @@ export default function DumpsterRentalPage() {
 
         {/* FAQ */}
         <section className="py-20 md:py-28 px-6">
-          <div className="max-w-[800px] mx-auto">
+          <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-10 md:text-4xl text-gray-900">
               Frequently Asked Questions
             </h2>
@@ -340,13 +340,13 @@ export default function DumpsterRentalPage() {
               {FAQS.map((faq) => (
                 <details
                   key={faq.question}
-                  className="group border border-gray-200 rounded-lg"
+                  className="group border border-gray-200 rounded-2xl"
                 >
                   <summary className="flex justify-between items-center cursor-pointer p-5 font-bold text-primary-dark hover:text-primary transition-colors">
                     {faq.question}
                     <i className="fas fa-chevron-down text-sm text-gray-400 group-open:rotate-180 transition-transform" />
                   </summary>
-                  <p className="px-5 pb-5 text-gray-600 leading-relaxed">
+                  <p className="px-5 pb-5 text-gray-500 leading-relaxed">
                     {faq.answer}
                   </p>
                 </details>
@@ -360,20 +360,20 @@ export default function DumpsterRentalPage() {
           <h2 className="text-3xl font-bold mb-4 md:text-4xl text-gray-900">
             Ready to Clear It Out?
           </h2>
-          <p className="text-gray-600 mb-8 max-w-xl mx-auto">
+          <p className="text-gray-500 mb-8 max-w-xl mx-auto">
             Get a free quote online or call us now. Same-week service available
             for most jobs.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
               href="/quote?service=dumpster_rental"
-              className="inline-block px-8 py-3.5 bg-primary text-white rounded font-bold text-lg hover:bg-primary-dark transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-primary text-white font-semibold rounded-xl text-lg hover:bg-primary-dark transition-colors"
             >
               Get a Free Quote
             </Link>
             <a
               href={`tel:${PHONE_OFFICE_TEL}`}
-              className="inline-block px-8 py-3.5 border-2 border-primary text-primary rounded font-bold text-lg hover:bg-primary hover:text-white transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border-2 border-primary text-primary rounded-xl font-semibold text-lg hover:bg-primary hover:text-white transition-colors"
             >
               <i className="fas fa-phone mr-2" />
               {PHONE_OFFICE}

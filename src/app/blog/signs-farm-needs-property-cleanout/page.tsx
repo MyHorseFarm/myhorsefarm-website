@@ -45,7 +45,7 @@ export default function SignsFarmNeedsPropertyCleanoutPost() {
       <SchemaMarkup schema={schema} />
       <header
         className="relative flex items-center justify-center text-white bg-cover bg-center h-[30vh] max-md:h-[25vh]"
-        style={{ backgroundImage: "url('/hero.jpg')" }}
+        style={{ backgroundImage: "url('/images/hero-farm.jpg')" }}
       >
         <div className="text-center bg-black/50 p-5 rounded-lg">
           <img
@@ -66,7 +66,7 @@ export default function SignsFarmNeedsPropertyCleanoutPost() {
           </p>
         </div>
       </header>
-      <main className="py-15 px-5 max-w-[800px] mx-auto max-md:py-10 max-md:px-4">
+      <main className="py-16 px-5 max-w-[800px] mx-auto max-md:py-10 max-md:px-4">
         <article className="prose-article">
           <p className="text-lg leading-relaxed text-gray-700 mb-6">
             Farm properties accumulate things. That is not a criticism &mdash;

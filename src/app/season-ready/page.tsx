@@ -115,7 +115,7 @@ const timeline = [
 
 const metrics = [
   {
-    title: "10+ Years Experience",
+    title: "12+ Years Experience",
     description:
       "Serving horse farms across Palm Beach County with care and dedication.",
   },

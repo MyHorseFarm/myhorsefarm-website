@@ -82,7 +82,7 @@ const WHY_CHOOSE = [
     text: "fully compliant in Palm Beach County",
   },
   {
-    strong: "10+ years experience",
+    strong: "12+ years experience",
     text: "serving 400+ farms across PBC",
   },
   {
@@ -144,10 +144,10 @@ export default function RepairsPage() {
         {/* Repair Types */}
         <section className="py-20 md:py-28 px-6 bg-gray-50">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-3 max-md:text-2xl">
+            <h2 className="text-3xl font-bold text-center mb-3 md:text-4xl text-gray-900">
               Full-Service Farm Repairs
             </h2>
-            <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+            <p className="text-center text-gray-500 mb-10 max-w-2xl mx-auto">
               From broken fence boards to leaking barn roofs, we handle every
               repair your horse farm needs. One call gets it all fixed.
             </p>
@@ -155,7 +155,7 @@ export default function RepairsPage() {
               {REPAIR_TYPES.map((item) => (
                 <div
                   key={item.title}
-                  className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 text-center"
+                  className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center"
                 >
                   <i
                     className={`${item.icon} text-3xl text-primary mb-4 block`}
@@ -173,10 +173,10 @@ export default function RepairsPage() {
         {/* What We Fix */}
         <section className="py-20 md:py-28 px-6">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-3 max-md:text-2xl">
+            <h2 className="text-3xl font-bold text-center mb-3 md:text-4xl text-gray-900">
               What We Fix
             </h2>
-            <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+            <p className="text-center text-gray-500 mb-10 max-w-2xl mx-auto">
               If it&apos;s on your farm and it&apos;s broken, we fix it. Here
               are the most common repairs we handle for equestrian properties
               across Palm Beach County.
@@ -210,7 +210,7 @@ export default function RepairsPage() {
               ].map((svc) => (
                 <div
                   key={svc.title}
-                  className="border border-gray-200 rounded-lg p-6 hover:border-primary/30 hover:shadow-md transition-all"
+                  className="border border-gray-200 rounded-2xl p-6 hover:border-primary/30 hover:shadow-md transition-all"
                 >
                   <h3 className="text-lg font-bold text-primary-dark mb-2">
                     {svc.title}
@@ -227,7 +227,7 @@ export default function RepairsPage() {
         {/* How It Works */}
         <section className="py-20 md:py-28 px-6 bg-green-900 text-white">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-10 max-md:text-2xl">
+            <h2 className="text-3xl font-bold text-center mb-10 md:text-4xl text-gray-900">
               How It Works
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
@@ -270,7 +270,7 @@ export default function RepairsPage() {
         {/* Why Choose Us */}
         <section className="py-20 md:py-28 px-6">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-10 max-md:text-2xl">
+            <h2 className="text-3xl font-bold text-center mb-10 md:text-4xl text-gray-900">
               Why Horse Farms Trust Us
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -301,10 +301,10 @@ export default function RepairsPage() {
         {/* Service Area */}
         <section className="py-20 md:py-28 px-6 bg-gray-50">
           <div className="max-w-7xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4 max-md:text-2xl">
+            <h2 className="text-3xl font-bold mb-4 md:text-4xl text-gray-900">
               Service Area
             </h2>
-            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+            <p className="text-gray-500 mb-6 max-w-2xl mx-auto">
               We provide farm repair and maintenance services throughout Palm
               Beach County including Wellington, Loxahatchee, Royal Palm Beach,
               Loxahatchee Groves, West Palm Beach, and Palm Beach Gardens. If
@@ -337,7 +337,7 @@ export default function RepairsPage() {
         {/* FAQ */}
         <section className="py-20 md:py-28 px-6">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-10 max-md:text-2xl">
+            <h2 className="text-3xl font-bold text-center mb-10 md:text-4xl text-gray-900">
               Frequently Asked Questions
             </h2>
             <div className="space-y-6">
@@ -346,7 +346,7 @@ export default function RepairsPage() {
                   <h3 className="text-lg font-bold text-primary-dark mb-2">
                     {faq.q}
                   </h3>
-                  <p className="text-gray-600 leading-relaxed">{faq.a}</p>
+                  <p className="text-gray-500 leading-relaxed">{faq.a}</p>
                 </div>
               ))}
             </div>
@@ -355,23 +355,23 @@ export default function RepairsPage() {
 
         {/* CTA */}
         <section className="py-20 md:py-28 px-6 text-center">
-          <h2 className="text-3xl font-bold mb-4 max-md:text-2xl">
+          <h2 className="text-3xl font-bold mb-4 md:text-4xl text-gray-900">
             Ready to Fix Your Farm?
           </h2>
-          <p className="text-gray-600 mb-8 max-w-xl mx-auto">
+          <p className="text-gray-500 mb-8 max-w-xl mx-auto">
             Get a free quote online or call us now. Most repairs completed
             within a week.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
               href="/quote?service=repairs"
-              className="inline-block px-8 py-3.5 bg-primary text-white rounded font-bold text-lg hover:bg-primary-dark transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-primary text-white font-semibold rounded-xl text-lg hover:bg-primary-dark transition-colors"
             >
               Get a Free Quote
             </Link>
             <a
               href={`tel:${PHONE_OFFICE_TEL}`}
-              className="inline-block px-8 py-3.5 border-2 border-primary text-primary rounded font-bold text-lg hover:bg-primary hover:text-white transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border-2 border-primary text-primary rounded-xl font-semibold text-lg hover:bg-primary hover:text-white transition-colors"
             >
               <i className="fas fa-phone mr-2" />
               {PHONE_OFFICE}

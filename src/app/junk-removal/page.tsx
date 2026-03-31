@@ -253,7 +253,7 @@ export default function JunkRemovalPage() {
                 <li className="flex gap-3">
                   <i className="fas fa-check-circle text-primary mt-1" />
                   <span>
-                    <strong>10+ years experience</strong> — serving 400+ clients
+                    <strong>12+ years experience</strong> — serving 400+ clients
                     across PBC
                   </span>
                 </li>

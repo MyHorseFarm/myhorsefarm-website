@@ -98,10 +98,10 @@ export default function SodInstallationPage() {
         {/* Types of Sod */}
         <section className="py-20 md:py-28 px-6 bg-gray-50">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-3 max-md:text-2xl">
+            <h2 className="text-3xl font-bold text-center mb-3 md:text-4xl text-gray-900">
               Types of Sod We Install
             </h2>
-            <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+            <p className="text-center text-gray-500 mb-10 max-w-2xl mx-auto">
               We source premium Florida-grown sod selected for equestrian
               properties. Every variety we install is proven to handle Palm Beach
               County&apos;s heat, rain, and heavy use.
@@ -110,7 +110,7 @@ export default function SodInstallationPage() {
               {SOD_TYPES.map((item) => (
                 <div
                   key={item.title}
-                  className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 text-center"
+                  className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center"
                 >
                   <i
                     className={`${item.icon} text-3xl text-primary mb-4 block`}
@@ -128,7 +128,7 @@ export default function SodInstallationPage() {
         {/* How It Works */}
         <section className="py-20 md:py-28 px-6 bg-green-900 text-white">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-10 max-md:text-2xl">
+            <h2 className="text-3xl font-bold text-center mb-10 md:text-4xl text-gray-900">
               How It Works
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
@@ -172,7 +172,7 @@ export default function SodInstallationPage() {
         {/* Why Choose Us */}
         <section className="py-20 md:py-28 px-6">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-10 max-md:text-2xl">
+            <h2 className="text-3xl font-bold text-center mb-10 md:text-4xl text-gray-900">
               Why Horse Owners Choose Us
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -231,7 +231,7 @@ export default function SodInstallationPage() {
                 <li className="flex gap-3">
                   <i className="fas fa-check-circle text-primary mt-1" />
                   <span>
-                    <strong>10+ years experience</strong> &mdash; serving 400+
+                    <strong>12+ years experience</strong> &mdash; serving 400+
                     clients across PBC
                   </span>
                 </li>
@@ -243,10 +243,10 @@ export default function SodInstallationPage() {
         {/* Service Area */}
         <section className="py-20 md:py-28 px-6 bg-gray-50">
           <div className="max-w-7xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4 max-md:text-2xl">
+            <h2 className="text-3xl font-bold mb-4 md:text-4xl text-gray-900">
               Service Area
             </h2>
-            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+            <p className="text-gray-500 mb-6 max-w-2xl mx-auto">
               We install sod on horse farms, pastures, paddocks, and residential
               properties throughout Palm Beach County. Whether you need a single
               paddock re-sodded or an entire property done, we&apos;ll get it
@@ -284,21 +284,21 @@ export default function SodInstallationPage() {
 
         {/* FAQ */}
         <section className="py-20 md:py-28 px-6">
-          <div className="max-w-[800px] mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-10 max-md:text-2xl">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-10 md:text-4xl text-gray-900">
               Frequently Asked Questions
             </h2>
             <div className="space-y-6">
               {FAQS.map((faq) => (
                 <details
                   key={faq.question}
-                  className="group border border-gray-200 rounded-lg"
+                  className="group border border-gray-200 rounded-2xl"
                 >
                   <summary className="flex justify-between items-center cursor-pointer p-5 font-bold text-primary-dark hover:text-primary transition-colors">
                     {faq.question}
                     <i className="fas fa-chevron-down text-sm text-gray-400 group-open:rotate-180 transition-transform" />
                   </summary>
-                  <p className="px-5 pb-5 text-gray-600 leading-relaxed">
+                  <p className="px-5 pb-5 text-gray-500 leading-relaxed">
                     {faq.answer}
                   </p>
                 </details>
@@ -309,23 +309,23 @@ export default function SodInstallationPage() {
 
         {/* CTA */}
         <section className="py-20 md:py-28 px-6 text-center">
-          <h2 className="text-3xl font-bold mb-4 max-md:text-2xl">
+          <h2 className="text-3xl font-bold mb-4 md:text-4xl text-gray-900">
             Ready to Transform Your Paddock?
           </h2>
-          <p className="text-gray-600 mb-8 max-w-xl mx-auto">
+          <p className="text-gray-500 mb-8 max-w-xl mx-auto">
             Get a free on-site estimate or call us now. We&apos;ll recommend the
             right sod for your property and get it installed fast.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
               href="/quote?service=sod_installation"
-              className="inline-block px-8 py-3.5 bg-primary text-white rounded font-bold text-lg hover:bg-primary-dark transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-primary text-white font-semibold rounded-xl text-lg hover:bg-primary-dark transition-colors"
             >
               Get a Free Quote
             </Link>
             <a
               href={`tel:${PHONE_OFFICE_TEL}`}
-              className="inline-block px-8 py-3.5 border-2 border-primary text-primary rounded font-bold text-lg hover:bg-primary hover:text-white transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border-2 border-primary text-primary rounded-xl font-semibold text-lg hover:bg-primary hover:text-white transition-colors"
             >
               <i className="fas fa-phone mr-2" />
               {PHONE_OFFICE}

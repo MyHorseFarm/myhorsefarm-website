@@ -100,7 +100,7 @@ export default function Hero({
             <span className="text-white/30">|</span>
             <span>400+ Happy Clients</span>
             <span className="text-white/30">|</span>
-            <span>10+ Years</span>
+            <span>12+ Years</span>
           </div>
 
           {/* Urgency signal */}
