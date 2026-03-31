@@ -1841,3 +1841,51 @@ ${signoff()}
     ),
   };
 }
+
+// ---------------------------------------------------------------------------
+// Cron Monitoring Alerts
+// ---------------------------------------------------------------------------
+
+export function cronFailureAlertEmail(
+  cronName: string,
+  errorMessage: string,
+  timestamp: string,
+  stackTrace?: string,
+): { subject: string; html: string } {
+  return {
+    subject: `\u26a0\ufe0f Cron Failed: ${cronName}`,
+    html: `<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;padding:20px;">
+<div style="background:#dc2626;color:#fff;padding:20px;border-radius:8px 8px 0 0;">
+<h1 style="margin:0;font-size:20px;">Cron Job Failed</h1>
+<p style="margin:8px 0 0;color:#fecaca;font-size:14px;">${escapeHtml(cronName)}</p>
+</div>
+<div style="background:#fff;border:1px solid #e5e7eb;padding:25px;border-radius:0 0 8px 8px;">
+<table style="width:100%;margin-bottom:20px;">
+<tr><td style="padding:8px 0;font-weight:bold;color:#666;width:100px;">Cron:</td><td style="padding:8px 0;">${escapeHtml(cronName)}</td></tr>
+<tr><td style="padding:8px 0;font-weight:bold;color:#666;">Time:</td><td style="padding:8px 0;">${escapeHtml(timestamp)}</td></tr>
+</table>
+<h2 style="font-size:14px;color:#dc2626;margin-top:20px;">Error</h2>
+<pre style="background:#fef2f2;border:1px solid #fecaca;border-radius:4px;padding:15px;font-size:13px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;">${escapeHtml(errorMessage)}</pre>
+${stackTrace ? `<h2 style="font-size:14px;color:#666;margin-top:20px;">Stack Trace</h2>
+<pre style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:4px;padding:15px;font-size:11px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:#666;">${escapeHtml(stackTrace)}</pre>` : ""}
+<div style="margin-top:25px;padding-top:15px;border-top:1px solid #eee;">
+<p style="font-size:13px;color:#999;">Check <a href="https://vercel.com/dashboard" style="color:#2d5016;">Vercel Logs</a> for more details.</p>
+</div>
+</div>
+</body></html>`,
+  };
+}
+
+// TODO: Implement daily cron health digest that summarizes all cron runs
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function cronHealthDigestEmail(
+  _runs: Array<{ cronName: string; ok: boolean; durationMs: number; error?: string; timestamp: string }>,
+): { subject: string; html: string } {
+  // TODO: Build an HTML table summarizing all cron runs for the day
+  return {
+    subject: "MHF Cron Health Digest",
+    html: "<p>TODO: implement cron health digest</p>",
+  };
+}

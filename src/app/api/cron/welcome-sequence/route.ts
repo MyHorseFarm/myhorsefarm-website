@@ -12,6 +12,7 @@ import {
   welcomeEmail2,
   welcomeEmail3,
 } from "@/lib/emails";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -29,9 +30,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  return withCronMonitor("welcome-sequence", async () => {
   const results: string[] = [];
-
-  try {
+  const errors: string[] = [];
     // -----------------------------------------------------------------------
     // Email 1: Contacts created in the last 24 hours, no WELCOME_1 tag
     // -----------------------------------------------------------------------
@@ -76,7 +77,9 @@ export async function GET(request: NextRequest) {
         );
         results.push(`welcome_1 → ${email}`);
       } catch (err) {
-        results.push(`welcome_1 FAIL ${email}: ${err}`);
+        const msg = `welcome_1 FAIL ${email}: ${err}`;
+        results.push(msg);
+        errors.push(msg);
       }
     }
 
@@ -133,7 +136,9 @@ export async function GET(request: NextRequest) {
         );
         results.push(`welcome_2 → ${email}`);
       } catch (err) {
-        results.push(`welcome_2 FAIL ${email}: ${err}`);
+        const msg = `welcome_2 FAIL ${email}: ${err}`;
+        results.push(msg);
+        errors.push(msg);
       }
     }
 
@@ -190,20 +195,17 @@ export async function GET(request: NextRequest) {
         );
         results.push(`welcome_3 → ${email}`);
       } catch (err) {
-        results.push(`welcome_3 FAIL ${email}: ${err}`);
+        const msg = `welcome_3 FAIL ${email}: ${err}`;
+        results.push(msg);
+        errors.push(msg);
       }
     }
-  } catch (err) {
-    return NextResponse.json(
-      { error: String(err), results },
-      { status: 500 },
-    );
-  }
 
-  return NextResponse.json({
-    ok: true,
-    processed: results.length,
-    results,
-    timestamp: new Date().toISOString(),
+    return {
+      processed: results.length,
+      sent: results.filter((r) => !r.includes("FAIL")).length,
+      errors: errors.length > 0 ? errors : undefined,
+      results,
+    };
   });
 }
