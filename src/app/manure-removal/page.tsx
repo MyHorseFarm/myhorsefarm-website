@@ -4,16 +4,16 @@ import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
 
 export const metadata: Metadata = {
-  title: "Horse Manure Removal Services",
+  title: "Waste Removal Services for Farms & Properties",
   description:
-    "Reliable horse manure removal services in Royal Palm Beach, Wellington & Loxahatchee, Florida. Keep your barn clean and odor\u2011free with My Horse Farm\u2019s eco\u2011friendly manure removal and waste management solutions.",
+    "Reliable waste removal services in Royal Palm Beach, Wellington & Loxahatchee, Florida. Keep your property clean and odor-free with My Horse Farm\u2019s eco-friendly waste management solutions.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/manure-removal" },
   openGraph: {
-    title: "Horse Manure Removal Services",
+    title: "Waste Removal Services for Farms & Properties",
     description:
-      "Reliable horse manure removal services in Royal Palm Beach, Wellington & Loxahatchee. Eco-friendly manure removal and waste management solutions.",
+      "Reliable waste removal services in Royal Palm Beach, Wellington & Loxahatchee. Eco-friendly waste management solutions for farms and properties.",
     type: "website",
     url: "https://www.myhorsefarm.com/manure-removal",
     images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
@@ -22,9 +22,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Horse Manure Removal Services",
+    title: "Waste Removal Services for Farms & Properties",
     description:
-      "Reliable horse manure removal services in Royal Palm Beach, Wellington & Loxahatchee. Eco-friendly manure removal and waste management.",
+      "Reliable waste removal services in Royal Palm Beach, Wellington & Loxahatchee. Eco-friendly waste management for farms and properties.",
     images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
@@ -33,8 +33,8 @@ export default function ManureRemovalPage() {
   return (
     <>
       <Hero
-        title="Manure Removal Services"
-        tagline="Clean stalls, happy horses – let us handle the mess"
+        title="Waste Removal Services"
+        tagline="Clean properties, happy owners — we handle the heavy lifting"
         ctaText="Get a Quote"
         ctaHref="/quote"
       />

@@ -27,11 +27,11 @@ const GTM_ID = "GTM-TWDPWRQV";
 
 export const metadata: Metadata = {
   title: {
-    default: "Manure Removal & Farm Services in Royal Palm Beach & Wellington, FL | My Horse Farm",
+    default: "Farm & Property Services in Palm Beach County | My Horse Farm",
     template: "%s | My Horse Farm",
   },
   description:
-    "Manure removal, junk hauling, sod installation, fill dirt & dumpster rental for equestrian properties in Palm Beach County. Call (561) 576-7667 for a free quote!",
+    "Dumpster rentals, junk hauling, sod installation, fill dirt & farm services at the lowest prices in Palm Beach County. Call (561) 576-7667 for a free quote!",
   icons: { icon: "/logo.png" },
   openGraph: {
     siteName: "My Horse Farm",

@@ -9,7 +9,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "Blog",
   description:
-    "Read the My Horse Farm blog for tips on manure management, paddock maintenance, eco-friendly farm practices and essential equestrian equipment advice.",
+    "Read the My Horse Farm blog for tips on farm maintenance, property care, dumpster rentals, eco-friendly practices and equestrian property advice.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/blog" },

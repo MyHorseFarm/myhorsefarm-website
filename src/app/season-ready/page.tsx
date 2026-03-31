@@ -14,14 +14,14 @@ import {
 export const metadata: Metadata = {
   title: "Season-Ready Farm Package",
   description:
-    "Get your Wellington or Loxahatchee horse farm ready for WEF season. One provider handles manure removal setup, sod installation, fill dirt, farm repairs, junk removal, and dumpster rental.",
+    "Get your Wellington or Loxahatchee property ready for WEF season. One provider handles dumpster rental, sod installation, fill dirt, farm repairs, junk removal, and waste management.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: { canonical: "https://www.myhorsefarm.com/season-ready" },
   openGraph: {
     title: "Season-Ready Farm Package",
     description:
-      "Get your Wellington or Loxahatchee horse farm ready for WEF season. One provider handles manure removal setup, sod installation, fill dirt, farm repairs, junk removal, and dumpster rental.",
+      "Get your Wellington or Loxahatchee property ready for WEF season. One provider handles dumpster rental, sod installation, fill dirt, farm repairs, junk removal, and waste management.",
     type: "website",
     url: "https://www.myhorsefarm.com/season-ready",
     images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Season-Ready Farm Package",
     description:
-      "Get your Wellington or Loxahatchee horse farm ready for WEF season. One provider handles manure removal setup, sod installation, fill dirt, farm repairs, junk removal, and dumpster rental.",
+      "Get your Wellington or Loxahatchee property ready for WEF season. One provider handles dumpster rental, sod installation, fill dirt, farm repairs, junk removal, and waste management.",
     images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };

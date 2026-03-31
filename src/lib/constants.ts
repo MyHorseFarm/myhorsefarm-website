@@ -29,23 +29,23 @@ export const NAV_LINKS = [
 ];
 
 export const SERVICE_DROPDOWN = [
-  { label: "Manure Removal", href: "/manure-removal" },
-  { label: "Junk Removal", href: "/junk-removal" },
   { label: "Dumpster Rental", href: "/dumpster-rental" },
+  { label: "Junk Removal", href: "/junk-removal" },
   { label: "Sod Installation", href: "/sod-installation" },
   { label: "Fill Dirt", href: "/fill-dirt" },
   { label: "Repairs & Maintenance", href: "/repairs" },
+  { label: "Waste Removal", href: "/manure-removal" },
   { label: "Season-Ready Package", href: "/season-ready" },
 ];
 
 export const TESTIMONIALS = [
   {
-    body: "We\u2019ve worked with My Horse Farm Services for over a year now and they are hands down the most dependable manure removal company in the area. They show up on schedule, the property stays clean, and the communication is excellent. In Wellington, reliability is everything \u2014 and they deliver every single time.",
+    body: "We\u2019ve worked with My Horse Farm Services for over a year now and they are hands down the most dependable farm service company in the area. They show up on schedule, the property stays clean, and the communication is excellent. In Wellington, reliability is everything \u2014 and they deliver every single time.",
     author: "Sarah M.",
     location: "Wellington, FL",
   },
   {
-    body: "Managing 40+ stalls means manure piles build up fast. These guys handle our 60-yard loads without issues and always provide weight tickets when needed. Professional, organized, and priced fairly. It\u2019s rare to find that level of consistency.",
+    body: "Managing 40+ stalls means waste builds up fast. These guys handle our 60-yard loads without issues and always provide weight tickets when needed. Professional, organized, and priced fairly. It\u2019s rare to find that level of consistency.",
     author: "Carlos R.",
     location: "Loxahatchee, FL",
   },
@@ -63,7 +63,7 @@ export const LP_TESTIMONIALS = [
     location: "Wellington, FL",
   },
   {
-    body: "\u201cReliable, affordable, and always professional. My Horse Farm handles all our manure removal and we couldn\u2019t be happier with the service.\u201d",
+    body: "\u201cReliable, affordable, and always professional. My Horse Farm handles all our farm services and we couldn\u2019t be happier with the results.\u201d",
     author: "Carlos R.",
     location: "Loxahatchee, FL",
   },

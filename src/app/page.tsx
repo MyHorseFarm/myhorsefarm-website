@@ -53,7 +53,7 @@ const localBusinessSchema = {
   "@id": "https://www.myhorsefarm.com/#organization",
   name: "My Horse Farm",
   description:
-    "My Horse Farm provides premier agricultural and equestrian services in Royal Palm Beach, Florida, including sod installation, manure removal, junk removal, dumpster rental, fill dirt delivery and farm repairs.",
+    "My Horse Farm provides farm and property services in Palm Beach County, Florida, including dumpster rentals, junk removal, sod installation, fill dirt delivery, farm repairs and waste removal.",
   url: "https://www.myhorsefarm.com",
   logo: "https://www.myhorsefarm.com/logo.png",
   image: "https://www.myhorsefarm.com/images/hero-farm.jpg",
@@ -91,12 +91,12 @@ const localBusinessSchema = {
     "@type": "OfferCatalog",
     name: "Agricultural & Equestrian Services",
     itemListElement: [
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Sod Installation" } },
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Manure Bin & Waste Removal" } },
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Junk Removal" } },
       { "@type": "Offer", itemOffered: { "@type": "Service", name: "Dumpster Rental" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Junk Removal" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Sod Installation" } },
       { "@type": "Offer", itemOffered: { "@type": "Service", name: "Fill Dirt Delivery" } },
       { "@type": "Offer", itemOffered: { "@type": "Service", name: "Farm Repairs & Maintenance" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Waste Removal" } },
     ],
   },
 };
@@ -174,11 +174,11 @@ const webSiteSchema = {
 
 const services = [
   {
-    title: "Manure Removal",
-    description: "Scheduled pickups and leak-proof bin rentals keep your property clean and odor-free year-round.",
-    image: "/images/service-manure.jpg",
-    href: "/manure-removal",
-    price: "Free Quote",
+    title: "Dumpster Rental",
+    description: "20-yard roll-off dumpsters for cleanouts, renovations, and large projects. Drop-off and haul-away.",
+    image: "/images/service-dumpster.jpg",
+    href: "/dumpster-rental",
+    price: "From $75/ton",
   },
   {
     title: "Junk Removal",
@@ -195,13 +195,6 @@ const services = [
     price: "Free Quote",
   },
   {
-    title: "Dumpster Rental",
-    description: "20-yard roll-off dumpsters for cleanouts, renovations, and large projects. Drop-off and haul-away.",
-    image: "/images/service-dumpster.jpg",
-    href: "/dumpster-rental",
-    price: "From $75/ton",
-  },
-  {
     title: "Fill Dirt",
     description: "Quality fill dirt for leveling, berms, and new paddock construction. Delivered direct to your property.",
     image: "/images/service-fill-dirt.jpg",
@@ -215,13 +208,20 @@ const services = [
     href: "/repairs",
     price: "Free Quote",
   },
+  {
+    title: "Waste Removal",
+    description: "Scheduled pickups and leak-proof bin rentals keep your property clean and odor-free year-round.",
+    image: "/images/service-manure.jpg",
+    href: "/manure-removal",
+    price: "Free Quote",
+  },
 ];
 
 export default function HomePage() {
   return (
     <>
       <Hero
-        title="Your Property. Our Problem."
+        title="Your Property. Taken Care Of."
         tagline="Farm services, dumpster rentals, and hauling at the lowest prices in Palm Beach County. No hidden fees, no hassle."
         ctaText="Get a Free Quote"
         ctaHref="/quote"
@@ -239,7 +239,7 @@ export default function HomePage() {
                 <i key={i} className="fas fa-star text-yellow-400 text-sm" />
               ))}
             </div>
-            <p className="text-gray-600 italic text-sm md:text-base">&ldquo;Hands down the most dependable manure removal company in the area. They show up on schedule, the property stays clean, and the communication is excellent.&rdquo;</p>
+            <p className="text-gray-600 italic text-sm md:text-base">&ldquo;Hands down the most dependable farm service company in the area. They show up on schedule, the property stays clean, and the communication is excellent.&rdquo;</p>
             <p className="text-gray-400 text-xs mt-1">&mdash; Sarah M., Wellington, FL</p>
           </div>
         </section>
