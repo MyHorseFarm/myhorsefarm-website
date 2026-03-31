@@ -44,6 +44,7 @@ const pages: SitemapEntry[] = [
   { path: "/blog/get-farm-season-ready-wef", lastModified: "2026-02-01", changeFrequency: "yearly", priority: 0.6 },
   { path: "/blog/sod-installation-horse-paddocks", lastModified: "2026-02-20", changeFrequency: "yearly", priority: 0.6 },
   { path: "/blog/signs-farm-needs-property-cleanout", lastModified: "2026-03-05", changeFrequency: "yearly", priority: 0.6 },
+  { path: "/blog/post-season-farm-repairs-wellington", lastModified: "2026-03-30", changeFrequency: "yearly", priority: 0.7 },
 
   // Legal
   { path: "/privacy-policy", lastModified: "2026-01-15", changeFrequency: "yearly", priority: 0.3 },
