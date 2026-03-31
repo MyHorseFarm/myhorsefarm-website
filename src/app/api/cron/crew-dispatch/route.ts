@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { crewDispatchEmail, sendEmail } from "@/lib/emails";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -11,11 +12,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  return withCronMonitor("crew-dispatch", async () => {
   const today = new Date().toISOString().split("T")[0];
   const results: string[] = [];
-
-  try {
-    // Get today's confirmed bookings with assigned crew
     const { data: bookings, error: bookErr } = await supabase
       .from("bookings")
       .select("*, crew_members:assigned_crew(id, name, email)")
@@ -25,12 +24,7 @@ export async function GET(request: NextRequest) {
 
     if (bookErr) throw new Error(bookErr.message);
     if (!bookings || bookings.length === 0) {
-      return NextResponse.json({
-        ok: true,
-        processed: 0,
-        message: "No assigned bookings for today",
-        timestamp: new Date().toISOString(),
-      });
+      return { processed: 0, sent: 0 };
     }
 
     // Group bookings by crew member
@@ -78,17 +72,14 @@ export async function GET(request: NextRequest) {
         console.error(`Crew dispatch failed for ${crewId}:`, err);
       }
     }
-  } catch (err) {
-    return NextResponse.json(
-      { error: String(err), results },
-      { status: 500 },
-    );
-  }
 
-  return NextResponse.json({
-    ok: true,
-    processed: results.length,
-    results,
-    timestamp: new Date().toISOString(),
+    return {
+      processed: results.length,
+      sent: results.filter((r) => r.startsWith("dispatch →")).length,
+      errors: results.filter((r) => r.includes("FAIL")).length > 0
+        ? results.filter((r) => r.includes("FAIL"))
+        : undefined,
+      results,
+    };
   });
 }

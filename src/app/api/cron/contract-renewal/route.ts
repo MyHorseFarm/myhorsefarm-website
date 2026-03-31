@@ -7,6 +7,7 @@ import {
   isSubscribed,
 } from "@/lib/hubspot";
 import { sendEmail, createUnsubscribeUrl } from "@/lib/emails";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -26,10 +27,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  return withCronMonitor("contract-renewal", async () => {
   const results: string[] = [];
   const today = new Date().toISOString().split("T")[0];
 
-  try {
     // -----------------------------------------------------------------------
     // 30-day renewal notice: contracts ending in 28-32 days
     // -----------------------------------------------------------------------
@@ -131,18 +132,15 @@ export async function GET(request: NextRequest) {
         results.push(`auto_renew FAIL ${customer.name}: ${err}`);
       }
     }
-  } catch (err) {
-    return NextResponse.json(
-      { error: String(err), results },
-      { status: 500 },
-    );
-  }
 
-  return NextResponse.json({
-    ok: true,
-    processed: results.length,
-    results,
-    timestamp: new Date().toISOString(),
+    return {
+      processed: results.length,
+      sent: results.filter((r) => !r.includes("FAIL")).length,
+      errors: results.filter((r) => r.includes("FAIL")).length > 0
+        ? results.filter((r) => r.includes("FAIL"))
+        : undefined,
+      results,
+    };
   });
 }
 

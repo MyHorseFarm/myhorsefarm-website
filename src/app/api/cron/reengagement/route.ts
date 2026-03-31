@@ -20,6 +20,7 @@ import {
   lapsedCustomerReengageEmail,
   coldLeadReengageEmail,
 } from "@/lib/emails";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -37,6 +38,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  return withCronMonitor("reengagement", async () => {
   const results: string[] = [];
   const processedContactIds = new Set<string>();
   let emailsSent = 0;
@@ -256,10 +258,13 @@ export async function GET(request: NextRequest) {
     results.push(`FAIL phase3: ${err}`);
   }
 
-  return NextResponse.json({
-    ok: true,
-    emailsSent,
+  return {
+    processed: results.length,
+    sent: emailsSent,
+    errors: results.filter((r) => r.includes("FAIL")).length > 0
+      ? results.filter((r) => r.includes("FAIL"))
+      : undefined,
     results,
-    timestamp: new Date().toISOString(),
+  };
   });
 }

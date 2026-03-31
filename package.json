@@ -16,6 +16,7 @@
     "@remotion/cli": "^4.0.436",
     "@remotion/lambda": "^4.0.436",
     "@remotion/player": "^4.0.436",
+    "@sentry/nextjs": "^10.46.0",
     "@supabase/supabase-js": "^2.98.0",
     "next": "16.1.6",
     "react": "19.2.3",

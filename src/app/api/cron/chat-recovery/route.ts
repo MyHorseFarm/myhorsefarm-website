@@ -11,6 +11,7 @@ import {
   createUnsubscribeUrl,
   chatRecoveryEmail,
 } from "@/lib/emails";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -41,10 +42,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  return withCronMonitor("chat-recovery", async () => {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
   const results: string[] = [];
 
-  try {
     const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
     const oneDayAgo = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -100,15 +101,15 @@ export async function GET(request: NextRequest) {
         results.push(`FAIL session ${session.id.slice(0, 8)}: ${err}`);
       }
     }
-  } catch (err) {
-    return NextResponse.json({ error: String(err), results }, { status: 500 });
-  }
 
-  return NextResponse.json({
-    ok: true,
-    processed: results.length,
-    results,
-    timestamp: new Date().toISOString(),
+    return {
+      processed: results.length,
+      sent: results.filter((r) => r.startsWith("recovery →")).length,
+      errors: results.filter((r) => r.includes("FAIL")).length > 0
+        ? results.filter((r) => r.includes("FAIL"))
+        : undefined,
+      results,
+    };
   });
 }
 

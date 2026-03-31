@@ -16,6 +16,7 @@ import {
   serviceUpsellEmail,
 } from "@/lib/emails";
 import { supabase } from "@/lib/supabase";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -72,9 +73,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  return withCronMonitor("client-engagement", async () => {
   const results: string[] = [];
 
-  try {
     const contacts = await getPayingContacts();
 
     for (const contactSummary of contacts) {
@@ -253,17 +254,14 @@ export async function GET(request: NextRequest) {
         results.push(`FAIL contact ${contactSummary.id}: ${err}`);
       }
     }
-  } catch (err) {
-    return NextResponse.json(
-      { error: String(err), results },
-      { status: 500 },
-    );
-  }
 
-  return NextResponse.json({
-    ok: true,
-    processed: results.length,
-    results,
-    timestamp: new Date().toISOString(),
+    return {
+      processed: results.length,
+      sent: results.filter((r) => !r.includes("FAIL")).length,
+      errors: results.filter((r) => r.includes("FAIL")).length > 0
+        ? results.filter((r) => r.includes("FAIL"))
+        : undefined,
+      results,
+    };
   });
 }

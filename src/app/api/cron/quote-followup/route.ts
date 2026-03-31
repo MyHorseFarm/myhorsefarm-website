@@ -20,6 +20,7 @@ import {
   getVariantSubject,
   recordSend,
 } from "@/lib/ab-testing";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -58,11 +59,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  return withCronMonitor("quote-followup", async () => {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
   const results: string[] = [];
 
-  try {
     // -----------------------------------------------------------------------
     // Followup 1: Quotes created 1–2 days ago, still pending (was 2-4)
     // -----------------------------------------------------------------------
@@ -332,17 +333,14 @@ export async function GET(request: NextRequest) {
         results.push(`expired_recovery FAIL ${quote.quote_number}: ${err}`);
       }
     }
-  } catch (err) {
-    return NextResponse.json(
-      { error: String(err), results },
-      { status: 500 },
-    );
-  }
 
-  return NextResponse.json({
-    ok: true,
-    processed: results.length,
-    results,
-    timestamp: new Date().toISOString(),
+    return {
+      processed: results.length,
+      sent: results.filter((r) => !r.includes("FAIL")).length,
+      errors: results.filter((r) => r.includes("FAIL")).length > 0
+        ? results.filter((r) => r.includes("FAIL"))
+        : undefined,
+      results,
+    };
   });
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { Resend } from "resend";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -23,6 +24,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  return withCronMonitor("email-digest", async () => {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const today = new Date().toLocaleDateString("en-US", {
@@ -32,8 +34,6 @@ export async function GET(request: NextRequest) {
     day: "numeric",
     timeZone: "America/New_York",
   });
-
-  try {
     // -----------------------------------------------------------------------
     // 1. Email event counts from Supabase
     // -----------------------------------------------------------------------
@@ -184,15 +184,10 @@ ${sent === 0 && newQuotes === 0 && newBookings === 0 ? `
 
     if (error) throw new Error(`Resend: ${JSON.stringify(error)}`);
 
-    return NextResponse.json({
-      ok: true,
+    return {
+      processed: 1,
+      sent: 1,
       stats: { sent, delivered, opened, clicked, bounced, complained, newQuotes, newBookings },
-    });
-  } catch (err) {
-    console.error("Email digest error:", err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Unknown error" },
-      { status: 500 },
-    );
-  }
+    };
+  });
 }

@@ -9,6 +9,7 @@ import {
   sendEmail,
   createUnsubscribeUrl,
 } from "@/lib/emails";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -26,9 +27,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  return withCronMonitor("referral-rewards", async () => {
   const results: string[] = [];
 
-  try {
     // Find referrals where referee has a quote that led to a booking
     const { data: activeReferrals } = await supabase
       .from("referrals")
@@ -92,18 +93,15 @@ export async function GET(request: NextRequest) {
         results.push(`reward FAIL ${ref.referral_code}: ${err}`);
       }
     }
-  } catch (err) {
-    return NextResponse.json(
-      { error: String(err), results },
-      { status: 500 },
-    );
-  }
 
-  return NextResponse.json({
-    ok: true,
-    processed: results.length,
-    results,
-    timestamp: new Date().toISOString(),
+    return {
+      processed: results.length,
+      sent: results.filter((r) => r.startsWith("reward →")).length,
+      errors: results.filter((r) => r.includes("FAIL")).length > 0
+        ? results.filter((r) => r.includes("FAIL"))
+        : undefined,
+      results,
+    };
   });
 }
 

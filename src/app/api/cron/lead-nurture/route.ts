@@ -11,6 +11,7 @@ import {
   getVariantSubject,
   recordSend,
 } from "@/lib/ab-testing";
+import { withCronMonitor } from "@/lib/cron-monitor";
 import {
   sendEmail,
   createUnsubscribeUrl,
@@ -158,6 +159,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  return withCronMonitor("lead-nurture", async () => {
   const results: string[] = [];
   let emailsSent = 0;
   let resendCount = 0;
@@ -385,5 +387,15 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  return NextResponse.json({ ok: true, emailsSent, resendCount, results });
+  return {
+    processed: results.length,
+    sent: emailsSent,
+    errors: results.filter((r) => r.toLowerCase().includes("error") || r.toLowerCase().includes("fatal")).length > 0
+      ? results.filter((r) => r.toLowerCase().includes("error") || r.toLowerCase().includes("fatal"))
+      : undefined,
+    emailsSent,
+    resendCount,
+    results,
+  };
+  });
 }

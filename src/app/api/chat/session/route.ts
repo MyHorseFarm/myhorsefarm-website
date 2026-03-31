@@ -3,34 +3,37 @@ import { supabase } from "@/lib/supabase";
 
 export const runtime = "nodejs";
 
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT = 10;
-const WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const RATE_LIMIT = 10; // max sessions per IP per hour
 
 export async function POST(request: NextRequest) {
-  // Simple IP-based rate limiting
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 
-  if (entry && now < entry.resetAt) {
-    if (entry.count >= RATE_LIMIT) {
+  try {
+    // Rate limit: count recent sessions created by this IP in the last hour
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count, error: countError } = await supabase
+      .from("chat_sessions")
+      .select("*", { count: "exact", head: true })
+      .eq("extracted_details->>client_ip", ip)
+      .gte("created_at", oneHourAgo);
+
+    if (countError) {
+      console.error("Rate limit check error:", countError.message);
+      // Allow the request if the rate limit check fails
+    } else if (count !== null && count >= RATE_LIMIT) {
       return NextResponse.json(
         { error: "Too many sessions. Please try again later." },
         { status: 429 },
       );
     }
-    entry.count++;
-  } else {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-  }
 
-  try {
     const { data: session, error } = await supabase
       .from("chat_sessions")
       .insert({
         messages: [],
         status: "active",
+        extracted_details: { client_ip: ip },
       })
       .select()
       .single();

@@ -15,6 +15,7 @@ import {
   reviewRequestEmail,
 } from "@/lib/emails";
 import { supabase } from "@/lib/supabase";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -70,11 +71,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  return withCronMonitor("review-request", async () => {
   const results: string[] = [];
   // Track emails sent in Phase 1 so Phase 2 can skip them
   const sentEmails = new Set<string>();
 
-  try {
     // -----------------------------------------------------------------------
     // Phase 1: HubSpot deals in "Completed" stage (existing logic)
     // -----------------------------------------------------------------------
@@ -240,17 +241,14 @@ export async function GET(request: NextRequest) {
         }
       }
     }
-  } catch (err) {
-    return NextResponse.json(
-      { error: String(err), results },
-      { status: 500 },
-    );
-  }
 
-  return NextResponse.json({
-    ok: true,
-    processed: results.length,
-    results,
-    timestamp: new Date().toISOString(),
+    return {
+      processed: results.length,
+      sent: results.filter((r) => r.startsWith("review →")).length,
+      errors: results.filter((r) => r.includes("FAIL")).length > 0
+        ? results.filter((r) => r.includes("FAIL"))
+        : undefined,
+      results,
+    };
   });
 }

@@ -10,6 +10,7 @@ import {
   createUnsubscribeUrl,
   monthlyNewsletterEmail,
 } from "@/lib/emails";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -33,6 +34,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  return withCronMonitor("newsletter", async () => {
   const now = new Date();
   const tag = getMonthlyTag(now);
   const month = now.getMonth(); // 0-indexed
@@ -42,8 +44,6 @@ export async function GET(request: NextRequest) {
   let sent = 0;
   let skipped = 0;
   let errors = 0;
-
-  try {
     // -----------------------------------------------------------------------
     // Fetch all contacts with an email address (paginated via searchContacts)
     // -----------------------------------------------------------------------
@@ -126,13 +126,15 @@ export async function GET(request: NextRequest) {
       `Newsletter complete: ${sent} sent, ${skipped} skipped, ${errors} errors`,
     );
 
-    return NextResponse.json({ ok: true, tag, sent, skipped, errors, results });
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error("Newsletter cron failed:", msg);
-    return NextResponse.json(
-      { error: msg, results },
-      { status: 500 },
-    );
-  }
+    return {
+      processed: sent + skipped,
+      sent,
+      errors: errors > 0
+        ? results.filter((r) => r.startsWith("Error"))
+        : undefined,
+      tag,
+      skipped,
+      results,
+    };
+  });
 }

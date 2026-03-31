@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { findContactByEmail } from "@/lib/hubspot";
 import { Resend } from "resend";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -29,6 +30,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  return withCronMonitor("hot-leads", async () => {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const today = new Date().toLocaleDateString("en-US", {
@@ -38,8 +40,6 @@ export async function GET(request: NextRequest) {
     day: "numeric",
     timeZone: "America/New_York",
   });
-
-  try {
     // -----------------------------------------------------------------
     // 1. Fetch all open + click events from the last 24 hours
     // -----------------------------------------------------------------
@@ -194,17 +194,11 @@ export async function GET(request: NextRequest) {
 
     if (sendError) throw new Error(`Resend: ${JSON.stringify(sendError)}`);
 
-    return NextResponse.json({
-      ok: true,
+    return {
+      processed: count,
+      sent: 1,
       hotLeads: count,
       leads: leads.map((l) => ({ email: l.email, clicks: l.clicks })),
-      timestamp: new Date().toISOString(),
-    });
-  } catch (err) {
-    console.error("Hot leads cron error:", err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Unknown error" },
-      { status: 500 },
-    );
-  }
+    };
+  });
 }

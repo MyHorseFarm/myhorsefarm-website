@@ -14,6 +14,7 @@ import {
   updateDealStage,
   STAGE_COMPLETED,
 } from "@/lib/hubspot";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -48,11 +49,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  return withCronMonitor("auto-charge", async () => {
   const today = new Date().toISOString().split("T")[0];
   const chargeResults: { name: string; amount: string; status: string }[] = [];
-
-  try {
-    // Query customers due for auto-charge
     const { data: customers, error: queryErr } = await supabase
       .from("recurring_customers")
       .select("*")
@@ -290,17 +289,15 @@ export async function GET(request: NextRequest) {
         console.error("Summary email failed:", err);
       }
     }
-  } catch (err) {
-    return NextResponse.json(
-      { error: String(err), results: chargeResults },
-      { status: 500 },
-    );
-  }
 
-  return NextResponse.json({
-    ok: true,
-    processed: chargeResults.length,
-    results: chargeResults,
-    timestamp: new Date().toISOString(),
+    const failed = chargeResults.filter((r) => r.status === "failed");
+    return {
+      processed: chargeResults.length,
+      sent: chargeResults.filter((r) => r.status === "charged").length,
+      errors: failed.length > 0
+        ? failed.map((r) => `${r.name}: ${r.amount}`)
+        : undefined,
+      results: chargeResults,
+    };
   });
 }

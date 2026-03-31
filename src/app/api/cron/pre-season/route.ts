@@ -10,6 +10,7 @@ import {
   createUnsubscribeUrl,
   preSeasonEmail,
 } from "@/lib/emails";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -23,11 +24,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  return withCronMonitor("pre-season", async () => {
   const year = new Date().getFullYear();
   const TAG = `[AUTO:PRESEASON_${year}]`;
   const results: string[] = [];
 
-  try {
     // Get all contacts with a phone number containing "561" (Wellington/PBC area)
     // This mirrors the "Wellington / PBC Area 561" list (ILS ID 22)
     const contacts = await searchContacts(
@@ -75,17 +76,14 @@ export async function GET(request: NextRequest) {
         results.push(`pre-season FAIL ${email}: ${err}`);
       }
     }
-  } catch (err) {
-    return NextResponse.json(
-      { error: String(err), results },
-      { status: 500 },
-    );
-  }
 
-  return NextResponse.json({
-    ok: true,
-    processed: results.length,
-    results,
-    timestamp: new Date().toISOString(),
+    return {
+      processed: results.length,
+      sent: results.filter((r) => r.startsWith("pre-season →")).length,
+      errors: results.filter((r) => r.includes("FAIL")).length > 0
+        ? results.filter((r) => r.includes("FAIL"))
+        : undefined,
+      results,
+    };
   });
 }
