@@ -4,8 +4,10 @@ import { supabase } from "@/lib/supabase";
 export const runtime = "nodejs";
 
 function checkAuth(request: NextRequest): boolean {
+  const secret = process.env.ADMIN_SECRET;
+  if (!secret) return false;
   const auth = request.headers.get("authorization");
-  return auth === `Bearer ${process.env.ADMIN_SECRET}`;
+  return auth === `Bearer ${secret}`;
 }
 
 export async function GET(request: NextRequest) {

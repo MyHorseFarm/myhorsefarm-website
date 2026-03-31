@@ -40,6 +40,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Reject past dates
+    const today = new Date().toISOString().split("T")[0];
+    if (body.scheduled_date < today) {
+      return NextResponse.json(
+        { error: "Cannot book a date in the past" },
+        { status: 400 },
+      );
+    }
+
     // Validate capacity
     const available = await hasCapacity(body.scheduled_date);
     if (!available) {
@@ -50,13 +59,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate booking number: MHF-B-YYYYMMDD-NNN
-    const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
+    const todayCompact = today.replace(/-/g, "");
     const { count } = await supabase
       .from("bookings")
       .select("*", { count: "exact", head: true })
-      .like("booking_number", `MHF-B-${today}%`);
+      .like("booking_number", `MHF-B-${todayCompact}%`);
     const seq = String((count ?? 0) + 1).padStart(3, "0");
-    const bookingNumber = `MHF-B-${today}-${seq}`;
+    const bookingNumber = `MHF-B-${todayCompact}-${seq}`;
 
     // Get service name for display
     const { data: service } = await supabase

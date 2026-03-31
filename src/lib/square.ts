@@ -5,13 +5,20 @@ import { SquareClient, SquareEnvironment } from "square";
 // Client
 // ---------------------------------------------------------------------------
 
-const client = new SquareClient({
-  token: process.env.SQUARE_ACCESS_TOKEN,
-  environment:
-    process.env.SQUARE_ENVIRONMENT === "sandbox"
-      ? SquareEnvironment.Sandbox
-      : SquareEnvironment.Production,
-});
+let _client: SquareClient | null = null;
+
+function getClient(): SquareClient {
+  if (!_client) {
+    _client = new SquareClient({
+      token: process.env.SQUARE_ACCESS_TOKEN,
+      environment:
+        process.env.SQUARE_ENVIRONMENT === "sandbox"
+          ? SquareEnvironment.Sandbox
+          : SquareEnvironment.Production,
+    });
+  }
+  return _client;
+}
 
 // ---------------------------------------------------------------------------
 // Webhook signature verification
@@ -22,8 +29,9 @@ export function verifyWebhookSignature(
   signatureHeader: string,
   notificationUrl: string,
 ): boolean {
+  if (!process.env.SQUARE_WEBHOOK_SIGNATURE_KEY) return false;
   const payload = notificationUrl + body;
-  const expected = createHmac("sha256", process.env.SQUARE_WEBHOOK_SIGNATURE_KEY!)
+  const expected = createHmac("sha256", process.env.SQUARE_WEBHOOK_SIGNATURE_KEY)
     .update(payload, "utf8")
     .digest("base64");
   const expectedBuf = Buffer.from(expected);
@@ -51,7 +59,7 @@ export interface PaymentDetails {
 export async function getPaymentDetails(
   paymentId: string,
 ): Promise<PaymentDetails> {
-  const { payment } = await client.payments.get({ paymentId });
+  const { payment } = await getClient().payments.get({ paymentId });
   if (!payment) throw new Error(`Payment ${paymentId} not found`);
 
   return {
@@ -82,7 +90,7 @@ export interface CustomerDetails {
 export async function getCustomerDetails(
   customerId: string,
 ): Promise<CustomerDetails> {
-  const { customer } = await client.customers.get({ customerId });
+  const { customer } = await getClient().customers.get({ customerId });
   if (!customer) throw new Error(`Customer ${customerId} not found`);
 
   return {
@@ -106,7 +114,7 @@ export interface OrderDetails {
 export async function getOrderDetails(
   orderId: string,
 ): Promise<OrderDetails> {
-  const { order } = await client.orders.get({ orderId });
+  const { order } = await getClient().orders.get({ orderId });
   if (!order) throw new Error(`Order ${orderId} not found`);
 
   const lineItems = (order.lineItems ?? []).map((item) => ({
@@ -135,7 +143,7 @@ export interface RefundDetails {
 export async function getRefundDetails(
   refundId: string,
 ): Promise<RefundDetails> {
-  const { refund } = await client.refunds.get({ refundId });
+  const { refund } = await getClient().refunds.get({ refundId });
   if (!refund) throw new Error(`Refund ${refundId} not found`);
 
   return {
@@ -164,7 +172,7 @@ export interface StoredCard {
 export async function listCustomerCards(
   customerId: string,
 ): Promise<StoredCard[]> {
-  const page = await client.cards.list({ customerId, sortOrder: "DESC" });
+  const page = await getClient().cards.list({ customerId, sortOrder: "DESC" });
   const cards = page.data ?? [];
 
   return cards
@@ -193,7 +201,7 @@ export async function createSquareCustomer(
   phone?: string,
   note?: string,
 ): Promise<CreateCustomerResult> {
-  const { customer } = await client.customers.create({
+  const { customer } = await getClient().customers.create({
     givenName,
     familyName,
     emailAddress: email || undefined,
@@ -220,7 +228,7 @@ export async function saveCardOnFile(
   customerId: string,
   cardholderName?: string,
 ): Promise<SaveCardResult> {
-  const { card } = await client.cards.create({
+  const { card } = await getClient().cards.create({
     sourceId: nonce,
     card: {
       customerId,
@@ -253,7 +261,7 @@ export interface SquareCustomerSummary {
 export async function listAllSquareCustomers(): Promise<SquareCustomerSummary[]> {
   const all: SquareCustomerSummary[] = [];
 
-  for await (const c of await client.customers.list({ limit: 100, sortField: "DEFAULT", sortOrder: "ASC" })) {
+  for await (const c of await getClient().customers.list({ limit: 100, sortField: "DEFAULT", sortOrder: "ASC" })) {
     const addr = c.address;
     const addressStr = addr
       ? [addr.addressLine1, addr.addressLine2, addr.locality, addr.administrativeDistrictLevel1, addr.postalCode]
@@ -316,7 +324,7 @@ export async function searchOrdersByCustomer(
     return [];
   }
 
-  const result = await client.orders.search({
+  const result = await getClient().orders.search({
     locationIds: [locationId],
     query: {
       filter: {
@@ -413,7 +421,7 @@ export async function chargeCard(
     sourceId = cards[0].id;
   }
 
-  const { payment } = await client.payments.create({
+  const { payment } = await getClient().payments.create({
     sourceId,
     customerId,
     amountMoney: { amount: BigInt(amountCents), currency: "USD" },

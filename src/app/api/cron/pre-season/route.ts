@@ -14,6 +14,9 @@ import {
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
+/** Maximum emails to send per run. */
+const SEND_LIMIT = 50;
+
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -42,7 +45,13 @@ export async function GET(request: NextRequest) {
       ["email", "firstname", "phone"],
     );
 
+    let sent = 0;
     for (const contact of contacts) {
+      if (sent >= SEND_LIMIT) {
+        results.push(`Hit send limit of ${SEND_LIMIT}, stopping`);
+        break;
+      }
+
       const email = contact.properties.email;
       if (!email) continue;
 
@@ -61,6 +70,7 @@ export async function GET(request: NextRequest) {
           `${TAG} Sent to ${email} on ${new Date().toISOString()}`,
         );
         results.push(`pre-season → ${email}`);
+        sent++;
       } catch (err) {
         results.push(`pre-season FAIL ${email}: ${err}`);
       }

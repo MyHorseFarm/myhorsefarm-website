@@ -79,6 +79,7 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
   const [error, setError] = useState("");
   const [showExitModal, setShowExitModal] = useState(false);
   const [exitModalShown, setExitModalShown] = useState(false);
+  const [detailsError, setDetailsError] = useState("");
 
   // Restore draft on mount
   useEffect(() => {
@@ -504,6 +505,10 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
             </div>
           )}
 
+          {detailsError && (
+            <div className="bg-red-50 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">{detailsError}</div>
+          )}
+
           <div className="flex gap-3 mt-6">
             <button
               onClick={() => setStep("service")}
@@ -512,7 +517,17 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
               Back
             </button>
             <button
-              onClick={() => setStep("location")}
+              onClick={() => {
+                if (selectedService && selectedService.unit !== "flat" && !selectedService.requires_site_visit) {
+                  const qty = Number(details.loads || details.cans || details.estimated_tons || details.yards || details.sqft || 0);
+                  if (qty <= 0) {
+                    setDetailsError("Please enter a quantity before continuing.");
+                    return;
+                  }
+                }
+                setDetailsError("");
+                setStep("location");
+              }}
               className="px-6 py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors"
             >
               Continue

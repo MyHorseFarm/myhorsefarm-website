@@ -17,6 +17,9 @@ export const maxDuration = 300;
 /** Maximum emails per run (Resend free tier limit). */
 const SEND_LIMIT = 80;
 
+/** Maximum contacts to scan per run to stay within Vercel timeout. */
+const SCAN_LIMIT = 200;
+
 function getMonthlyTag(date: Date): string {
   const yyyy = date.getFullYear();
   const mm = String(date.getMonth() + 1).padStart(2, "0");
@@ -60,11 +63,17 @@ export async function GET(request: NextRequest) {
 
     results.push(`Found ${allContacts.length} contacts with email`);
 
+    let scanned = 0;
     for (const contact of allContacts) {
       if (sent >= SEND_LIMIT) {
         results.push(`Hit send limit of ${SEND_LIMIT}, stopping`);
         break;
       }
+      if (scanned >= SCAN_LIMIT) {
+        results.push(`Hit scan limit of ${SCAN_LIMIT}, stopping`);
+        break;
+      }
+      scanned++;
 
       const email = contact.properties.email;
       if (!email) {

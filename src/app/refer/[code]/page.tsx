@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
 import ReferralTracker from "@/components/ReferralTracker";
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
@@ -11,7 +10,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "You've Been Referred!",
   description:
-    "A friend recommended My Horse Farm for your property. Get $25 off your first service.",
+    "A friend recommended My Horse Farm for your property. Get $50 off your first service.",
   robots: "noindex",
 };
 
@@ -30,13 +29,12 @@ export default async function ReferralPage({
 
   if (!referral) notFound();
 
-  const discount = Number(referral.referee_discount_amount) || 25;
+  const discount = Number(referral.referee_discount_amount) || 50;
   const referrerFirst = referral.referrer_name.split(" ")[0];
   const alreadyUsed = referral.status !== "pending";
 
   return (
     <>
-      <Navbar />
       <ReferralTracker code={code} />
       <main className="pt-24 pb-16 px-5 max-md:px-4">
         <div className="max-w-lg mx-auto text-center">

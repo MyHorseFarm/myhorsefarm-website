@@ -125,6 +125,7 @@ export default function ServiceCalendar({
             <input
               type="text"
               placeholder="Full name"
+              aria-label="Full name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
@@ -132,6 +133,7 @@ export default function ServiceCalendar({
             <input
               type="email"
               placeholder="Email"
+              aria-label="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
@@ -139,6 +141,7 @@ export default function ServiceCalendar({
             <input
               type="tel"
               placeholder="Phone"
+              aria-label="Phone"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
@@ -146,6 +149,7 @@ export default function ServiceCalendar({
             <input
               type="text"
               placeholder="Address or area (e.g. Wellington)"
+              aria-label="Address or area"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               className="block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:ring-1 focus:ring-primary outline-none"

@@ -4,11 +4,12 @@ import {
   updateDealStage,
   createContactNote,
   findContactByEmail,
+  isSubscribed,
   STAGE_QUOTED,
   STAGE_SCHEDULED,
   STAGE_LOST,
 } from "@/lib/hubspot";
-import { sendEmail, createUnsubscribeUrl } from "@/lib/emails";
+import { sendEmail } from "@/lib/emails";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -47,23 +48,24 @@ export async function GET(request: NextRequest) {
 
     for (const quote of staleQuotes ?? []) {
       try {
-        // Send final win-back email if subscribed
+        // Send final win-back email if subscribed and not already sent
         try {
-          const unsub = createUnsubscribeUrl(quote.customer_email);
-          const firstName = quote.customer_name.split(" ")[0];
-          const html = `
-            <p>Hi ${firstName},</p>
-            <p>We noticed you requested a quote for ${quote.service_key.replace(/_/g, " ")} a while back but never got a chance to schedule.</p>
-            <p>If your needs have changed or you have questions, we're here to help. We'd love to earn your business.</p>
-            <p><a href="${siteUrl}/quote" style="display:inline-block;padding:12px 24px;background:#2d5016;color:#fff;text-decoration:none;border-radius:6px;">Get a New Quote</a></p>
-            <p>Or call us anytime at <a href="tel:+15615767667">(561) 576-7667</a>.</p>
-            <p>Best,<br/>Jose Gomez<br/>My Horse Farm</p>
-          `;
-          await sendEmail(
-            quote.customer_email,
-            "Still need help with your property?",
-            html,
-          );
+          if (await isSubscribed(quote.customer_email)) {
+            const firstName = quote.customer_name.split(" ")[0];
+            const html = `
+              <p>Hi ${firstName},</p>
+              <p>We noticed you requested a quote for ${quote.service_key.replace(/_/g, " ")} a while back but never got a chance to schedule.</p>
+              <p>If your needs have changed or you have questions, we're here to help. We'd love to earn your business.</p>
+              <p><a href="${siteUrl}/quote" style="display:inline-block;padding:12px 24px;background:#2d5016;color:#fff;text-decoration:none;border-radius:6px;">Get a New Quote</a></p>
+              <p>Or call us anytime at <a href="tel:+15615767667">(561) 576-7667</a>.</p>
+              <p>Best,<br/>Jose Gomez<br/>My Horse Farm</p>
+            `;
+            await sendEmail(
+              quote.customer_email,
+              "Still need help with your property?",
+              html,
+            );
+          }
         } catch { /* email non-fatal */ }
 
         // Move deal to Lost
@@ -80,10 +82,10 @@ export async function GET(request: NextRequest) {
           );
         }
 
-        // Mark quote as lost in Supabase
+        // Mark quote as expired in Supabase (already expired, ensures consistency)
         await supabase
           .from("quotes")
-          .update({ status: "lost" })
+          .update({ status: "expired" })
           .eq("id", quote.id);
 
         results.push(`lost_quote → ${quote.customer_email} (${quote.quote_number})`);
@@ -107,14 +109,25 @@ export async function GET(request: NextRequest) {
 
     for (const booking of staleBookings ?? []) {
       try {
-        // Check if there's a completed service log or payment
-        const { data: logs } = await supabase
-          .from("service_logs")
+        // Look up recurring_customer by email to get the uuid for service_logs
+        const { data: recurringCustomer } = await supabase
+          .from("recurring_customers")
           .select("id")
-          .eq("customer_id", booking.customer_email)
-          .eq("service_date", booking.scheduled_date)
-          .eq("status", "charged")
-          .limit(1);
+          .eq("email", booking.customer_email)
+          .single();
+
+        // Check if there's a completed service log or payment
+        let logs: { id: string }[] | null = null;
+        if (recurringCustomer) {
+          const { data } = await supabase
+            .from("service_logs")
+            .select("id")
+            .eq("customer_id", recurringCustomer.id)
+            .eq("service_date", booking.scheduled_date)
+            .eq("status", "charged")
+            .limit(1);
+          logs = data;
+        }
 
         if (logs && logs.length > 0) {
           // Service was completed — mark booking as completed
@@ -143,7 +156,7 @@ export async function GET(request: NextRequest) {
 
         await supabase
           .from("bookings")
-          .update({ status: "expired" })
+          .update({ status: "cancelled" })
           .eq("id", booking.id);
 
         results.push(`lost_booking → ${booking.customer_email} (${booking.booking_number})`);

@@ -235,13 +235,18 @@ export async function POST(request: NextRequest) {
 
     // Instant lead alert email to Jose — speed to lead (non-fatal)
     try {
+      const esc = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      const safeName = esc(body.customer_name);
+      const safePhone = esc(body.customer_phone);
+      const safeEmail = esc(body.customer_email);
+      const safeLocation = esc(body.customer_location);
       const utmSource = body.utm_params?.utm_medium === "cpc" ? "GOOGLE ADS"
         : body.utm_params?.utm_source === "facebook" ? "FACEBOOK AD"
         : (body.source || "form").toUpperCase();
       const isPaid = utmSource === "GOOGLE ADS" || utmSource === "FACEBOOK AD";
       const tag = isPaid ? " [PAID AD]" : "";
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
-      const alertSubject = `🚨 NEW LEAD${tag}: ${body.customer_name} - ${service.display_name} $${breakdown.total}`;
+      const alertSubject = `🚨 NEW LEAD${tag}: ${safeName} - ${service.display_name} $${breakdown.total}`;
       const alertHtml = `
         <div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;">
           <div style="background:${isPaid ? "#c62828" : "#2d5016"};color:#fff;padding:15px 20px;border-radius:8px 8px 0 0;">
@@ -249,17 +254,17 @@ export async function POST(request: NextRequest) {
           </div>
           <div style="background:#fff;border:1px solid #e5e7eb;padding:20px;border-radius:0 0 8px 8px;">
             <table style="width:100%;font-size:15px;">
-              <tr><td style="padding:8px 0;color:#666;">Name</td><td style="padding:8px 0;font-weight:bold;">${body.customer_name}</td></tr>
-              <tr><td style="padding:8px 0;color:#666;">Phone</td><td style="padding:8px 0;font-weight:bold;"><a href="tel:${body.customer_phone}" style="color:#2d5016;">${body.customer_phone}</a></td></tr>
-              <tr><td style="padding:8px 0;color:#666;">Email</td><td style="padding:8px 0;"><a href="mailto:${body.customer_email}" style="color:#2d5016;">${body.customer_email}</a></td></tr>
+              <tr><td style="padding:8px 0;color:#666;">Name</td><td style="padding:8px 0;font-weight:bold;">${safeName}</td></tr>
+              <tr><td style="padding:8px 0;color:#666;">Phone</td><td style="padding:8px 0;font-weight:bold;"><a href="tel:${safePhone}" style="color:#2d5016;">${safePhone}</a></td></tr>
+              <tr><td style="padding:8px 0;color:#666;">Email</td><td style="padding:8px 0;"><a href="mailto:${safeEmail}" style="color:#2d5016;">${safeEmail}</a></td></tr>
               <tr><td style="padding:8px 0;color:#666;">Service</td><td style="padding:8px 0;">${service.display_name}</td></tr>
               <tr><td style="padding:8px 0;color:#666;">Amount</td><td style="padding:8px 0;font-weight:bold;font-size:18px;color:#2d5016;">$${breakdown.total.toFixed(2)}</td></tr>
-              <tr><td style="padding:8px 0;color:#666;">Location</td><td style="padding:8px 0;">${body.customer_location}</td></tr>
+              <tr><td style="padding:8px 0;color:#666;">Location</td><td style="padding:8px 0;">${safeLocation}</td></tr>
               <tr><td style="padding:8px 0;color:#666;">Source</td><td style="padding:8px 0;font-weight:bold;color:${isPaid ? "#c62828" : "#333"};">${utmSource}</td></tr>
               <tr><td style="padding:8px 0;color:#666;">Quote</td><td style="padding:8px 0;">${quoteNumber}</td></tr>
             </table>
             <div style="margin-top:15px;text-align:center;">
-              <a href="tel:${body.customer_phone}" style="display:inline-block;padding:12px 30px;background:#2d5016;color:#fff;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;">📞 Call Now</a>
+              <a href="tel:${safePhone}" style="display:inline-block;padding:12px 30px;background:#2d5016;color:#fff;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;">📞 Call Now</a>
             </div>
             ${isPaid ? '<p style="margin-top:15px;text-align:center;color:#c62828;font-weight:bold;font-size:13px;">⚡ PAID LEAD — Call within 5 minutes!</p>' : ""}
           </div>

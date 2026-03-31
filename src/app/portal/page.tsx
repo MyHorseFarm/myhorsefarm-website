@@ -118,11 +118,15 @@ function PortalContent() {
     setError("");
     setSent(false);
     try {
-      await fetch("/api/portal/login", {
+      const res = await fetch("/api/portal/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
+      if (!res.ok) {
+        setError("Something went wrong. Please try again.");
+        return;
+      }
       setSent(true);
     } catch {
       setError("Something went wrong. Please try again.");
