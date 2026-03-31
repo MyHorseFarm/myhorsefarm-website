@@ -223,7 +223,7 @@ export default function HomePage() {
       <Hero
         title="Your Property. Taken Care Of."
         tagline="Farm services, dumpster rentals, and hauling at the lowest prices in Palm Beach County. No hidden fees, no hassle."
-        ctaText="Get a Free Quote"
+        ctaText="See What It Costs"
         ctaHref="/quote"
       />
 
@@ -253,10 +253,10 @@ export default function HomePage() {
                 Our Services
               </div>
               <h2 className="text-3xl md:text-5xl font-bold text-gray-900">
-                Everything Your Farm Needs
+                Everything Your Property Needs
               </h2>
               <p className="mt-4 text-lg text-gray-500 max-w-2xl mx-auto">
-                Seven services, one dependable team. We handle the heavy lifting so you can focus on your horses.
+                One team, every service. We handle the heavy lifting so you can focus on what matters.
               </p>
             </div>
 
@@ -320,7 +320,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold mb-3">Season-Ready Package</h3>
                 <p className="text-white/70 leading-relaxed max-w-lg">
-                  Full property preparation for equestrian season. Bundled services at a better rate &mdash; manure
+                  Full property preparation for equestrian season. Bundled services at a better rate &mdash; waste
                   cleanup, paddock grading, fence repairs, and more in one visit.
                 </p>
                 <div className="mt-5 flex items-center gap-2 text-accent font-semibold">
@@ -371,7 +371,7 @@ export default function HomePage() {
                 href="/quote"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-earth font-bold text-lg rounded-xl shadow-lg shadow-accent/25 hover:bg-accent-light transition-all"
               >
-                Get Your Free Quote
+                See What It Costs
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -397,8 +397,8 @@ export default function HomePage() {
                 </h2>
                 <p className="text-gray-500 text-lg leading-relaxed mb-6">
                   Based in Royal Palm Beach, My Horse Farm specializes in comprehensive
-                  equestrian property services. From installing lush sod and delivering recycled
-                  millings asphalt to providing manure bins, waste removal, fill dirt, dumpsters,
+                  property services across Palm Beach County. From dumpster rentals and junk removal
+                  to sod installation, fill dirt delivery, waste management,
                   and skilled farm repairs.
                 </p>
                 <p className="text-gray-500 leading-relaxed mb-8">
@@ -411,7 +411,7 @@ export default function HomePage() {
                     href="/quote"
                     className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors"
                   >
-                    Get a Free Quote
+                    Get Your Price
                   </Link>
                   <a
                     href={`tel:${PHONE_OFFICE_TEL}`}

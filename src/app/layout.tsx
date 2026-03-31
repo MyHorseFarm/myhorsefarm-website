@@ -77,7 +77,7 @@ export default function RootLayout({
           href="https://wa.me/15615767667?text=Hi%2C%20I%20need%20a%20quote%20for%20farm%20services"
           target="_blank"
           rel="noopener noreferrer"
-          className="fixed bottom-24 right-6 z-40 w-12 h-12 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#20BD5A] transition-colors max-md:bottom-36"
+          className="fixed bottom-24 right-6 z-40 w-12 h-12 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#20BD5A] transition-colors max-md:hidden"
           aria-label="Chat on WhatsApp"
         >
           <i className="fab fa-whatsapp text-2xl" />
