@@ -302,10 +302,10 @@ export default function DumpsterRentalPage() {
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
               {[
-                { name: "Wellington", href: "/dumpster-rental" },
-                { name: "Loxahatchee", href: "/dumpster-rental" },
-                { name: "West Palm Beach", href: "/dumpster-rental" },
-                { name: "Royal Palm Beach", href: null },
+                { name: "Wellington", href: "/dumpster-rental/wellington" },
+                { name: "Loxahatchee", href: "/dumpster-rental/loxahatchee" },
+                { name: "Royal Palm Beach", href: "/dumpster-rental/royal-palm-beach" },
+                { name: "West Palm Beach", href: null },
                 { name: "Palm Beach Gardens", href: null },
                 { name: "Loxahatchee Groves", href: null },
               ].map((area) =>

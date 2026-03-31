@@ -254,10 +254,10 @@ export default function SodInstallationPage() {
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
               {[
-                { name: "Wellington", href: "/sod-installation" },
-                { name: "Loxahatchee", href: "/sod-installation" },
-                { name: "West Palm Beach", href: "/sod-installation" },
-                { name: "Royal Palm Beach", href: null },
+                { name: "Wellington", href: "/sod-installation/wellington" },
+                { name: "Loxahatchee", href: "/sod-installation/loxahatchee" },
+                { name: "Royal Palm Beach", href: "/sod-installation/royal-palm-beach" },
+                { name: "West Palm Beach", href: null },
                 { name: "Palm Beach Gardens", href: null },
                 { name: "Loxahatchee Groves", href: null },
               ].map((area) =>

@@ -28,15 +28,45 @@ const pages: SitemapEntry[] = [
   { path: "/junk-removal/loxahatchee", lastModified: "2026-03-20", changeFrequency: "monthly", priority: 0.7 },
   { path: "/junk-removal/west-palm-beach", lastModified: "2026-03-20", changeFrequency: "monthly", priority: 0.7 },
 
-  // Other services
-  { path: "/dumpster-rental", lastModified: "2026-03-10", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/sod-installation", lastModified: "2026-03-10", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/fill-dirt", lastModified: "2026-03-10", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/repairs", lastModified: "2026-03-30", changeFrequency: "monthly", priority: 0.9 },
+  // Manure removal - new cities
+  { path: "/manure-removal/royal-palm-beach", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/manure-removal/palm-beach-gardens", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/manure-removal/loxahatchee-groves", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+
+  // Junk removal - new cities
+  { path: "/junk-removal/royal-palm-beach", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/junk-removal/palm-beach-gardens", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/junk-removal/loxahatchee-groves", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.7 },
+
+  // Sod installation
+  { path: "/sod-installation", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/sod-installation/wellington", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/sod-installation/royal-palm-beach", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/sod-installation/loxahatchee", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+
+  // Dumpster rental
+  { path: "/dumpster-rental", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/dumpster-rental/wellington", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/dumpster-rental/royal-palm-beach", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/dumpster-rental/loxahatchee", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+
+  // Fill dirt
+  { path: "/fill-dirt", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/fill-dirt/wellington", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/fill-dirt/royal-palm-beach", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/fill-dirt/loxahatchee", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+
+  // Repairs
+  { path: "/repairs", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.9 },
   { path: "/repairs/wellington", lastModified: "2026-03-30", changeFrequency: "monthly", priority: 0.8 },
   { path: "/repairs/loxahatchee", lastModified: "2026-03-30", changeFrequency: "monthly", priority: 0.8 },
   { path: "/repairs/west-palm-beach", lastModified: "2026-03-30", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/season-ready", lastModified: "2026-03-10", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/repairs/royal-palm-beach", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.8 },
+
+  // Season-ready
+  { path: "/season-ready", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/season-ready/wellington", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/season-ready/loxahatchee", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.7 },
 
   // Blog
   { path: "/blog", lastModified: "2026-03-20", changeFrequency: "weekly", priority: 0.7 },
