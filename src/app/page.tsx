@@ -230,7 +230,7 @@ export default function HomePage() {
   return (
     <>
       <Hero
-        title="Farm Services in Palm Beach County"
+        title="Manure Removal & Farm Services in Palm Beach County"
         tagline="Premier agricultural services for equestrian properties across Palm Beach County. Manure removal, junk hauling, sod, fill dirt, and farm repairs."
         ctaText="Get a Free Quote"
         ctaHref="/quote"
@@ -478,11 +478,25 @@ export default function HomePage() {
             </h2>
             <p className="text-gray-500 mb-8">Based in Royal Palm Beach, just minutes from your farm.</p>
             <div className="flex flex-wrap justify-center gap-3">
-              {["Wellington", "Royal Palm Beach", "Loxahatchee", "Loxahatchee Groves", "West Palm Beach", "Palm Beach Gardens"].map((area) => (
-                <span key={area} className="text-sm font-medium text-gray-600 bg-white px-5 py-2.5 rounded-full border border-gray-200 shadow-sm">
-                  <i className="fas fa-map-pin text-primary text-xs mr-2" />
-                  {area}
-                </span>
+              {[
+                { name: "Wellington", href: "/manure-removal/wellington" },
+                { name: "Royal Palm Beach", href: null },
+                { name: "Loxahatchee", href: "/manure-removal/loxahatchee" },
+                { name: "Loxahatchee Groves", href: null },
+                { name: "West Palm Beach", href: "/manure-removal/west-palm-beach" },
+                { name: "Palm Beach Gardens", href: null },
+              ].map((area) => (
+                area.href ? (
+                  <Link key={area.name} href={area.href} className="text-sm font-medium text-gray-600 bg-white px-5 py-2.5 rounded-full border border-gray-200 shadow-sm hover:border-primary/30 hover:shadow-md transition-all">
+                    <i className="fas fa-map-pin text-primary text-xs mr-2" />
+                    {area.name}
+                  </Link>
+                ) : (
+                  <span key={area.name} className="text-sm font-medium text-gray-600 bg-white px-5 py-2.5 rounded-full border border-gray-200 shadow-sm">
+                    <i className="fas fa-map-pin text-primary text-xs mr-2" />
+                    {area.name}
+                  </span>
+                )
               ))}
             </div>
           </div>

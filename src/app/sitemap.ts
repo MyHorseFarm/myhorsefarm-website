@@ -32,16 +32,11 @@ const pages: SitemapEntry[] = [
   { path: "/dumpster-rental", lastModified: "2026-03-10", changeFrequency: "monthly", priority: 0.8 },
   { path: "/sod-installation", lastModified: "2026-03-10", changeFrequency: "monthly", priority: 0.8 },
   { path: "/fill-dirt", lastModified: "2026-03-10", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/repairs", lastModified: "2026-03-10", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/repairs", lastModified: "2026-03-30", changeFrequency: "monthly", priority: 0.9 },
+  { path: "/repairs/wellington", lastModified: "2026-03-30", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/repairs/loxahatchee", lastModified: "2026-03-30", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/repairs/west-palm-beach", lastModified: "2026-03-30", changeFrequency: "monthly", priority: 0.8 },
   { path: "/season-ready", lastModified: "2026-03-10", changeFrequency: "monthly", priority: 0.7 },
-
-  // Landing pages
-  { path: "/lp/manure-removal-wellington", lastModified: "2026-03-15", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/lp/manure-removal-loxahatchee", lastModified: "2026-03-15", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/lp/manure-removal-west-palm-beach", lastModified: "2026-03-15", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/lp/junk-removal-wellington", lastModified: "2026-03-15", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/lp/junk-removal-loxahatchee", lastModified: "2026-03-15", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/lp/junk-removal-west-palm-beach", lastModified: "2026-03-15", changeFrequency: "monthly", priority: 0.7 },
 
   // Blog
   { path: "/blog", lastModified: "2026-03-20", changeFrequency: "weekly", priority: 0.7 },
