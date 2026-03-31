@@ -1,6 +1,11 @@
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { supabase } from "@/lib/supabase";
+import { sendEmail } from "@/lib/emails";
+
+export const maxDuration = 120; // 2 min timeout for AI generation
+
+const ADMIN_EMAIL = process.env.ADMIN_ALERT_EMAIL || "manureservice@gmail.com";
 
 const TOPICS = [
   {
@@ -63,48 +68,32 @@ function slugify(title: string): string {
     .slice(0, 80);
 }
 
-export async function GET(request: NextRequest) {
-  if (
-    request.headers.get("authorization") !==
-    `Bearer ${process.env.CRON_SECRET}`
-  ) {
-    return new Response("Unauthorized", { status: 401 });
+async function alertAdmin(subject: string, body: string) {
+  try {
+    await sendEmail(
+      ADMIN_EMAIL,
+      `[MHF Blog] ${subject}`,
+      `<div style="font-family:sans-serif;max-width:600px;">
+        <h2 style="color:#2d6a30;">${subject}</h2>
+        <p>${body}</p>
+        <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
+        <p style="color:#999;font-size:12px;">Auto-Blog System — My Horse Farm</p>
+      </div>`,
+    );
+  } catch (emailErr) {
+    console.error("Failed to send blog alert email:", emailErr);
   }
+}
+
+async function generateWithRetry(
+  anthropic: Anthropic,
+  topic: (typeof TOPICS)[number],
+  existingTitles: string,
+  attempt: number = 1,
+): Promise<{ title: string; description: string; tags: string[]; content: string }> {
+  const maxAttempts = 3;
 
   try {
-    // Check if we already generated a post this week
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 6);
-
-    const { data: recentPosts } = await supabase
-      .from("blog_posts")
-      .select("id")
-      .gte("created_at", oneWeekAgo.toISOString())
-      .limit(1);
-
-    if (recentPosts && recentPosts.length > 0) {
-      return Response.json({
-        success: false,
-        reason: "Already generated a blog post this week",
-      });
-    }
-
-    // Pick a random topic
-    const topic = TOPICS[Math.floor(Math.random() * TOPICS.length)];
-
-    // Fetch recent post titles to avoid duplicates
-    const { data: existingPosts } = await supabase
-      .from("blog_posts")
-      .select("title")
-      .order("created_at", { ascending: false })
-      .limit(20);
-
-    const existingTitles = (existingPosts || [])
-      .map((p: { title: string }) => p.title)
-      .join("\n- ");
-
-    const anthropic = new Anthropic();
-
     const message = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 8000,
@@ -156,23 +145,82 @@ For the HTML content:
     const responseText =
       message.content[0].type === "text" ? message.content[0].text : "";
 
-    // Parse the JSON response
-    let parsed: {
-      title: string;
-      description: string;
-      tags: string[];
-      content: string;
-    };
+    // Parse JSON — try direct first, then extract from markdown
     try {
-      parsed = JSON.parse(responseText);
+      return JSON.parse(responseText);
     } catch {
-      // Try extracting JSON from markdown code blocks
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error("Failed to parse AI response as JSON");
-      }
-      parsed = JSON.parse(jsonMatch[0]);
+      if (!jsonMatch) throw new Error("No JSON found in AI response");
+      return JSON.parse(jsonMatch[0]);
     }
+  } catch (err) {
+    if (attempt < maxAttempts) {
+      console.warn(`Blog generation attempt ${attempt} failed, retrying...`, err);
+      // Wait 5 seconds before retry
+      await new Promise((r) => setTimeout(r, 5000));
+      return generateWithRetry(anthropic, topic, existingTitles, attempt + 1);
+    }
+    throw err;
+  }
+}
+
+export async function GET(request: NextRequest) {
+  if (
+    request.headers.get("authorization") !==
+    `Bearer ${process.env.CRON_SECRET}`
+  ) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  try {
+    // Check for recent posts — but use 5 days instead of 7 so a Monday
+    // failure can be retried on Tuesday/Wednesday without being blocked
+    const fiveDaysAgo = new Date();
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+
+    const { data: recentPosts } = await supabase
+      .from("blog_posts")
+      .select("id")
+      .gte("created_at", fiveDaysAgo.toISOString())
+      .limit(1);
+
+    if (recentPosts && recentPosts.length > 0) {
+      return Response.json({
+        success: false,
+        reason: "Already generated a blog post this week",
+      });
+    }
+
+    // Pick a topic — weighted towards categories we haven't covered recently
+    const { data: recentCategories } = await supabase
+      .from("blog_posts")
+      .select("category")
+      .order("created_at", { ascending: false })
+      .limit(5);
+
+    const recentCats = (recentCategories || []).map(
+      (p: { category: string }) => p.category,
+    );
+    const availableTopics = TOPICS.filter((t) => !recentCats.includes(t.category));
+    const topic =
+      availableTopics.length > 0
+        ? availableTopics[Math.floor(Math.random() * availableTopics.length)]
+        : TOPICS[Math.floor(Math.random() * TOPICS.length)];
+
+    // Get existing titles to avoid duplicates
+    const { data: existingPosts } = await supabase
+      .from("blog_posts")
+      .select("title")
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    const existingTitles = (existingPosts || [])
+      .map((p: { title: string }) => p.title)
+      .join("\n- ");
+
+    // Generate with up to 3 retries
+    const anthropic = new Anthropic();
+    const parsed = await generateWithRetry(anthropic, topic, existingTitles);
 
     const slug = slugify(parsed.title);
 
@@ -197,17 +245,34 @@ For the HTML content:
       throw new Error(`Supabase insert error: ${error.message}`);
     }
 
-    return Response.json({
-      success: true,
-      post: data,
-    });
+    // Success — notify Jose
+    await alertAdmin(
+      "New Blog Post Published",
+      `<strong>"${data.title}"</strong> was automatically published.<br><br>
+      <a href="https://www.myhorsefarm.com/blog/${data.slug}" style="color:#2d6a30;">
+        View the post →
+      </a><br><br>
+      Category: ${topic.category}<br>
+      Tags: ${parsed.tags.join(", ")}`,
+    );
+
+    return Response.json({ success: true, post: data });
   } catch (err) {
     console.error("Blog generation error:", err);
+
+    // Alert Jose about the failure
+    const errorMsg = err instanceof Error ? err.message : "Unknown error";
+    await alertAdmin(
+      "Blog Generation FAILED",
+      `The weekly blog post failed to generate after 3 attempts.<br><br>
+      <strong>Error:</strong> ${errorMsg}<br><br>
+      The system will retry on the next cron run. If this keeps happening,
+      check the Vercel logs at
+      <a href="https://vercel.com/dashboard" style="color:#2d6a30;">vercel.com/dashboard</a>.`,
+    );
+
     return Response.json(
-      {
-        success: false,
-        error: err instanceof Error ? err.message : "Unknown error",
-      },
+      { success: false, error: errorMsg },
       { status: 500 },
     );
   }
