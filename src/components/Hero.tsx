@@ -102,6 +102,12 @@ export default function Hero({
             <span className="text-white/30">|</span>
             <span>10+ Years</span>
           </div>
+
+          {/* Urgency signal */}
+          <div className="mt-4 flex items-center gap-2 text-sm text-green-200">
+            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+            Limited availability this week &mdash; book now
+          </div>
         </div>
       </div>
 

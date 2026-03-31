@@ -149,7 +149,7 @@ export default function SeasonReadyPage() {
 
       <main>
         {/* Section 1: Stop Coordinating 5 Different Vendors */}
-        <section className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
+        <section className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
           <h2 className="text-2xl max-md:text-xl">
             Stop Coordinating 5 Different Vendors
           </h2>
@@ -174,7 +174,7 @@ export default function SeasonReadyPage() {
         </section>
 
         {/* Section 2: What's Included */}
-        <section className="py-15 px-5 max-w-[1200px] mx-auto text-center max-md:py-10 max-md:px-4 bg-gray-50">
+        <section className="py-16 px-5 max-w-[1200px] mx-auto text-center max-md:py-10 max-md:px-4 bg-gray-50">
           <h2 className="text-2xl max-md:text-xl">
             What&apos;s Included
           </h2>
@@ -206,7 +206,7 @@ export default function SeasonReadyPage() {
         </section>
 
         {/* Section 3: The Season-Ready Timeline */}
-        <section className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
+        <section className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
           <h2 className="text-center text-2xl max-md:text-xl">
             The Season-Ready Timeline
           </h2>
@@ -233,7 +233,7 @@ export default function SeasonReadyPage() {
         </section>
 
         {/* Section 4: Why Farms Trust Us */}
-        <section className="py-15 px-5 bg-gray-50 max-md:py-10 max-md:px-4">
+        <section className="py-16 px-5 bg-gray-50 max-md:py-10 max-md:px-4">
           <div className="max-w-[1200px] mx-auto">
             <h2 className="text-center text-2xl max-md:text-xl">
               Why Farms Trust Us
@@ -256,7 +256,7 @@ export default function SeasonReadyPage() {
         {/* Section 5: Quote */}
         <section
           id="quote"
-          className="py-15 px-5 max-w-[1200px] mx-auto text-center max-md:py-10 max-md:px-4"
+          className="py-16 px-5 max-w-[1200px] mx-auto text-center max-md:py-10 max-md:px-4"
         >
           <h2 className="text-2xl max-md:text-xl">
             Get Your Free Season-Ready Quote

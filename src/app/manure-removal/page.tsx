@@ -36,14 +36,14 @@ export default function ManureRemovalPage() {
         title="Manure Removal Services"
         tagline="Clean stalls, happy horses – let us handle the mess"
         ctaText="Get a Quote"
-        ctaHref="/#contact"
+        ctaHref="/quote"
       />
       <main>
-        <section className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
-          <h2 className="text-2xl max-md:text-xl">
+        <section className="py-20 md:py-28 max-w-7xl mx-auto px-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
             Horse Manure Removal in Palm Beach County
           </h2>
-          <p>
+          <p className="text-gray-500 leading-relaxed">
             Keeping your barn clean doesn&apos;t have to be a chore. At My Horse
             Farm, we provide professional manure removal services to equestrian
             facilities and private barns throughout Royal Palm Beach, Wellington,
@@ -53,7 +53,7 @@ export default function ManureRemovalPage() {
           </p>
 
           <h3 className="text-primary-dark">Why Choose Our Service?</h3>
-          <ul className="pl-5 leading-relaxed">
+          <ul className="pl-5 leading-relaxed text-gray-500">
             <li>Eco&#8209;friendly disposal at approved facilities</li>
             <li>
               Leak&#8209;proof dumpsters and bins that keep waste contained
@@ -67,7 +67,7 @@ export default function ManureRemovalPage() {
             <li>Friendly drivers and competitive pricing</li>
           </ul>
 
-          <p>
+          <p className="text-gray-500 leading-relaxed">
             We understand the regulations that apply to horse manure storage and
             disposal in Wellington and Palm Beach County. Our team handles
             everything from delivery and placement of dumpsters to regular
@@ -76,7 +76,7 @@ export default function ManureRemovalPage() {
           </p>
 
           <h3 className="text-primary-dark">Service Area</h3>
-          <p>
+          <p className="text-gray-500 leading-relaxed">
             We proudly serve barns and equestrian properties in Royal Palm Beach,{" "}
             <a
               href="/manure-removal/wellington"
@@ -103,7 +103,7 @@ export default function ManureRemovalPage() {
           </p>
 
           <h3 className="text-primary-dark">Get Started</h3>
-          <p>
+          <p className="text-gray-500 leading-relaxed">
             Ready to book manure removal? Click the button below to schedule a
             30&#8209;minute appointment or request a custom quote. Our friendly
             team will reach out to confirm your pickup schedule and answer any
@@ -111,8 +111,8 @@ export default function ManureRemovalPage() {
           </p>
           <p>
             <a
-              href="/#calendar"
-              className="inline-block px-6 py-2.5 bg-primary text-white rounded font-bold hover:bg-primary-dark transition-colors"
+              href="/quote"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors"
             >
               Book Manure Removal
             </a>

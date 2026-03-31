@@ -42,7 +42,7 @@ export default function RepairsWellingtonPage() {
         ctaHref="/quote?service=repairs"
       />
       <main>
-        <section className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
+        <section className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
           <h2 className="text-2xl max-md:text-xl">
             Wellington Horse Farm Repair Services
           </h2>
@@ -154,7 +154,7 @@ export default function RepairsWellingtonPage() {
 
         <section
           id="contact"
-          className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4"
+          className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4"
         >
           <h2 className="text-2xl max-md:text-xl">
             Schedule Farm Repairs in Wellington

@@ -41,7 +41,7 @@ export default function JunkRemovalLoxahatcheePage() {
         ctaHref="#contact"
       />
       <main>
-        <section className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
+        <section className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
           <h2 className="text-2xl max-md:text-xl">
             Loxahatchee Junk Removal Services
           </h2>
@@ -54,7 +54,7 @@ export default function JunkRemovalLoxahatcheePage() {
           </p>
         </section>
 
-        <section className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
+        <section className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
           <h2 className="text-2xl max-md:text-xl">Why Choose Us?</h2>
           <ul className="pl-5 leading-relaxed">
             <li>Affordable pricing from $75 per ton</li>
@@ -65,7 +65,7 @@ export default function JunkRemovalLoxahatcheePage() {
           </ul>
         </section>
 
-        <section className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
+        <section className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
           <h2 className="text-2xl max-md:text-xl">Service Areas</h2>
           <ul className="pl-5 leading-relaxed">
             <li>Loxahatchee</li>
@@ -78,7 +78,7 @@ export default function JunkRemovalLoxahatcheePage() {
 
         <section
           id="contact"
-          className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4"
+          className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4"
         >
           <h2 className="text-2xl max-md:text-xl">Book Your Junk Removal</h2>
           <p>

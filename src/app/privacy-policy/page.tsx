@@ -29,7 +29,7 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <Hero title="Privacy Policy" short />
-      <main className="py-15 px-5 max-w-[800px] mx-auto text-left max-md:py-10 max-md:px-4">
+      <main className="py-16 px-5 max-w-[800px] mx-auto text-left max-md:py-10 max-md:px-4">
         <p><strong>Last Updated:</strong> February 25, 2026</p>
 
         <p>My Horse Farm (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) respects your privacy and is committed to protecting the personal information you share with us. This Privacy Policy explains how we collect, use and safeguard your information when you visit our website at <a href="https://www.myhorsefarm.com" className="text-primary-dark">www.myhorsefarm.com</a> or use our services.</p>

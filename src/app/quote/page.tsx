@@ -65,7 +65,7 @@ export default async function QuotePage({
   return (
     <>
       <ServiceSchema />
-      <main className="pt-20 pb-15 px-5 max-md:px-4">
+      <main className="pt-20 pb-16 px-5 max-md:px-4">
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-10">
             <h1 className="text-3xl font-bold max-md:text-2xl">

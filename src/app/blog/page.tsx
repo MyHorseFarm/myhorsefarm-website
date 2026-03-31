@@ -216,13 +216,13 @@ export default async function BlogPage() {
         ctaText="Contact Us"
         ctaHref="/#contact"
       />
-      <main className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
-        <h2 className="text-2xl max-md:text-xl mb-8">Latest Posts</h2>
+      <main className="py-20 md:py-28 max-w-7xl mx-auto px-6">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-10">Latest Posts</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {allPosts.map((post) => (
             <article
               key={post.title}
-              className="bg-white rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col"
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 card-hover overflow-hidden flex flex-col"
               itemScope
               itemType="https://schema.org/BlogPosting"
             >
@@ -241,7 +241,7 @@ export default async function BlogPage() {
                     {post.category}
                   </span>
                   <span
-                    className="text-xs text-gray-400"
+                    className="text-sm text-gray-400"
                     itemProp="datePublished"
                     content={post.dateValue}
                   >

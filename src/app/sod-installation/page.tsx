@@ -96,8 +96,8 @@ export default function SodInstallationPage() {
       />
       <main>
         {/* Types of Sod */}
-        <section className="py-16 px-5 bg-gray-50">
-          <div className="max-w-[1200px] mx-auto">
+        <section className="py-20 md:py-28 px-6 bg-gray-50">
+          <div className="max-w-7xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-3 max-md:text-2xl">
               Types of Sod We Install
             </h2>
@@ -126,8 +126,8 @@ export default function SodInstallationPage() {
         </section>
 
         {/* How It Works */}
-        <section className="py-16 px-5 bg-green-900 text-white">
-          <div className="max-w-[1200px] mx-auto">
+        <section className="py-20 md:py-28 px-6 bg-green-900 text-white">
+          <div className="max-w-7xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-10 max-md:text-2xl">
               How It Works
             </h2>
@@ -170,8 +170,8 @@ export default function SodInstallationPage() {
         </section>
 
         {/* Why Choose Us */}
-        <section className="py-16 px-5">
-          <div className="max-w-[1200px] mx-auto">
+        <section className="py-20 md:py-28 px-6">
+          <div className="max-w-7xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-10 max-md:text-2xl">
               Why Horse Owners Choose Us
             </h2>
@@ -241,8 +241,8 @@ export default function SodInstallationPage() {
         </section>
 
         {/* Service Area */}
-        <section className="py-16 px-5 bg-gray-50">
-          <div className="max-w-[1200px] mx-auto text-center">
+        <section className="py-20 md:py-28 px-6 bg-gray-50">
+          <div className="max-w-7xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-4 max-md:text-2xl">
               Service Area
             </h2>
@@ -283,7 +283,7 @@ export default function SodInstallationPage() {
         </section>
 
         {/* FAQ */}
-        <section className="py-16 px-5">
+        <section className="py-20 md:py-28 px-6">
           <div className="max-w-[800px] mx-auto">
             <h2 className="text-3xl font-bold text-center mb-10 max-md:text-2xl">
               Frequently Asked Questions
@@ -308,7 +308,7 @@ export default function SodInstallationPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-16 px-5 text-center">
+        <section className="py-20 md:py-28 px-6 text-center">
           <h2 className="text-3xl font-bold mb-4 max-md:text-2xl">
             Ready to Transform Your Paddock?
           </h2>

@@ -4,10 +4,14 @@ import { useEffect, useRef, useState } from "react";
 
 export function useCountUp(target: number, duration = 2000) {
   const ref = useRef<HTMLDivElement>(null);
-  const [value, setValue] = useState(0);
+  // Start at target so SSR renders the real number (not 0)
+  const [value, setValue] = useState(target);
   const hasAnimated = useRef(false);
 
   useEffect(() => {
+    // On mount, reset to 0 so the animation can play
+    setValue(0);
+
     const el = ref.current;
     if (!el) return;
 

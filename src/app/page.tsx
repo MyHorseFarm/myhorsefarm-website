@@ -102,12 +102,6 @@ const localBusinessSchema = {
       { "@type": "Offer", itemOffered: { "@type": "Service", name: "Farm Repairs & Maintenance" } },
     ],
   },
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "5.0",
-    reviewCount: "1",
-    bestRating: "5",
-  },
 };
 
 const faqPageSchema = {
@@ -239,6 +233,19 @@ export default function HomePage() {
       <main>
         {/* Stats + Trust Badges */}
         <AnimatedStats />
+
+        {/* Social Proof Strip */}
+        <section className="py-6 bg-white border-b border-gray-100">
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <div className="flex items-center justify-center gap-1 mb-2">
+              {[...Array(5)].map((_, i) => (
+                <i key={i} className="fas fa-star text-yellow-400 text-sm" />
+              ))}
+            </div>
+            <p className="text-gray-600 italic text-sm md:text-base">&ldquo;Hands down the most dependable manure removal company in the area. They show up on schedule, the property stays clean, and the communication is excellent.&rdquo;</p>
+            <p className="text-gray-400 text-xs mt-1">&mdash; Sarah M., Wellington, FL</p>
+          </div>
+        </section>
 
         {/* Services with Photos */}
         <section id="services" className="py-20 md:py-28 bg-white">
@@ -407,7 +414,7 @@ export default function HomePage() {
                     href="/quote"
                     className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors"
                   >
-                    Get Started
+                    Get a Free Quote
                   </Link>
                   <a
                     href={`tel:${PHONE_OFFICE_TEL}`}

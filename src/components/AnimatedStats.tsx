@@ -72,7 +72,7 @@ export default function AnimatedStats() {
         {/* Stats row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           <StatCounter
-            target={10}
+            target={12}
             suffix="+"
             label="Years Experience"
             icon="fas fa-calendar-check"

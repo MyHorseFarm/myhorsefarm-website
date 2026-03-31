@@ -278,7 +278,7 @@ export default function ChatWidget() {
     <>
       {/* Floating button with label */}
       {!open && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 max-md:bottom-20">
           <div
             onClick={() => setOpen(true)}
             className="bg-white text-gray-700 px-4 py-2 rounded-full shadow-lg text-sm font-medium cursor-pointer hover:shadow-xl transition-shadow border border-gray-100"

@@ -98,9 +98,9 @@ export default function DumpsterRentalPage() {
       />
       <main>
         {/* The Trailer */}
-        <section className="py-16 px-5 bg-gray-50">
-          <div className="max-w-[1200px] mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-3 max-md:text-2xl">
+        <section className="py-20 md:py-28 px-6 bg-gray-50">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-3 md:text-4xl text-gray-900">
               Bigger Than a Dumpster. Faster Than a Roll-Off.
             </h2>
             <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
@@ -150,9 +150,9 @@ export default function DumpsterRentalPage() {
         </section>
 
         {/* What Goes In */}
-        <section className="py-16 px-5">
-          <div className="max-w-[1200px] mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-3 max-md:text-2xl">
+        <section className="py-20 md:py-28 px-6">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-3 md:text-4xl text-gray-900">
               What Goes In the Trailer
             </h2>
             <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
@@ -178,9 +178,9 @@ export default function DumpsterRentalPage() {
         </section>
 
         {/* How It Works */}
-        <section className="py-16 px-5 bg-green-900 text-white">
-          <div className="max-w-[1200px] mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-10 max-md:text-2xl">
+        <section className="py-20 md:py-28 px-6 bg-green-900 text-white">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-10 md:text-4xl text-gray-900">
               How It Works
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
@@ -219,9 +219,9 @@ export default function DumpsterRentalPage() {
         </section>
 
         {/* Why Choose Us */}
-        <section className="py-16 px-5">
-          <div className="max-w-[1200px] mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-10 max-md:text-2xl">
+        <section className="py-20 md:py-28 px-6">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-10 md:text-4xl text-gray-900">
               Why Palm Beach County Trusts Us
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -290,9 +290,9 @@ export default function DumpsterRentalPage() {
         </section>
 
         {/* Service Area */}
-        <section className="py-16 px-5 bg-gray-50">
-          <div className="max-w-[1200px] mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4 max-md:text-2xl">
+        <section className="py-20 md:py-28 px-6 bg-gray-50">
+          <div className="max-w-7xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-4 md:text-4xl text-gray-900">
               Service Area
             </h2>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
@@ -331,9 +331,9 @@ export default function DumpsterRentalPage() {
         </section>
 
         {/* FAQ */}
-        <section className="py-16 px-5">
+        <section className="py-20 md:py-28 px-6">
           <div className="max-w-[800px] mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-10 max-md:text-2xl">
+            <h2 className="text-3xl font-bold text-center mb-10 md:text-4xl text-gray-900">
               Frequently Asked Questions
             </h2>
             <div className="space-y-6">
@@ -356,8 +356,8 @@ export default function DumpsterRentalPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-16 px-5 text-center">
-          <h2 className="text-3xl font-bold mb-4 max-md:text-2xl">
+        <section className="py-20 md:py-28 px-6 text-center">
+          <h2 className="text-3xl font-bold mb-4 md:text-4xl text-gray-900">
             Ready to Clear It Out?
           </h2>
           <p className="text-gray-600 mb-8 max-w-xl mx-auto">

@@ -16,6 +16,15 @@ export default function LandingStickyMobileCTA({
         <i className="fas fa-phone" /> Call Now
       </a>
       <a
+        href="https://wa.me/15615767667?text=Hi%2C%20I%20need%20a%20quote%20for%20farm%20services"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-center w-12 py-3 bg-[#25D366] text-white rounded-lg font-bold text-sm no-underline shrink-0"
+        aria-label="Chat on WhatsApp"
+      >
+        <i className="fab fa-whatsapp text-lg" />
+      </a>
+      <a
         href={quoteUrl || "/quote"}
         className="flex-1 flex items-center justify-center gap-2 py-3 bg-accent text-gray-900 rounded-lg font-bold text-sm no-underline"
       >

@@ -29,7 +29,7 @@ export default function TermsOfServicePage() {
   return (
     <>
       <Hero title="Terms of Service" short />
-      <main className="py-15 px-5 max-w-[800px] mx-auto text-left max-md:py-10 max-md:px-4">
+      <main className="py-16 px-5 max-w-[800px] mx-auto text-left max-md:py-10 max-md:px-4">
         <p><strong>Last Updated:</strong> February 25, 2026</p>
 
         <p>Welcome to My Horse Farm. By accessing our website at <a href="https://www.myhorsefarm.com" className="text-primary-dark">www.myhorsefarm.com</a> or using our services, you agree to these Terms of Service. Please read them carefully.</p>

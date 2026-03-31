@@ -1,11 +1,27 @@
 import type { Metadata } from "next";
+import { Outfit, Inter } from "next/font/google";
 import Script from "next/script";
 import Navbar from "@/components/Navbar";
 import ChatWidget from "@/components/ChatWidget";
+import StickyMobileCTA from "@/components/StickyMobileCTA";
 import ConversionTracker from "@/components/ConversionTracker";
 import UtmCapture from "@/components/UtmCapture";
 import AudienceSignals from "@/components/AudienceSignals";
 import "./globals.css";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  weight: ["400", "500", "600"],
+});
 
 const GTM_ID = "GTM-TWDPWRQV";
 
@@ -35,14 +51,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${outfit.variable} ${inter.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -63,7 +73,17 @@ export default function RootLayout({
         <div className="pt-[60px]">
           {children}
         </div>
+        <a
+          href="https://wa.me/15615767667?text=Hi%2C%20I%20need%20a%20quote%20for%20farm%20services"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-24 right-6 z-40 w-12 h-12 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#20BD5A] transition-colors max-md:bottom-36"
+          aria-label="Chat on WhatsApp"
+        >
+          <i className="fab fa-whatsapp text-2xl" />
+        </a>
         <ChatWidget />
+        <StickyMobileCTA />
         <ConversionTracker />
         <UtmCapture />
         <AudienceSignals />

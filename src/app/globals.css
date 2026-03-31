@@ -11,8 +11,8 @@
   --color-earth: #3d2c1e;
   --color-surface: #ffffff;
   --color-surface-alt: #f8f9fa;
-  --font-heading: "Outfit", sans-serif;
-  --font-body: "Inter", sans-serif;
+  --font-heading: var(--font-outfit), sans-serif;
+  --font-body: var(--font-inter), sans-serif;
 }
 
 html {

@@ -10,7 +10,7 @@ interface QuoteFormProps {
   referralCode?: string;
 }
 
-type Step = "service" | "details" | "location" | "contact" | "confirmation";
+type Step = "service" | "details" | "contact" | "confirmation";
 
 const LOCATION_OPTIONS = [
   { value: "wellington", label: "Wellington" },
@@ -357,7 +357,6 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
   const steps: { key: Step; label: string }[] = [
     { key: "service", label: "Service" },
     { key: "details", label: "Details" },
-    { key: "location", label: "Location" },
     { key: "contact", label: "Contact" },
   ];
 
@@ -526,7 +525,7 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
                   }
                 }
                 setDetailsError("");
-                setStep("location");
+                setStep("contact");
               }}
               className="px-6 py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors"
             >
@@ -536,43 +535,27 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
         </div>
       )}
 
-      {/* Step 3: Location */}
-      {step === "location" && (
-        <div>
-          <h2 className="text-xl font-bold mb-4">Select Your Location</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {LOCATION_OPTIONS.map((loc) => (
-              <button
-                key={loc.value}
-                onClick={() => {
-                  setLocation(loc.value);
-                  setStep("contact");
-                }}
-                className={`text-left p-4 rounded-lg border-2 transition-all hover:border-primary ${
-                  location === loc.value
-                    ? "border-primary bg-green-50"
-                    : "border-gray-200"
-                }`}
-              >
-                <span className="font-semibold text-gray-800">{loc.label}</span>
-              </button>
-            ))}
-          </div>
-          <div className="flex gap-3 mt-6">
-            <button
-              onClick={() => setStep("details")}
-              className="px-6 py-3 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
-            >
-              Back
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Step 4: Contact Info */}
+      {/* Step 3: Contact Info + Location */}
       {step === "contact" && (
         <div>
           <h2 className="text-xl font-bold mb-4">Your Contact Information</h2>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Your Area</label>
+            <div className="grid grid-cols-2 gap-2">
+              {LOCATION_OPTIONS.map((loc) => (
+                <button
+                  key={loc.value}
+                  type="button"
+                  onClick={() => setLocation(loc.value)}
+                  className={`px-3 py-2 text-sm rounded border ${location === loc.value ? 'border-primary bg-primary/10 text-primary font-medium' : 'border-gray-200 text-gray-600 hover:border-primary/30'}`}
+                >
+                  {loc.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <label className="block mb-4">
             <span className="text-gray-700 font-semibold">Full name</span>
             <input
@@ -619,14 +602,14 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
 
           <div className="flex gap-3 mt-6">
             <button
-              onClick={() => setStep("location")}
+              onClick={() => setStep("details")}
               className="px-6 py-3 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
             >
               Back
             </button>
             <button
               onClick={handleSubmit}
-              disabled={submitting || !contact.name || !contact.email || !contact.phone}
+              disabled={submitting || !contact.name || !contact.email || !contact.phone || !location}
               className="px-6 py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? "Submitting..." : "Get My Quote"}

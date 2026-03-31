@@ -181,14 +181,24 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Mobile hamburger */}
-        <button
-          className={`rounded-md p-2 lg:hidden transition-colors duration-300 ${
-            isTransparent ? "text-white" : "text-gray-700"
-          }`}
-          aria-label="Toggle navigation menu"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
+        {/* Mobile phone + hamburger */}
+        <div className="flex items-center gap-1 lg:hidden">
+          <a
+            href={`tel:${PHONE_OFFICE_TEL}`}
+            className={`rounded-md p-2 transition-colors duration-300 ${
+              isTransparent ? "text-white" : "text-primary"
+            }`}
+            aria-label="Call us"
+          >
+            <i className="fas fa-phone text-lg" />
+          </a>
+          <button
+            className={`rounded-md p-2 transition-colors duration-300 ${
+              isTransparent ? "text-white" : "text-gray-700"
+            }`}
+            aria-label="Toggle navigation menu"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
           {mobileOpen ? (
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -198,7 +208,8 @@ export default function Navbar() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           )}
-        </button>
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu - always white background */}

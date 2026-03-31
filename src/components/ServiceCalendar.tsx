@@ -100,7 +100,7 @@ export default function ServiceCalendar({
   }
 
   return (
-    <section id="calendar" className="py-15 px-5 max-w-[1200px] mx-auto text-center max-md:py-10 max-md:px-4">
+    <section id="calendar" className="py-16 px-5 max-w-[1200px] mx-auto text-center max-md:py-10 max-md:px-4">
       <h2 className="text-2xl max-md:text-xl">Schedule &amp; Availability</h2>
       <p className="text-gray-600 mb-4">Choose a date that works for you.</p>
       <img src="/logo.png" alt="My Horse Farm logo" className="w-[160px] h-auto mb-3 mx-auto" />

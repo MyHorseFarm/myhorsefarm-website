@@ -42,7 +42,7 @@ export default function ManureRemovalWellingtonPage() {
         ctaHref="/#calendar"
       />
       <main>
-        <section className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
+        <section className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
           <h2 className="text-2xl max-md:text-xl">
             Wellington Horse Manure Removal Services
           </h2>
@@ -130,7 +130,7 @@ export default function ManureRemovalWellingtonPage() {
 
         <section
           id="contact"
-          className="py-15 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4"
+          className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4"
         >
           <h2 className="text-2xl max-md:text-xl">
             Book Manure Removal in Wellington
