@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   NAV_LINKS,
@@ -53,7 +52,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Color classes based on transparent vs solid state
   const navLinkClass = isTransparent
     ? "rounded-lg px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
     : "rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-primary/5 hover:text-primary";
@@ -73,20 +71,16 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5">
         {/* Logo */}
         <Link href="/" className="flex shrink-0 items-center gap-2.5">
-          <Image
-            src="/logo.png"
-            alt="My Horse Farm"
-            width={40}
-            height={40}
-            className="h-10 w-10"
-          />
+          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white">
+            <i className="fas fa-dog text-lg" />
+          </div>
           <div className="hidden sm:block">
             <span
               className={`text-lg font-bold font-[family-name:var(--font-heading)] tracking-tight transition-colors duration-300 ${
                 isTransparent ? "text-white" : "text-primary"
               }`}
             >
-              My Horse Farm
+              Aaron&apos;s Dog Grooming
             </span>
           </div>
         </Link>
@@ -170,14 +164,14 @@ export default function Navbar() {
             {PHONE_OFFICE}
           </a>
           <Link
-            href="/quote"
+            href="#contact"
             className={`rounded-xl px-5 py-2.5 text-sm font-semibold shadow-sm transition-all duration-300 ${
               isTransparent
                 ? "bg-accent text-earth hover:bg-accent-light shadow-accent/25 hover:shadow-md hover:shadow-accent/30"
                 : "bg-primary text-white hover:bg-primary-dark shadow-primary/25 hover:shadow-md hover:shadow-primary/30"
             }`}
           >
-            Get a Quote
+            Book Now
           </Link>
         </div>
 
@@ -212,7 +206,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu - always white background */}
+      {/* Mobile menu */}
       {mobileOpen && (
         <div className="border-t border-gray-100 bg-white px-4 pb-4 lg:hidden">
           <ul className="space-y-1 pt-2">
@@ -274,10 +268,10 @@ export default function Navbar() {
 
           <div className="mt-4 space-y-3 border-t border-gray-100 pt-4">
             <Link
-              href="/quote"
+              href="#contact"
               className="block rounded-xl bg-primary px-4 py-3 text-center text-base font-semibold text-white shadow-sm hover:bg-primary-dark"
             >
-              Get a Quote
+              Book Now
             </Link>
             <a
               href={`tel:${PHONE_OFFICE_TEL}`}

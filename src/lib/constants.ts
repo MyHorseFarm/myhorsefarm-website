@@ -1,76 +1,70 @@
-export const SITE_NAME = "My Horse Farm";
-export const PHONE_OFFICE = "(561) 576-7667";
-export const PHONE_OFFICE_TEL = "+15615767667";
-export const PHONE_CELL = "(561) 889-9016";
-export const PHONE_CELL_TEL = "+15618899016";
-export const EMAIL_SALES = "sales@myhorsefarm.com";
-export const EMAIL_FORM = "manureservice@gmail.com";
-export const ADDRESS = "Royal Palm Beach, FL 33411";
+export const SITE_NAME = "Aaron's Dog Grooming";
+export const PHONE_OFFICE = "(555) DOG-WASH";
+export const PHONE_OFFICE_TEL = "+15553649274";
+export const PHONE_CELL = "(555) 364-9275";
+export const PHONE_CELL_TEL = "+15553649275";
+export const EMAIL_SALES = "info@aaronsdoggrooming.com";
+export const EMAIL_FORM = "info@aaronsdoggrooming.com";
+export const ADDRESS = "123 Pawsome Lane, Austin, TX 78701";
 
 export const SOCIAL = {
-  facebook: "https://www.facebook.com/myhorsefarmapp",
-  instagram: "https://www.instagram.com/myhorsefarmservice/",
-  youtube: "https://www.youtube.com/@horsedadtv9292",
+  facebook: "https://www.facebook.com/aaronsdoggrooming",
+  instagram: "https://www.instagram.com/aaronsdoggrooming/",
+  youtube: "https://www.youtube.com/@aaronsdoggrooming",
   google:
-    "https://www.google.com/maps/place/My+Horse+Farm/@26.6957151,-80.2033345,10z/data=!3m1!4b1!4m6!3m5!1s0x6826af3f1557e94b:0xcc8b36039075494b!8m2!3d26.695715!4d-80.2033345!16s%2Fg%2F11p00vldxb?entry=ttu",
+    "https://www.google.com/maps/place/Aaron's+Dog+Grooming",
 };
 
-export const GTM_ID = "GTM-TWDPWRQV";
-
-export const HUBSPOT_PORTAL_ID = "243452157";
-export const HUBSPOT_FORM_ID = "2980030d-1b91-4afd-af28-9fb1445cf00d";
-
-export const NAV_LINKS = [
+export const NAV_LINKS: { label: string; anchor?: string; href?: string }[] = [
   { label: "About", anchor: "about" },
   { label: "Testimonials", anchor: "testimonials" },
   { label: "FAQ", anchor: "faq" },
-  { label: "Blog", href: "/blog" },
   { label: "Contact", anchor: "contact" },
 ];
 
 export const SERVICE_DROPDOWN = [
-  { label: "Dumpster Rental", href: "/dumpster-rental" },
-  { label: "Junk Removal", href: "/junk-removal" },
-  { label: "Sod Installation", href: "/sod-installation" },
-  { label: "Fill Dirt", href: "/fill-dirt" },
-  { label: "Repairs & Maintenance", href: "/repairs" },
-  { label: "Waste Removal", href: "/manure-removal" },
-  { label: "Season-Ready Package", href: "/season-ready" },
+  { label: "Full Grooming", href: "/full-grooming" },
+  { label: "Bath & Brush", href: "/bath-and-brush" },
+  { label: "Puppy's First Groom", href: "/puppy-first-groom" },
+  { label: "Nail Trim & Ear Clean", href: "/nail-trim" },
+  { label: "De-Shedding Treatment", href: "/de-shedding" },
+  { label: "Teeth Brushing", href: "/teeth-brushing" },
+  { label: "Spa Package", href: "/spa-package" },
 ];
 
 export const TESTIMONIALS = [
   {
-    body: "We\u2019ve worked with My Horse Farm Services for over a year now and they are hands down the most dependable farm service company in the area. They show up on schedule, the property stays clean, and the communication is excellent. In Wellington, reliability is everything \u2014 and they deliver every single time.",
-    author: "Sarah M.",
-    location: "Wellington, FL",
+    body: "Aaron is absolutely amazing with our golden retriever. She used to hate grooming but now she gets excited when we pull into the parking lot. The attention to detail is incredible and our dog always comes out looking and smelling fantastic.",
+    author: "Emily R.",
+    location: "Austin, TX",
   },
   {
-    body: "Managing 40+ stalls means waste builds up fast. These guys handle our 60-yard loads without issues and always provide weight tickets when needed. Professional, organized, and priced fairly. It\u2019s rare to find that level of consistency.",
-    author: "Carlos R.",
-    location: "Loxahatchee, FL",
+    body: "We have two poodles that need regular grooming and Aaron's team always does an outstanding job. The cuts are perfect every time, the staff is friendly, and the pricing is very fair. Highly recommend to any dog owner in Austin!",
+    author: "Marcus T.",
+    location: "Round Rock, TX",
   },
   {
-    body: "During the off-season we had a full barn cleanout and property cleanup. My Horse Farm Services handled everything \u2014 old fencing, debris, and general junk removal. They were fast, affordable, and didn\u2019t leave a mess behind. We\u2019ll definitely use them again.",
-    author: "Jessica L.",
-    location: "Royal Palm Beach, FL",
+    body: "Found Aaron's after a bad experience at another groomer. What a difference! They took the time to understand our anxious rescue dog's needs and were so patient with him. He actually enjoyed his grooming session. We're customers for life.",
+    author: "Sarah K.",
+    location: "Cedar Park, TX",
   },
 ];
 
 export const LP_TESTIMONIALS = [
   {
-    body: "\u201cJose and his team are fantastic! They showed up on time, worked efficiently, and left my property looking amazing. Best farm service in the area!\u201d",
-    author: "Sarah M.",
-    location: "Wellington, FL",
+    body: "\u201cAaron and his team are fantastic! Our dog always comes out looking and feeling great. Best groomer in Austin!\u201d",
+    author: "Emily R.",
+    location: "Austin, TX",
   },
   {
-    body: "\u201cReliable, affordable, and always professional. My Horse Farm handles all our farm services and we couldn\u2019t be happier with the results.\u201d",
-    author: "Carlos R.",
-    location: "Loxahatchee, FL",
+    body: "\u201cReliable, affordable, and so gentle with our pups. Aaron's Dog Grooming is the only place we trust with our dogs.\u201d",
+    author: "Marcus T.",
+    location: "Round Rock, TX",
   },
   {
-    body: "\u201cWe\u2019ve tried other services before but My Horse Farm is by far the best. Fair pricing, great communication, and they truly care about their customers.\u201d",
-    author: "Jessica L.",
-    location: "Royal Palm Beach, FL",
+    body: "\u201cWe\u2019ve tried other groomers but Aaron's is by far the best. Fair pricing, great communication, and they truly care about the dogs.\u201d",
+    author: "Sarah K.",
+    location: "Cedar Park, TX",
   },
 ];
 
@@ -78,68 +72,66 @@ export const FAQ_ITEMS = [
   {
     question: "What areas do you serve?",
     answer:
-      "We serve Royal Palm Beach, Wellington, Loxahatchee, Loxahatchee Groves, West Palm Beach and Palm Beach Gardens. If you\u2019re in Palm Beach County and nearby, contact us \u2014 we may be able to accommodate your location.",
+      "We're located in Austin, TX and serve the greater Austin area including Round Rock, Cedar Park, Pflugerville, Georgetown, and Lakeway. Drop-offs welcome at our shop!",
   },
   {
     question: "How is pricing determined?",
     answer:
-      "Pricing depends on the type of service and scope of work. Junk removal starts at $75 per ton. For services like sod installation, fill dirt delivery, dumpster rental and manure removal, we provide custom quotes based on your specific needs. Contact us for a free estimate.",
+      "Pricing depends on your dog's breed, size, coat condition, and the services requested. A full grooming starts at $45 for small dogs. We provide transparent pricing before every appointment — no surprises.",
   },
   {
-    question: "Do you offer same-day service?",
+    question: "Do you offer same-day appointments?",
     answer:
-      "Yes, we offer same-day and next-day service for junk removal and many other services, subject to availability. Call us at (561) 576-7667 for urgent requests and we\u2019ll do our best to accommodate your schedule.",
+      "Yes, we keep a few slots open each day for same-day appointments, subject to availability. Call us or book online to check today's availability.",
   },
   {
-    question: "Are you licensed and insured?",
+    question: "Is Aaron's Dog Grooming licensed and insured?",
     answer:
-      "Absolutely. My Horse Farm is fully licensed and insured in the state of Florida. We comply with all Palm Beach County regulations for waste disposal, hauling and agricultural services.",
+      "Absolutely. We are fully licensed and insured. All of our groomers are professionally certified and trained in breed-specific grooming techniques and pet first aid.",
   },
   {
-    question: "How do I schedule a service?",
+    question: "How do I book an appointment?",
     answer:
-      "You can book online using our scheduling system on this page, call us at (561) 576-7667, or fill out the contact form below. We\u2019ll confirm your appointment and answer any questions you have.",
+      "You can book online using our scheduling system, call us directly, or fill out the contact form on our website. We'll confirm your appointment and send you a reminder the day before.",
   },
   {
-    question: "Do you provide manure bins, or do I need my own?",
+    question: "What if my dog is anxious or aggressive?",
     answer:
-      "We provide leak-proof manure bins and dumpsters as part of our service. We deliver the container, schedule regular pickups and handle all disposal. You don\u2019t need to supply your own bin.",
+      "We specialize in handling anxious and nervous dogs. Aaron and our team use gentle, fear-free grooming techniques. We'll work at your dog's pace and take breaks as needed. Just let us know about any concerns when you book.",
   },
   {
-    question: "What makes your disposal eco-friendly?",
+    question: "What products do you use?",
     answer:
-      "We dispose of waste at approved facilities and recycle materials whenever possible. For manure, we work with composting facilities. For junk removal, we sort items for recycling, donation and responsible disposal to minimize landfill impact.",
+      "We use premium, all-natural, hypoallergenic shampoos and conditioners that are safe for sensitive skin. We also offer medicated bath options for dogs with skin conditions. All products are cruelty-free and eco-friendly.",
   },
 ];
 
 export const SERVICE_AREAS = [
-  { value: "wellington", label: "Wellington" },
-  { value: "loxahatchee", label: "Loxahatchee" },
-  { value: "royal_palm_beach", label: "Royal Palm Beach" },
-  { value: "west_palm_beach", label: "West Palm Beach" },
-  { value: "palm_beach_gardens", label: "Palm Beach Gardens" },
-  { value: "loxahatchee_groves", label: "Loxahatchee Groves" },
+  { value: "austin", label: "Austin" },
+  { value: "round_rock", label: "Round Rock" },
+  { value: "cedar_park", label: "Cedar Park" },
+  { value: "pflugerville", label: "Pflugerville" },
+  { value: "georgetown", label: "Georgetown" },
+  { value: "lakeway", label: "Lakeway" },
 ];
 
 export const SERVICE_KEYS = [
-  "manure_removal",
-  "trash_bin_service",
-  "junk_removal",
-  "sod_installation",
-  "fill_dirt",
-  "dumpster_rental",
-  "farm_repairs",
-  "millings_asphalt",
-  "shipping_container",
+  "full_grooming",
+  "bath_and_brush",
+  "puppy_first_groom",
+  "nail_trim",
+  "de_shedding",
+  "teeth_brushing",
+  "spa_package",
 ] as const;
 
 export type ServiceKey = (typeof SERVICE_KEYS)[number];
 
 export const TRUST_BADGES = [
   { icon: "fas fa-shield-halved", label: "Fully Insured" },
-  { icon: "fas fa-file-certificate", label: "Licensed in FL" },
-  { icon: "fas fa-leaf", label: "Eco-Friendly" },
+  { icon: "fas fa-certificate", label: "Certified Groomers" },
+  { icon: "fas fa-leaf", label: "Natural Products" },
   { icon: "fas fa-map-pin", label: "Locally Owned" },
   { icon: "fas fa-star", label: "5-Star Rated" },
-  { icon: "fas fa-horse", label: "Horse Owners" },
+  { icon: "fas fa-dog", label: "Dog Lovers" },
 ];

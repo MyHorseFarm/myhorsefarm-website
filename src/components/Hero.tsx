@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { PHONE_OFFICE, PHONE_OFFICE_TEL } from "@/lib/constants";
 
@@ -17,8 +16,7 @@ export default function Hero({
 }) {
   if (short) {
     return (
-      <header className="relative overflow-hidden bg-gradient-to-br from-[#1a3d1c] via-[#2d6a30] to-[#1e4d20]">
-        {/* Subtle pattern overlay */}
+      <header className="relative overflow-hidden bg-gradient-to-br from-[#1e3a5f] via-[#2563eb] to-[#1d4ed8]">
         <div className="absolute inset-0 opacity-10" style={{
           backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
         }} />
@@ -33,26 +31,18 @@ export default function Hero({
   }
 
   return (
-    <header className="relative overflow-hidden min-h-[70vh] md:min-h-[90vh] flex items-center -mt-[60px]">
-      {/* Background photo */}
-      <Image
-        src="/images/hero-farm.jpg"
-        alt="Equestrian farm in Palm Beach County"
-        fill
-        priority
-        className="object-cover"
-        sizes="100vw"
-      />
-
-      {/* Dark gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/20" />
+    <header className="relative overflow-hidden min-h-[70vh] md:min-h-[90vh] flex items-center -mt-[60px] bg-gradient-to-br from-[#0f172a] via-[#1e3a5f] to-[#1e40af]">
+      {/* Decorative paw prints pattern */}
+      <div className="absolute inset-0 opacity-[0.04]" style={{
+        backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Ccircle cx='20' cy='20' r='6'/%3E%3Ccircle cx='60' cy='60' r='6'/%3E%3Ccircle cx='10' cy='10' r='3'/%3E%3Ccircle cx='30' cy='10' r='3'/%3E%3Ccircle cx='10' cy='30' r='3'/%3E%3Ccircle cx='50' cy='50' r='3'/%3E%3Ccircle cx='70' cy='50' r='3'/%3E%3Ccircle cx='50' cy='70' r='3'/%3E%3C/g%3E%3C/svg%3E\")",
+      }} />
 
       {/* Content - LEFT aligned */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-10 py-16 pt-28 md:pt-16">
         <div className="max-w-2xl">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-accent-light text-sm font-medium px-4 py-1.5 rounded-full mb-6">
-            <i className="fas fa-horse text-xs" />
-            Lowest Prices in Palm Beach County
+            <i className="fas fa-paw text-xs" />
+            Austin&apos;s Most Trusted Dog Groomer
           </div>
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.08]">
@@ -98,15 +88,15 @@ export default function Hero({
             </div>
             <span>5-Star Rated</span>
             <span className="text-white/30">|</span>
-            <span>400+ Happy Clients</span>
+            <span>1,000+ Happy Pups</span>
             <span className="text-white/30">|</span>
-            <span>12+ Years</span>
+            <span>8+ Years</span>
           </div>
 
           {/* Urgency signal */}
-          <div className="mt-4 flex items-center gap-2 text-sm text-green-200">
-            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            Limited availability this week &mdash; book now
+          <div className="mt-4 flex items-center gap-2 text-sm text-blue-200">
+            <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+            Spots filling up fast &mdash; book today
           </div>
         </div>
       </div>
@@ -114,7 +104,7 @@ export default function Hero({
       {/* Bottom wave separator */}
       <div className="absolute bottom-0 left-0 right-0">
         <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-          <path d="M0 60V20C240 50 480 10 720 30C960 50 1200 10 1440 30V60H0Z" fill="#faf6ee"/>
+          <path d="M0 60V20C240 50 480 10 720 30C960 50 1200 10 1440 30V60H0Z" fill="#f8fafc"/>
         </svg>
       </div>
     </header>
