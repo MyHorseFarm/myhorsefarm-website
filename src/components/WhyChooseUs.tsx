@@ -1,12 +1,12 @@
 const features = [
-  "All Services Under One Roof",
-  "Same-Day Available",
-  "Online Booking & AI Chat",
+  "All Grooming Services Under One Roof",
+  "Same-Day Appointments Available",
+  "Online Booking",
   "Transparent Pricing",
-  "Bilingual (EN/ES)",
-  "Eco-Friendly Disposal",
-  "Weight Tickets Provided",
-  "Horse Owner Operated",
+  "Certified & Trained Groomers",
+  "Natural & Hypoallergenic Products",
+  "Fear-Free Grooming Techniques",
+  "Dog Lover Operated",
 ];
 
 export default function WhyChooseUs() {
@@ -17,7 +17,7 @@ export default function WhyChooseUs() {
           Why Choose Us
         </h2>
         <p className="text-center text-gray-600 mb-10 max-w-xl mx-auto">
-          See how My Horse Farm stacks up against the typical competitor.
+          See how Aaron&apos;s Dog Grooming stacks up against the typical competitor.
         </p>
 
         <div className="rounded-2xl overflow-hidden shadow-lg bg-white">
@@ -26,12 +26,12 @@ export default function WhyChooseUs() {
             <div className="p-4" />
             <div className="bg-[var(--color-primary)] p-4">
               <span className="font-[family-name:var(--font-heading)] text-white font-bold text-sm uppercase tracking-wider">
-                My Horse Farm
+                Aaron&apos;s
               </span>
             </div>
             <div className="bg-gray-400 p-4">
               <span className="font-[family-name:var(--font-heading)] text-white font-bold text-sm uppercase tracking-wider">
-                Typical Competitor
+                Other Groomers
               </span>
             </div>
           </div>

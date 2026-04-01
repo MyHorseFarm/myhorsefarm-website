@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import {
   SOCIAL,
   PHONE_OFFICE,
@@ -11,27 +10,23 @@ import {
 
 export default function Footer() {
   return (
-    <footer className="bg-[#1a2e1c] text-white">
+    <footer className="bg-[#0f172a] text-white">
       {/* Main footer content */}
       <div className="max-w-6xl mx-auto px-6 py-14">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand column */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <Image
-                src="/logo.png"
-                alt="My Horse Farm"
-                width={44}
-                height={44}
-                className="w-11 h-11"
-              />
+              <div className="flex items-center justify-center w-11 h-11 rounded-full bg-primary text-white">
+                <i className="fas fa-dog text-lg" />
+              </div>
               <span className="text-lg font-bold font-[family-name:var(--font-heading)] tracking-tight">
-                My Horse Farm
+                Aaron&apos;s Dog Grooming
               </span>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed mb-5">
-              Premier agricultural and equestrian services in Palm Beach County.
-              Horse owners serving horse owners since 2014.
+              Premium dog grooming services in Austin, TX.
+              Dog lovers caring for your best friend since 2018.
             </p>
             <div className="flex gap-3">
               {[
@@ -89,18 +84,13 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-sm text-gray-400 hover:text-white transition-colors">
-                  Blog
+                <Link href="/#faq" className="text-sm text-gray-400 hover:text-white transition-colors">
+                  FAQ
                 </Link>
               </li>
               <li>
-                <Link href="/offers" className="text-sm text-gray-400 hover:text-white transition-colors">
-                  Special Offers
-                </Link>
-              </li>
-              <li>
-                <Link href="/crew" className="text-sm text-gray-400 hover:text-white transition-colors">
-                  Crew Portal
+                <Link href="/#contact" className="text-sm text-gray-400 hover:text-white transition-colors">
+                  Contact
                 </Link>
               </li>
             </ul>
@@ -137,10 +127,10 @@ export default function Footer() {
             </ul>
             <div className="mt-5">
               <Link
-                href="/quote"
+                href="#contact"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:text-accent-light transition-colors"
               >
-                Get a Free Quote
+                Book an Appointment
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -154,7 +144,7 @@ export default function Footer() {
       <div className="border-t border-white/10">
         <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-3">
           <p className="text-xs text-gray-500">
-            &copy; {new Date().getFullYear()} My Horse Farm. All rights reserved.
+            &copy; {new Date().getFullYear()} Aaron&apos;s Dog Grooming. All rights reserved.
           </p>
           <div className="flex gap-4">
             <Link href="/privacy-policy" className="text-xs text-gray-500 hover:text-gray-300 transition-colors">

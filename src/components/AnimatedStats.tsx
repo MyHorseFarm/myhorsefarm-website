@@ -4,11 +4,11 @@ import { useCountUp } from "@/hooks/useCountUp";
 
 const badges = [
   "Fully Insured",
-  "Licensed in FL",
-  "Eco-Friendly",
+  "Certified Groomers",
+  "Natural Products",
   "Locally Owned",
-  "Bilingual EN/ES",
-  "Horse Owner Operated",
+  "Fear-Free Grooming",
+  "Dog Lover Operated",
 ];
 
 function StatCounter({
@@ -67,27 +67,27 @@ function StarRating({ value }: { value: number }) {
 
 export default function AnimatedStats() {
   return (
-    <section className="bg-[#1a2e1c] py-16">
+    <section className="bg-[#1e3a5f] py-16">
       <div className="max-w-6xl mx-auto px-4">
         {/* Stats row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           <StatCounter
-            target={12}
+            target={8}
             suffix="+"
             label="Years Experience"
             icon="fas fa-calendar-check"
           />
           <StatCounter
-            target={400}
-            suffix="+"
-            label="Happy Clients"
-            icon="fas fa-users"
-          />
-          <StatCounter
             target={1000}
             suffix="+"
-            label="Tons Hauled"
-            icon="fas fa-truck"
+            label="Happy Pups"
+            icon="fas fa-dog"
+          />
+          <StatCounter
+            target={50}
+            suffix="+"
+            label="Breeds Groomed"
+            icon="fas fa-scissors"
           />
           <StarRating value={5.0} />
         </div>
