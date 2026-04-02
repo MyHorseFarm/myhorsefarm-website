@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
@@ -36,6 +37,7 @@ const services = [
     key: "manure-removal",
     name: "Yard Trash Bin Service",
     icon: "fas fa-trash-can",
+    image: "/images/service-manure.jpg",
     price: "$25",
     priceUnit: "/pickup",
     priceNote: "One-time bin drop-off fee: $100. Or purchase your own bin.",
@@ -50,6 +52,7 @@ const services = [
     key: "manure-removal",
     name: "Bulk Livestock Waste Removal",
     icon: "fas fa-truck-monster",
+    image: "/images/service-bulk-manure.jpg",
     price: "$300",
     priceUnit: "+",
     priceNote: "Full truckload. 20–40 yards of manure hauled per load.",
@@ -64,6 +67,7 @@ const services = [
     key: "junk-removal",
     name: "Junk Removal",
     icon: "fas fa-truck-pickup",
+    image: "/images/service-junk.jpg",
     price: "$75",
     priceUnit: "/ton",
     priceNote: "Farm debris, old fencing, equipment, furniture.",
@@ -78,6 +82,7 @@ const services = [
     key: "dumpster-rental",
     name: "Dumpster Rental",
     icon: "fas fa-dumpster",
+    image: "/images/service-dumpster.jpg",
     price: "$350",
     priceUnit: "",
     priceNote: "20-yard roll-off dumpster. 7-day rental included.",
@@ -92,6 +97,7 @@ const services = [
     key: "sod-installation",
     name: "Sod Installation",
     icon: "fas fa-seedling",
+    image: "/images/service-sod.jpg",
     price: "$0.85",
     priceUnit: "/sq ft",
     priceNote: "Installed. St. Augustine, Bahia, and Zoysia varieties.",
@@ -106,6 +112,7 @@ const services = [
     key: "fill-dirt",
     name: "Fill Dirt",
     icon: "fas fa-mountain",
+    image: "/images/service-fill-dirt.jpg",
     price: "$35",
     priceUnit: "/cu yd",
     priceNote: "Delivered. Minimum 10 yards.",
@@ -120,6 +127,7 @@ const services = [
     key: "repairs",
     name: "Farm Repairs",
     icon: "fas fa-tools",
+    image: "/images/service-repairs.jpg",
     price: "$125",
     priceUnit: "+",
     priceNote: "Gate repair from $125. Fence from $150. Stalls from $200.",
@@ -250,19 +258,31 @@ export default function PricingPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services.map((svc) => (
+              {services.map((svc, idx) => (
                 <div
-                  key={svc.key}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-7 flex flex-col"
+                  key={`${svc.key}-${idx}`}
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col"
                 >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-primary/10">
-                      <i className={`${svc.icon} text-primary`} />
+                  {/* Service photo */}
+                  <div className="relative aspect-[3/2] overflow-hidden">
+                    <Image
+                      src={svc.image}
+                      alt={svc.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                    <div className="absolute top-3 right-3">
+                      <span className="text-xs font-bold text-white bg-primary/90 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                        From {svc.price}{svc.priceUnit}
+                      </span>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900">
-                      {svc.name}
-                    </h3>
                   </div>
+
+                  <div className="p-7 flex flex-col flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">
+                    {svc.name}
+                  </h3>
 
                   <div className="mb-4">
                     <span className="text-3xl font-black text-gray-900">
@@ -309,6 +329,7 @@ export default function PricingPage() {
                       />
                     </svg>
                   </Link>
+                  </div>
                 </div>
               ))}
             </div>
