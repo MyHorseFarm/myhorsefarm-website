@@ -9,7 +9,7 @@ import { PHONE_OFFICE, PHONE_OFFICE_TEL } from "@/lib/constants";
 import { getLandingPageData } from "@/lib/landing-data";
 
 export const metadata: Metadata = {
-  title: "Manure Removal West Palm Beach FL | Call (561) 576-7667",
+  title: "Farm Services West Palm Beach FL | Waste Removal | Call (561) 576-7667",
   robots: "noindex, nofollow",
 };
 
@@ -22,10 +22,10 @@ const TRUST_ITEMS = [
 ];
 
 const MANURE_OPTIONS = [
-  { value: "Scheduled Manure Pickup", label: "Scheduled Manure Pickup" },
+  { value: "Scheduled Waste Pickup", label: "Scheduled Waste Pickup" },
   { value: "One-Time Cleanup", label: "One-Time Cleanup" },
   { value: "Bin/Dumpster Delivery", label: "Bin/Dumpster Delivery" },
-  { value: "Manure + Junk Removal Combo", label: "Manure + Junk Removal Combo" },
+  { value: "Waste + Junk Removal Combo", label: "Waste + Junk Removal Combo" },
 ];
 
 export default async function LpManureWestPalmBeach() {
@@ -34,7 +34,7 @@ export default async function LpManureWestPalmBeach() {
   return (
     <>
       <LandingHero
-        title="West Palm Beach Manure Removal"
+        title="West Palm Beach Farm & Property Services"
         subtitle="Starting at $75/ton &middot; Same-Day Service Available"
         slotsLeft={slotsLeft}
       />
@@ -56,7 +56,7 @@ export default async function LpManureWestPalmBeach() {
               <li>Leak-proof bins and dumpsters for any barn size</li>
               <li>Flexible weekly, bi-weekly, or custom schedules</li>
               <li>Eco-friendly disposal at approved composting facilities</li>
-              <li>Combo manure + junk removal saves you money</li>
+              <li>Combo waste + junk removal saves you money</li>
               <li>Serving Palm Beach County equestrian community for over a decade</li>
             </ul>
             <div className="bg-gray-100 rounded-lg p-5 text-center mt-6">

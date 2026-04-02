@@ -9,7 +9,7 @@ import { PHONE_OFFICE, PHONE_OFFICE_TEL } from "@/lib/constants";
 import { getLandingPageData } from "@/lib/landing-data";
 
 export const metadata: Metadata = {
-  title: "Manure Removal Wellington FL | Call (561) 576-7667",
+  title: "Farm Services Wellington FL | Waste Removal | Call (561) 576-7667",
   robots: "noindex, nofollow",
 };
 
@@ -22,7 +22,7 @@ const TRUST_ITEMS = [
 ];
 
 const MANURE_OPTIONS = [
-  { value: "Scheduled Manure Pickup", label: "Scheduled Manure Pickup" },
+  { value: "Scheduled Waste Pickup", label: "Scheduled Waste Pickup" },
   { value: "One-Time Cleanup", label: "One-Time Cleanup" },
   { value: "Bin/Dumpster Delivery", label: "Bin/Dumpster Delivery" },
   { value: "Emergency Cleanup", label: "Emergency Cleanup" },
@@ -34,7 +34,7 @@ export default async function LpManureWellington() {
   return (
     <>
       <LandingHero
-        title="Wellington Manure Removal"
+        title="Wellington Farm & Property Services"
         subtitle="Starting at $75/ton &middot; Same-Day Service Available"
         slotsLeft={slotsLeft}
       />

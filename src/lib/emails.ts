@@ -131,13 +131,13 @@ ${header("Welcome to My Horse Farm")}
 <div style="padding:30px 20px;">
 <p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
 <p style="font-size:16px;line-height:1.6;">Thank you for reaching out to My Horse Farm! I\u2019m Jose Gomez, and my team and I have been serving Palm Beach County\u2019s equestrian community for over a decade.</p>
-<p style="font-size:16px;line-height:1.6;">Whether you need regular manure removal, a one-time property cleanout, or help getting your farm season-ready, we\u2019ve got you covered:</p>
+<p style="font-size:16px;line-height:1.6;">Whether you need a dumpster for a cleanout, scheduled waste removal, or help getting your property in shape, we\u2019ve got you covered:</p>
 <ul style="font-size:15px;line-height:1.8;color:#555;">
-<li><strong>Manure Removal</strong> \u2013 Leak-proof bins, scheduled pickups, weight tickets on every load</li>
+<li><strong>Dumpster Rental</strong> \u2013 40-yard dump trailer for cleanouts, construction debris, and big jobs</li>
+<li><strong>Waste Removal</strong> \u2013 Leak-proof bins, scheduled pickups, weight tickets on every load</li>
 <li><strong>Junk Removal</strong> \u2013 Old fencing, debris, equipment \u2013 we haul it all starting at $75/ton</li>
 <li><strong>Sod Installation</strong> \u2013 Professional paddock sod for safe, lush footing</li>
 <li><strong>Fill Dirt Delivery</strong> \u2013 Screened fill for leveling paddocks and improving drainage</li>
-<li><strong>Dumpster Rental</strong> \u2013 20-yard containers for barn cleanouts and renovations</li>
 <li><strong>Farm Repairs</strong> \u2013 Fencing, gates, stalls, driveways, and more</li>
 </ul>
 <p style="font-size:16px;line-height:1.6;">We serve Wellington, Loxahatchee, Royal Palm Beach, West Palm Beach, and surrounding areas.</p>
@@ -170,17 +170,17 @@ ${header("What Our Clients Say")}
 <p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
 <p style="font-size:16px;line-height:1.6;">A few days ago we introduced ourselves. Today, we\u2019d like to share what some of our long-time clients have to say:</p>
 <div style="background-color:#f9f7f2;border-left:4px solid #d4a843;padding:20px;margin:20px 0;border-radius:4px;">
-<p style="font-style:italic;font-size:15px;line-height:1.6;margin:0;">\u201cWe\u2019ve worked with My Horse Farm Services for over a year now and they are hands down the most dependable manure removal company in the area. They show up on schedule, the property stays clean, and the communication is excellent.\u201d</p>
+<p style="font-style:italic;font-size:15px;line-height:1.6;margin:0;">\u201cWe\u2019ve worked with My Horse Farm Services for over a year now and they are hands down the most dependable farm service company in the area. They show up on schedule, the property stays clean, and the communication is excellent.\u201d</p>
 <p style="font-size:14px;color:#888;margin:10px 0 0 0;"><strong>\u2014 Sarah M., Wellington, FL</strong></p>
 </div>
 <div style="background-color:#f9f7f2;border-left:4px solid #d4a843;padding:20px;margin:20px 0;border-radius:4px;">
-<p style="font-style:italic;font-size:15px;line-height:1.6;margin:0;">\u201cManaging 40+ stalls means manure piles build up fast. These guys handle our 60-yard loads without issues and always provide weight tickets when needed. Professional, organized, and priced fairly.\u201d</p>
+<p style="font-style:italic;font-size:15px;line-height:1.6;margin:0;">\u201cManaging 40+ stalls means waste piles build up fast. These guys handle our 60-yard loads without issues and always provide weight tickets when needed. Professional, organized, and priced fairly.\u201d</p>
 <p style="font-size:14px;color:#888;margin:10px 0 0 0;"><strong>\u2014 Carlos R., Loxahatchee, FL</strong></p>
 </div>
-<h2 style="color:#2d5016;font-size:18px;margin-top:30px;">Quick Tip: Manure Storage in Florida</h2>
-<p style="font-size:15px;line-height:1.6;color:#555;">With Florida\u2019s heat and humidity, open manure piles attract flies within hours and create runoff issues when it rains. Two things every farm should do:</p>
+<h2 style="color:#2d5016;font-size:18px;margin-top:30px;">Quick Tip: Waste Storage in Florida</h2>
+<p style="font-size:15px;line-height:1.6;color:#555;">With Florida\u2019s heat and humidity, open waste piles attract flies within hours and create runoff issues when it rains. Two things every farm should do:</p>
 <ul style="font-size:15px;line-height:1.8;color:#555;">
-<li><strong>Use covered, leak-proof bins</strong> \u2013 we provide these free with our manure removal service</li>
+<li><strong>Use covered, leak-proof bins</strong> \u2013 we provide these free with our waste removal service</li>
 <li><strong>Position bins 100+ feet from canals</strong> \u2013 Wellington ordinances require this, and it\u2019s good practice everywhere in PBC</li>
 </ul>
 <p style="font-size:15px;line-height:1.6;color:#555;">Want to learn more? Check out our <a href="https://www.myhorsefarm.com/blog/wellington-manure-hauler-permits" style="color:#2d5016;font-weight:bold;">Complete Guide to Wellington Manure Hauler Permits</a>.</p>
@@ -276,7 +276,7 @@ ${header("Thank You for Choosing Us!")}
 <li>Would you recommend us to other farm owners?</li>
 </ul>
 </div>
-<p style="font-size:16px;line-height:1.6;">Thank you again for your business. If you ever need anything \u2013 manure removal, junk hauling, sod, repairs \u2013 just give us a call.</p>
+<p style="font-size:16px;line-height:1.6;">Thank you again for your business. If you ever need anything \u2013 waste removal, dumpster rental, junk hauling, sod, repairs \u2013 just give us a call.</p>
 <p style="font-size:16px;line-height:1.6;">Warm regards,<br/><strong>Jose Gomez</strong><br/>Owner, My Horse Farm<br/><a href="tel:+15615767667" style="color:#2d5016;">(561) 576-7667</a></p>
 </div></div>`,
       unsubscribeUrl,
@@ -388,7 +388,7 @@ ${header("Get Your Farm Season-Ready", "One Call Handles It All")}
 <div style="margin:25px 0;">
 <table style="width:100%;border-collapse:collapse;">
 <tr>
-<td style="padding:15px;background-color:#f9f7f2;border-bottom:2px solid #fff;width:50%;vertical-align:top;"><strong style="color:#2d5016;">Manure Removal</strong><br/><span style="font-size:14px;color:#666;">Bins delivered, scheduled pickups, weight tickets</span></td>
+<td style="padding:15px;background-color:#f9f7f2;border-bottom:2px solid #fff;width:50%;vertical-align:top;"><strong style="color:#2d5016;">Waste Removal</strong><br/><span style="font-size:14px;color:#666;">Bins delivered, scheduled pickups, weight tickets</span></td>
 <td style="padding:15px;background-color:#f9f7f2;border-bottom:2px solid #fff;vertical-align:top;"><strong style="color:#2d5016;">Sod Installation</strong><br/><span style="font-size:14px;color:#666;">Professional paddock sod for safe footing</span></td>
 </tr>
 <tr>
@@ -447,11 +447,11 @@ ${header("Welcome to My Horse Farm", "Thank you for your first payment!")}
 </div>
 <p style="font-size:16px;line-height:1.6;">I\u2019m Jose Gomez, and my team and I have been serving Palm Beach County\u2019s equestrian community for over a decade. Now that you\u2019re part of the family, here\u2019s a quick look at everything we can help with:</p>
 <ul style="font-size:15px;line-height:1.8;color:#555;">
-<li><strong>Manure Removal</strong> \u2013 Leak-proof bins, scheduled pickups, weight tickets on every load</li>
+<li><strong>Dumpster Rental</strong> \u2013 40-yard dump trailer for cleanouts and big jobs</li>
+<li><strong>Waste Removal</strong> \u2013 Leak-proof bins, scheduled pickups, weight tickets on every load</li>
 <li><strong>Junk Removal</strong> \u2013 Old fencing, debris, equipment \u2013 starting at $75/ton</li>
 <li><strong>Sod Installation</strong> \u2013 Professional paddock sod for safe, lush footing</li>
 <li><strong>Fill Dirt Delivery</strong> \u2013 Screened fill for leveling paddocks and drainage</li>
-<li><strong>Dumpster Rental</strong> \u2013 20-yard containers for barn cleanouts</li>
 <li><strong>Farm Repairs</strong> \u2013 Fencing, gates, stalls, driveways, and more</li>
 </ul>
 <p style="font-size:16px;line-height:1.6;">Need anything else? Just call us directly \u2013 we typically respond within one business hour.</p>
@@ -520,7 +520,7 @@ ${header("A Quick Favor")}
 <div style="padding:30px 20px;">
 <p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
 <p style="font-size:16px;line-height:1.6;">You\u2019ve been a great client and I really appreciate your trust. I have a small favor to ask.</p>
-<p style="font-size:16px;line-height:1.6;">If you know another farm owner in the area who could use reliable manure removal, junk hauling, or any of our services \u2013 would you mind passing along my number?</p>
+<p style="font-size:16px;line-height:1.6;">If you know another farm owner in the area who could use reliable farm services \u2013 waste removal, dumpster rental, junk hauling, or anything else we offer \u2013 would you mind passing along my number?</p>
 <div style="background-color:#f9f7f2;padding:25px;border-radius:8px;margin:20px 0;text-align:center;">
 <p style="font-size:18px;font-weight:bold;color:#2d5016;margin:0 0 5px;">Jose Gomez \u2013 My Horse Farm</p>
 <p style="font-size:20px;margin:0;"><a href="tel:+15615767667" style="color:#2d5016;text-decoration:none;font-weight:bold;">(561) 576-7667</a></p>
@@ -841,7 +841,7 @@ ${signoff()}
 
 const SERVICE_HOOKS: Record<string, { followup1: string; followup2: string }> = {
   manure_removal: {
-    followup1: "Manure piles only get worse with time — let\u2019s get it handled before it becomes a bigger (and smellier) problem.",
+    followup1: "Waste piles only get worse with time \u2014 let\u2019s get it handled before it becomes a bigger problem.",
     followup2: "Lock in your rate before peak season pricing kicks in. Our crews are booking up fast.",
   },
   junk_removal: {
@@ -1321,11 +1321,11 @@ export function lapsedCustomerReengageEmail(
 ${header("It's Been a While")}
 <div style="padding:30px 20px;">
 <p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
-<p style="font-size:16px;line-height:1.6;">It&rsquo;s been a few months since your last service with My Horse Farm, and I wanted to check in. Whether you need manure removal, junk hauling, sod, fill dirt, or farm repairs &mdash; we&rsquo;re still here and ready to help.</p>
+<p style="font-size:16px;line-height:1.6;">It&rsquo;s been a few months since your last service with My Horse Farm, and I wanted to check in. Whether you need a dumpster rental, waste removal, junk hauling, sod, or farm repairs &mdash; we&rsquo;re still here and ready to help.</p>
 <p style="font-size:16px;line-height:1.6;">A lot of our returning clients are surprised at how much we&rsquo;ve grown. We&rsquo;ve added new services and our scheduling is faster than ever.</p>
 <div style="background-color:#f9f7f2;padding:25px;border-radius:8px;margin:20px 0;text-align:center;">
 <p style="font-size:18px;font-weight:bold;color:#2d5016;margin:0 0 5px;">One call handles everything</p>
-<p style="font-size:14px;color:#666;margin:0;">Manure &middot; Junk &middot; Sod &middot; Fill Dirt &middot; Dumpsters &middot; Repairs</p>
+<p style="font-size:14px;color:#666;margin:0;">Dumpsters &middot; Waste Removal &middot; Junk &middot; Sod &middot; Fill Dirt &middot; Repairs</p>
 </div>
 <div style="text-align:center;margin:30px 0;">
 <a href="${escapeHtml(quoteUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a Free Quote</a>
@@ -1357,9 +1357,9 @@ ${header("Still Looking for Help?")}
 <div style="padding:30px 20px;">
 <p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
 <p style="font-size:16px;line-height:1.6;">You reached out to My Horse Farm a while back, and I wanted to follow up in case you&rsquo;re still looking for reliable farm services in the Wellington, Loxahatchee, or Royal Palm Beach area.</p>
-<p style="font-size:16px;line-height:1.6;">We handle everything from manure removal to junk hauling, sod, fill dirt, dumpster rentals, and farm repairs &mdash; all with one phone call.</p>
+<p style="font-size:16px;line-height:1.6;">We handle everything from dumpster rentals and waste removal to junk hauling, sod, fill dirt, and farm repairs &mdash; all with one phone call.</p>
 <div style="background-color:#f9f7f2;border-left:4px solid #d4a843;padding:20px;margin:20px 0;border-radius:4px;">
-<p style="font-style:italic;font-size:15px;line-height:1.6;margin:0;">&ldquo;We&rsquo;ve worked with My Horse Farm for over a year now and they are hands down the most dependable manure removal company in the area.&rdquo;</p>
+<p style="font-style:italic;font-size:15px;line-height:1.6;margin:0;">&ldquo;We&rsquo;ve worked with My Horse Farm for over a year now and they are hands down the most dependable farm service company in the area.&rdquo;</p>
 <p style="font-size:14px;color:#888;margin:10px 0 0 0;"><strong>&mdash; Sarah M., Wellington, FL</strong></p>
 </div>
 <div style="text-align:center;margin:30px 0;">
@@ -1422,15 +1422,15 @@ ${header("My Horse Farm", "Serving Palm Beach County Since 2005")}
 <div style="padding:30px 20px;">
 <p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
 <p style="font-size:16px;line-height:1.6;">I'm Jose Gomez. For over 20 years my team has been keeping farms clean and running in Wellington, Loxahatchee, and the surrounding equestrian corridor.</p>
-<p style="font-size:16px;line-height:1.6;">If you've been dealing with manure pile-ups, need a property cleanout, or want a reliable service that shows up on time — we should talk.</p>
+<p style="font-size:16px;line-height:1.6;">If you need a property cleanout, scheduled waste removal, or want a reliable service that shows up on time — we should talk.</p>
 <div style="background:#f0fdf4;border:2px solid #2d5016;border-radius:8px;padding:25px;text-align:center;margin:25px 0;">
 <p style="font-size:22px;font-weight:bold;color:#2d5016;margin:0;">$50 OFF</p>
 <p style="font-size:16px;color:#555;margin:8px 0 0;">Any service $300 or more — first-time or returning clients</p>
 </div>
 <p style="font-size:16px;line-height:1.6;">Our services:</p>
 <ul style="font-size:15px;line-height:1.8;color:#555;">
-<li><strong>Manure Removal</strong> — leak-proof bins, scheduled pickups, weight tickets</li>
-<li><strong>Bulk Manure Service</strong> — $50 off for new clients</li>
+<li><strong>Dumpster Rental</strong> — 40-yard dump trailer for cleanouts and big jobs</li>
+<li><strong>Waste Removal</strong> — leak-proof bins, scheduled pickups, weight tickets</li>
 <li><strong>Junk &amp; Debris Removal</strong> — old fencing, equipment, trash starting at $75/ton</li>
 <li><strong>Sod Installation</strong> — professional paddock sod</li>
 <li><strong>Fill Dirt</strong> — screened fill for leveling and drainage</li>
@@ -1501,7 +1501,7 @@ ${header("Book a Service, Get a Bonus")}
 <tr><td style="padding:8px 0;font-size:15px;">&#10003; <strong>$50 OFF</strong> your service ($300+ jobs)</td></tr>
 </table>
 </div>
-<p style="font-size:16px;line-height:1.6;">That's over <strong>$200 in value</strong> just for booking a service you already need. Whether it's manure removal, a cleanout, or farm repairs — the bonus is yours.</p>
+<p style="font-size:16px;line-height:1.6;">That's over <strong>$200 in value</strong> just for booking a service you already need. Whether it's a dumpster rental, waste removal, or farm repairs — the bonus is yours.</p>
 <div style="text-align:center;margin:30px 0;">
 <a href="https://www.myhorsefarm.com/offers" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:16px 40px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:18px;">Claim Your Bonus — Get a Quote</a>
 </div>
@@ -1565,7 +1565,7 @@ ${header("Last Chance")}
 </div>
 <p style="font-size:16px;line-height:1.6;"><strong>What you get:</strong></p>
 <ul style="font-size:15px;line-height:2;color:#555;">
-<li>$50 off any service $300+ (or $50 off bulk manure service)</li>
+<li>$50 off any service $300+ (waste removal, dumpster rental, and more)</li>
 <li>Free month membership at Resilient Fitness in Wellington</li>
 <li>2 free personal training sessions</li>
 <li>Free class at Starpoint Dancesport</li>
@@ -1603,7 +1603,7 @@ ${header("Resilient Fitness x My Horse Farm")}
 <div style="background:#f0fdf4;border:2px solid #2d5016;border-radius:8px;padding:25px;text-align:center;margin:25px 0;">
 <p style="font-size:22px;font-weight:bold;color:#2d5016;margin:0;">$50 OFF</p>
 <p style="font-size:16px;color:#555;margin:8px 0 0;">Any farm service $300 or more</p>
-<p style="font-size:14px;color:#888;margin:5px 0 0;">Manure removal, cleanouts, sod, fill dirt, farm repairs &amp; more</p>
+<p style="font-size:14px;color:#888;margin:5px 0 0;">Dumpster rental, waste removal, cleanouts, sod, fill dirt, farm repairs &amp; more</p>
 </div>
 <p style="font-size:16px;line-height:1.6;">Whether you own a farm, know someone who does, or your property needs work — we handle it all in Wellington, Loxahatchee, Royal Palm Beach, and surrounding areas.</p>
 <div style="text-align:center;margin:30px 0;">
@@ -1626,10 +1626,10 @@ export function nurtureFitness2(
     subject: "Farm services most Wellington residents don't know about",
     html: emailDoc(
       `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
-${header("More Than Manure Removal")}
+${header("More Than You Think")}
 <div style="padding:30px 20px;">
 <p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
-<p style="font-size:16px;line-height:1.6;">Most people know us for manure removal. But My Horse Farm handles a lot more than that — and it's not just for horse farms:</p>
+<p style="font-size:16px;line-height:1.6;">My Horse Farm handles a lot more than waste removal — and it's not just for horse farms:</p>
 <div style="margin:25px 0;">
 <table style="width:100%;border-collapse:collapse;">
 <tr>
@@ -1698,7 +1698,7 @@ ${header("Good to See You Again")}
 <p style="font-size:16px;line-height:1.6;">Whether you're still at the same property or have moved, we'd love to work with you again. To make it easy to reconnect:</p>
 <div style="background:#f0fdf4;border:2px solid #2d5016;border-radius:8px;padding:25px;text-align:center;margin:25px 0;">
 <p style="font-size:22px;font-weight:bold;color:#2d5016;margin:0;">$50 OFF</p>
-<p style="font-size:16px;color:#555;margin:8px 0 0;">Any service $300+ — or $50 off bulk manure service</p>
+<p style="font-size:16px;color:#555;margin:8px 0 0;">Any service $300+ — waste removal, dumpster rental, and more</p>
 <p style="font-size:14px;color:#888;margin:5px 0 0;">For returning clients like you</p>
 </div>
 <p style="font-size:16px;line-height:1.6;">Everything you remember about us is still true — reliable crews, fair pricing, weight tickets on every load. Plus we've added AI-powered quoting on our website so you can get a price in minutes.</p>
@@ -1751,9 +1751,9 @@ interface NewsletterContent {
 }
 
 function getNewsletterContent(month: number): NewsletterContent {
-  // Service spotlight rotates by month (0-indexed): manure removal, sod, fill dirt, junk removal, farm repairs, dumpster rental
+  // Service spotlight rotates by month (0-indexed): waste removal, sod, fill dirt, junk removal, farm repairs, dumpster rental
   const spotlights = [
-    { title: "Manure Removal", description: "Keep your paddocks clean and fly-free with our scheduled manure pickup. Leak-proof bins provided at no extra cost, weight tickets on every load." },
+    { title: "Waste Removal", description: "Keep your paddocks clean and fly-free with our scheduled waste pickup. Leak-proof bins provided at no extra cost, weight tickets on every load." },
     { title: "Sod Installation", description: "Professional paddock sod for safe, lush footing. We handle grading, installation, and follow-up care instructions so your pastures look their best." },
     { title: "Fill Dirt Delivery", description: "Screened fill dirt for leveling paddocks, improving drainage, and building up low spots. Delivered and spread on your schedule." },
     { title: "Junk Removal", description: "Old fencing, broken equipment, storm debris \u2014 we haul it all starting at $75/ton. Fast turnaround, clean results." },
@@ -1778,7 +1778,7 @@ function getNewsletterContent(month: number): NewsletterContent {
   // Seasonal tip
   let tip: string;
   if (month >= 0 && month <= 2) {
-    tip = "During peak season, manure builds up faster with more horses on site. Consider bumping your pickup schedule to twice a week to stay compliant with Wellington ordinances and keep flies under control.";
+    tip = "During peak season, waste builds up faster with more horses on site. Consider bumping your pickup schedule to twice a week to stay compliant with Wellington ordinances and keep flies under control.";
   } else if (month >= 3 && month <= 4) {
     tip = "Spring is the best time to resod worn paddocks. Warm-season grass establishes fast in April and May, and you\u2019ll have lush footing before summer rains hit.";
   } else if (month >= 5 && month <= 7) {
@@ -1897,7 +1897,7 @@ ${header("Spring Special: 15% Off")}
 <p style="font-size:16px;line-height:1.6;">Season's over and it's time to get your farm in shape for summer. We're offering <strong>15% off all services</strong> through April 30th.</p>
 <p style="font-size:16px;line-height:1.6;">Here's what we can help with:</p>
 <ul style="font-size:15px;line-height:1.8;color:#555;">
-<li><strong>Manure Removal</strong> \u2013 Scheduled pickups with leak-proof bins</li>
+<li><strong>Waste Removal</strong> \u2013 Scheduled pickups with leak-proof bins</li>
 <li><strong>Farm Repairs</strong> \u2013 Fencing, gates, stalls, driveways</li>
 <li><strong>Junk Removal</strong> \u2013 Old debris, equipment, cleanouts</li>
 <li><strong>Sod Installation</strong> \u2013 Professional paddock sod</li>

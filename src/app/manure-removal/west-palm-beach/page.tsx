@@ -5,18 +5,18 @@ import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
 
 export const metadata: Metadata = {
-  title: "Manure Removal in West Palm Beach, FL",
+  title: "Farm & Property Services in West Palm Beach, FL | Waste Removal",
   description:
-    "Manure removal and waste hauling in West Palm Beach, FL. My Horse Farm provides scheduled pickups, leak-proof bins and eco-friendly disposal for equestrian properties and hobby farms.",
+    "Farm and property services in West Palm Beach, FL — waste removal, dumpster rental, junk hauling, and more. My Horse Farm provides scheduled pickups, leak-proof bins and eco-friendly disposal for equestrian properties and hobby farms.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: {
     canonical: "https://www.myhorsefarm.com/manure-removal/west-palm-beach",
   },
   openGraph: {
-    title: "Manure Removal in West Palm Beach, FL",
+    title: "Farm & Property Services in West Palm Beach, FL | Waste Removal",
     description:
-      "Manure removal and waste hauling in West Palm Beach. Scheduled pickups, leak-proof bins and eco-friendly disposal for equestrian properties.",
+      "Farm and property services in West Palm Beach. Waste removal, dumpster rental, junk hauling, and eco-friendly disposal for equestrian properties.",
     type: "website",
     url: "https://www.myhorsefarm.com/manure-removal/west-palm-beach",
     images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
@@ -25,9 +25,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Manure Removal in West Palm Beach, FL",
+    title: "Farm & Property Services in West Palm Beach, FL | Waste Removal",
     description:
-      "Manure removal and waste hauling in West Palm Beach. Scheduled pickups and eco-friendly disposal.",
+      "Farm and property services in West Palm Beach. Waste removal, dumpster rental, junk hauling, and eco-friendly disposal.",
     images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
@@ -36,15 +36,15 @@ export default function ManureRemovalWestPalmBeachPage() {
   return (
     <>
       <Hero
-        title="Manure Removal in West Palm Beach"
-        tagline="Clean properties, happy neighbors — we handle the waste"
+        title="Farm & Property Services in West Palm Beach"
+        tagline="Your property, taken care of — waste removal, hauling, and more"
         ctaText="Book Now"
         ctaHref="/#calendar"
       />
       <main>
         <section className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
           <h2 className="text-2xl max-md:text-xl">
-            West Palm Beach Manure Removal Services
+            West Palm Beach Waste Removal &amp; Farm Services
           </h2>
           <p>
             Horse properties in and around West Palm Beach need reliable waste
@@ -127,7 +127,7 @@ export default function ManureRemovalWestPalmBeachPage() {
           className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4"
         >
           <h2 className="text-2xl max-md:text-xl">
-            Book Manure Removal in West Palm Beach
+            Book Farm Services in West Palm Beach
           </h2>
           <p>
             Ready to get started? Call us at{" "}
@@ -150,7 +150,7 @@ export default function ManureRemovalWestPalmBeachPage() {
         schema={{
           "@context": "https://schema.org",
           "@type": "Service",
-          serviceType: "Horse Manure Removal",
+          serviceType: "Farm & Property Services",
           provider: {
             "@type": "LocalBusiness",
             "@id": "https://www.myhorsefarm.com/#organization",
@@ -179,7 +179,7 @@ export default function ManureRemovalWestPalmBeachPage() {
             name: "West Palm Beach",
           },
           description:
-            "Manure removal and waste hauling services in West Palm Beach, FL. Scheduled pickups, leak-proof bins and eco-friendly disposal for equestrian properties and hobby farms.",
+            "Farm and property services in West Palm Beach, FL. Waste removal, dumpster rental, junk hauling, sod, and repairs for equestrian properties and hobby farms.",
         }}
       />
       <SchemaMarkup
@@ -196,7 +196,7 @@ export default function ManureRemovalWestPalmBeachPage() {
             {
               "@type": "ListItem",
               position: 2,
-              name: "Manure Removal",
+              name: "Waste Removal",
               item: "https://www.myhorsefarm.com/manure-removal",
             },
             {

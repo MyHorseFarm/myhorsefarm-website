@@ -5,18 +5,18 @@ import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
 
 export const metadata: Metadata = {
-  title: "Manure Removal in Wellington, FL",
+  title: "Farm & Property Services in Wellington, FL | Waste Removal",
   description:
-    "Professional horse manure removal in Wellington, FL. Scheduled pickups, leak-proof bins and eco-friendly disposal for barns, training facilities and equestrian properties. Starting service today.",
+    "Professional farm and property services in Wellington, FL — waste removal, dumpster rental, junk hauling, sod, and repairs. Scheduled pickups, leak-proof bins and eco-friendly disposal for barns, training facilities and equestrian properties.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: {
     canonical: "https://www.myhorsefarm.com/manure-removal/wellington",
   },
   openGraph: {
-    title: "Manure Removal in Wellington, FL",
+    title: "Farm & Property Services in Wellington, FL | Waste Removal",
     description:
-      "Professional horse manure removal in Wellington. Scheduled pickups, leak-proof bins and eco-friendly disposal for equestrian properties.",
+      "Professional farm and property services in Wellington. Waste removal, dumpster rental, junk hauling, and more for equestrian properties.",
     type: "website",
     url: "https://www.myhorsefarm.com/manure-removal/wellington",
     images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
@@ -25,9 +25,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Manure Removal in Wellington, FL",
+    title: "Farm & Property Services in Wellington, FL | Waste Removal",
     description:
-      "Professional horse manure removal in Wellington. Scheduled pickups, leak-proof bins and eco-friendly disposal.",
+      "Professional farm and property services in Wellington. Waste removal, dumpster rental, junk hauling, and eco-friendly disposal.",
     images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
@@ -36,15 +36,15 @@ export default function ManureRemovalWellingtonPage() {
   return (
     <>
       <Hero
-        title="Manure Removal in Wellington"
-        tagline="Reliable manure pickup for Wellington's equestrian community"
+        title="Farm & Property Services in Wellington"
+        tagline="Waste removal, dumpster rental, and full farm services for Wellington's equestrian community"
         ctaText="Book Now"
         ctaHref="/#calendar"
       />
       <main>
         <section className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
           <h2 className="text-2xl max-md:text-xl">
-            Wellington Horse Manure Removal Services
+            Wellington Waste Removal &amp; Farm Services
           </h2>
           <p>
             Wellington is the heart of South Florida&apos;s equestrian world —
@@ -133,7 +133,7 @@ export default function ManureRemovalWellingtonPage() {
           className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4"
         >
           <h2 className="text-2xl max-md:text-xl">
-            Book Manure Removal in Wellington
+            Book Farm Services in Wellington
           </h2>
           <p>
             Ready to get started? Call us at{" "}
@@ -156,7 +156,7 @@ export default function ManureRemovalWellingtonPage() {
         schema={{
           "@context": "https://schema.org",
           "@type": "Service",
-          serviceType: "Horse Manure Removal",
+          serviceType: "Farm & Property Services",
           provider: {
             "@type": "LocalBusiness",
             "@id": "https://www.myhorsefarm.com/#organization",
@@ -185,7 +185,7 @@ export default function ManureRemovalWellingtonPage() {
             name: "Wellington",
           },
           description:
-            "Professional horse manure removal services in Wellington, FL. Scheduled pickups, leak-proof bins and eco-friendly disposal for equestrian facilities.",
+            "Professional farm and property services in Wellington, FL. Waste removal, dumpster rental, junk hauling, sod, and repairs for equestrian facilities.",
         }}
       />
       <SchemaMarkup
@@ -202,7 +202,7 @@ export default function ManureRemovalWellingtonPage() {
             {
               "@type": "ListItem",
               position: 2,
-              name: "Manure Removal",
+              name: "Waste Removal",
               item: "https://www.myhorsefarm.com/manure-removal",
             },
             {

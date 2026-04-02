@@ -4,18 +4,18 @@ import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
 
 export const metadata: Metadata = {
-  title: "Manure Removal in Loxahatchee, FL",
+  title: "Farm & Property Services in Loxahatchee, FL | Waste Removal",
   description:
-    "Horse manure removal in Loxahatchee and Loxahatchee Groves, FL. We handle 40+ stall facilities, provide leak-proof bins and offer flexible pickup schedules for large equestrian properties.",
+    "Farm and property services in Loxahatchee and Loxahatchee Groves, FL — waste removal, dumpster rental, junk hauling, and more. We handle 40+ stall facilities, provide leak-proof bins and offer flexible pickup schedules for large equestrian properties.",
   robots: "index, follow",
   authors: [{ name: "My Horse Farm" }],
   alternates: {
     canonical: "https://www.myhorsefarm.com/manure-removal/loxahatchee",
   },
   openGraph: {
-    title: "Manure Removal in Loxahatchee, FL",
+    title: "Farm & Property Services in Loxahatchee, FL | Waste Removal",
     description:
-      "Horse manure removal in Loxahatchee and Loxahatchee Groves. Leak-proof bins, flexible schedules and eco-friendly disposal for large equestrian properties.",
+      "Farm and property services in Loxahatchee and Loxahatchee Groves. Waste removal, dumpster rental, junk hauling, and eco-friendly disposal for large equestrian properties.",
     type: "website",
     url: "https://www.myhorsefarm.com/manure-removal/loxahatchee",
     images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
@@ -24,9 +24,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Manure Removal in Loxahatchee, FL",
+    title: "Farm & Property Services in Loxahatchee, FL | Waste Removal",
     description:
-      "Horse manure removal in Loxahatchee and Loxahatchee Groves. Leak-proof bins and flexible schedules.",
+      "Farm and property services in Loxahatchee and Loxahatchee Groves. Waste removal, dumpster rental, and flexible schedules.",
     images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
   },
 };
@@ -35,15 +35,15 @@ export default function ManureRemovalLoxahatcheePage() {
   return (
     <>
       <Hero
-        title="Manure Removal in Loxahatchee"
-        tagline="Dependable waste removal for Loxahatchee's horse farms"
+        title="Farm & Property Services in Loxahatchee"
+        tagline="Dependable waste removal and full farm services for Loxahatchee's horse properties"
         ctaText="Book Now"
         ctaHref="/#calendar"
       />
       <main>
         <section className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4">
           <h2 className="text-2xl max-md:text-xl">
-            Loxahatchee Manure Removal Services
+            Loxahatchee Waste Removal &amp; Farm Services
           </h2>
           <p>
             Loxahatchee and Loxahatchee Groves are home to some of Palm Beach
@@ -123,7 +123,7 @@ export default function ManureRemovalLoxahatcheePage() {
           className="py-16 px-5 max-w-[1200px] mx-auto max-md:py-10 max-md:px-4"
         >
           <h2 className="text-2xl max-md:text-xl">
-            Book Manure Removal in Loxahatchee
+            Book Farm Services in Loxahatchee
           </h2>
           <p>
             Ready to get started? Call us at{" "}
@@ -146,7 +146,7 @@ export default function ManureRemovalLoxahatcheePage() {
         schema={{
           "@context": "https://schema.org",
           "@type": "Service",
-          serviceType: "Horse Manure Removal",
+          serviceType: "Farm & Property Services",
           provider: {
             "@type": "LocalBusiness",
             "@id": "https://www.myhorsefarm.com/#organization",
@@ -175,7 +175,7 @@ export default function ManureRemovalLoxahatcheePage() {
             { "@type": "City", name: "Loxahatchee Groves" },
           ],
           description:
-            "Horse manure removal services in Loxahatchee and Loxahatchee Groves, FL. High-volume pickups, leak-proof bins and eco-friendly disposal for large equestrian properties.",
+            "Farm and property services in Loxahatchee and Loxahatchee Groves, FL. Waste removal, dumpster rental, junk hauling, and eco-friendly disposal for large equestrian properties.",
         }}
       />
       <SchemaMarkup
@@ -192,7 +192,7 @@ export default function ManureRemovalLoxahatcheePage() {
             {
               "@type": "ListItem",
               position: 2,
-              name: "Manure Removal",
+              name: "Waste Removal",
               item: "https://www.myhorsefarm.com/manure-removal",
             },
             {

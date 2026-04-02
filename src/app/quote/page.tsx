@@ -8,18 +8,18 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Get a Quote",
   description:
-    "Get an instant quote for manure removal, junk hauling, sod installation, fill dirt delivery, dumpster rental and farm repairs from My Horse Farm.",
+    "Get an instant quote for dumpster rental, waste removal, junk hauling, sod installation, fill dirt delivery and farm repairs from My Horse Farm.",
   openGraph: {
     title: "Get a Free Quote",
     description:
-      "Get an instant quote for manure removal, junk hauling, sod installation, fill dirt delivery, dumpster rental and farm repairs.",
+      "Get an instant quote for dumpster rental, waste removal, junk hauling, sod installation, fill dirt delivery and farm repairs.",
     url: "https://www.myhorsefarm.com/quote",
   },
   twitter: {
     card: "summary",
     title: "Get a Free Quote",
     description:
-      "Get an instant quote for manure removal, junk hauling, sod installation, fill dirt delivery, dumpster rental and farm repairs.",
+      "Get an instant quote for dumpster rental, waste removal, junk hauling, sod installation, fill dirt delivery and farm repairs.",
   },
   alternates: {
     canonical: "https://www.myhorsefarm.com/quote",
@@ -30,9 +30,9 @@ function ServiceSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "Service",
-    name: "My Horse Farm – Agricultural Services",
+    name: "My Horse Farm – Farm & Property Services",
     description:
-      "Manure removal, junk hauling, sod installation, fill dirt delivery, dumpster rental and farm repairs for equestrian properties in South Florida.",
+      "Dumpster rental, waste removal, junk hauling, sod installation, fill dirt delivery and farm repairs for equestrian properties in South Florida.",
     provider: {
       "@type": "LocalBusiness",
       name: "My Horse Farm",
