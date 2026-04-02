@@ -14,6 +14,7 @@ const pages: SitemapEntry[] = [
   { path: "/", lastModified: "2026-03-30", changeFrequency: "weekly", priority: 1.0 },
   { path: "/quote", lastModified: "2026-03-15", changeFrequency: "monthly", priority: 0.9 },
   { path: "/offers", lastModified: "2026-03-20", changeFrequency: "weekly", priority: 0.8 },
+  { path: "/spring-special", lastModified: "2026-04-02", changeFrequency: "monthly", priority: 0.9 },
   { path: "/referrals", lastModified: "2026-03-10", changeFrequency: "monthly", priority: 0.6 },
 
   // Manure removal

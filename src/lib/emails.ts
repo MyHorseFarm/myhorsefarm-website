@@ -1878,6 +1878,43 @@ ${stackTrace ? `<h2 style="font-size:14px;color:#666;margin-top:20px;">Stack Tra
   };
 }
 
+// ---------------------------------------------------------------------------
+// Spring Special Campaign
+// ---------------------------------------------------------------------------
+
+export function springSpecialEmail(
+  firstName: string,
+  unsubscribeUrl: string,
+): { subject: string; html: string } {
+  const name = escapeHtml(firstName || "there");
+  return {
+    subject: "15% Off All Farm Services \u2014 Spring Special \ud83c\udf3f",
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Spring Special: 15% Off")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hey ${name},</p>
+<p style="font-size:16px;line-height:1.6;">Season's over and it's time to get your farm in shape for summer. We're offering <strong>15% off all services</strong> through April 30th.</p>
+<p style="font-size:16px;line-height:1.6;">Here's what we can help with:</p>
+<ul style="font-size:15px;line-height:1.8;color:#555;">
+<li><strong>Manure Removal</strong> \u2013 Scheduled pickups with leak-proof bins</li>
+<li><strong>Farm Repairs</strong> \u2013 Fencing, gates, stalls, driveways</li>
+<li><strong>Junk Removal</strong> \u2013 Old debris, equipment, cleanouts</li>
+<li><strong>Sod Installation</strong> \u2013 Professional paddock sod</li>
+<li><strong>Fill Dirt</strong> \u2013 Screened fill for leveling and drainage</li>
+<li><strong>Pressure Washing</strong> \u2013 Barns, patios, driveways</li>
+</ul>
+<div style="text-align:center;margin:30px 0;">
+<a href="https://www.myhorsefarm.com/spring-special" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get Your Free Quote</a>
+</div>
+<p style="font-size:16px;line-height:1.6;">Or call us: <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> | WhatsApp: <a href="https://wa.me/15615767667" style="color:#2d5016;font-weight:bold;">wa.me/15615767667</a></p>
+${signoff()}
+</div></div>`,
+      unsubscribeUrl,
+    ),
+  };
+}
+
 // TODO: Implement daily cron health digest that summarizes all cron runs
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function cronHealthDigestEmail(
