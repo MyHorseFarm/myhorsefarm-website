@@ -427,8 +427,14 @@ export default function HomePage() {
                 {/* Founder card */}
                 <div className="bg-warm rounded-2xl p-7 border border-accent/15">
                   <div className="flex items-start gap-5">
-                    <div className="flex-shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
-                      <span className="text-white font-bold text-lg">JG</span>
+                    <div className="flex-shrink-0 w-16 h-16 rounded-full overflow-hidden">
+                      <Image
+                        src="/images/jose-founder.jpg"
+                        alt="Jose Gomez, Founder of My Horse Farm"
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover object-top"
+                      />
                     </div>
                     <div>
                       <div className="font-bold text-gray-900 text-lg">Jose Gomez</div>
