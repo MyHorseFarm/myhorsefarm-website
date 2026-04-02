@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  searchContacts,
   hasAutomationTag,
   createContactNote,
   isSubscribed,
@@ -45,23 +44,6 @@ export async function POST(request: NextRequest) {
     // No body or invalid JSON — use defaults
   }
 
-  // ---------------------------------------------------------------------------
-  // Fetch all contacts with email and phone
-  // ---------------------------------------------------------------------------
-  const contacts = await searchContacts(
-    [
-      {
-        filters: [
-          {
-            propertyName: "email",
-            operator: "HAS_PROPERTY",
-          },
-        ],
-      },
-    ],
-    ["email", "firstname", "lastname", "phone"],
-  );
-
   const results = {
     emailSent: 0,
     emailSkipped: 0,
@@ -73,9 +55,38 @@ export async function POST(request: NextRequest) {
   };
 
   let totalSends = 0;
+  let after: string | undefined;
+  const HUBSPOT_TOKEN = process.env.HUBSPOT_API_TOKEN;
 
-  for (const contact of contacts) {
-    if (totalSends >= limit) break;
+  // Paginate through contacts in small batches
+  while (totalSends < limit) {
+    const searchBody: Record<string, unknown> = {
+      filterGroups: [{ filters: [{ propertyName: "email", operator: "HAS_PROPERTY" }] }],
+      properties: ["email", "firstname", "lastname", "phone"],
+      limit: 50,
+    };
+    if (after) searchBody.after = after;
+
+    let data: { results: Array<{ id: string; properties: Record<string, string> }>; paging?: { next?: { after: string } } };
+    try {
+      const res = await fetch("https://api.hubapi.com/crm/v3/objects/contacts/search", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${HUBSPOT_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(searchBody),
+      });
+      data = await res.json();
+    } catch {
+      results.details.push("HubSpot search failed");
+      break;
+    }
+
+    if (!data.results || data.results.length === 0) break;
+
+    for (const contact of data.results) {
+      if (totalSends >= limit) break;
 
     const contactId = contact.id;
     const email = contact.properties.email;
@@ -156,6 +167,11 @@ export async function POST(request: NextRequest) {
         // Non-fatal — dedup note failed but message was sent
       }
     }
+    }
+
+    // Next page
+    after = data.paging?.next?.after;
+    if (!after) break;
   }
 
   return NextResponse.json({
