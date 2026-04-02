@@ -69,6 +69,9 @@ const pages: SitemapEntry[] = [
   { path: "/season-ready/wellington", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.7 },
   { path: "/season-ready/loxahatchee", lastModified: "2026-03-31", changeFrequency: "monthly", priority: 0.7 },
 
+  // Regulations guide
+  { path: "/wellington-manure-regulations", lastModified: "2026-03-30", changeFrequency: "monthly", priority: 0.8 },
+
   // Blog
   { path: "/blog", lastModified: "2026-03-20", changeFrequency: "weekly", priority: 0.7 },
   { path: "/blog/wellington-manure-hauler-permits", lastModified: "2026-02-15", changeFrequency: "yearly", priority: 0.6 },

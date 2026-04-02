@@ -94,6 +94,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/wellington-manure-regulations" className="text-sm text-gray-400 hover:text-white transition-colors">
+                  Regulations Guide
+                </Link>
+              </li>
+              <li>
                 <Link href="/offers" className="text-sm text-gray-400 hover:text-white transition-colors">
                   Special Offers
                 </Link>

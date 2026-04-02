@@ -84,6 +84,118 @@ export async function generateMetadata({
   };
 }
 
+const staticPosts = [
+  {
+    slug: "/blog/sod-installation-horse-paddocks",
+    title: "Sod Installation for Horse Paddocks",
+    description:
+      "A comprehensive guide to paddock sod installation in Florida.",
+    date: "February 26, 2026",
+    category: "Paddock Care",
+  },
+  {
+    slug: "/blog/signs-farm-needs-property-cleanout",
+    title: "5 Signs Your Farm Needs a Full Property Cleanout",
+    description:
+      "Five clear signs it's time for a professional property cleanout.",
+    date: "February 26, 2026",
+    category: "Property Cleanout",
+  },
+  {
+    slug: "/blog/wellington-manure-hauler-permits",
+    title: "Wellington Manure Hauler Permits & Regulations",
+    description:
+      "Everything about Wellington's manure hauler permits and waste ordinances.",
+    date: "February 26, 2026",
+    category: "Regulations",
+  },
+  {
+    slug: "/blog/get-farm-season-ready-wef",
+    title: "How to Get Your Farm Season-Ready Before WEF",
+    description:
+      "Step-by-step checklist for preparing your farm before Winter Equestrian Festival.",
+    date: "February 26, 2026",
+    category: "Seasonal Prep",
+  },
+];
+
+async function RelatedPosts({ currentSlug }: { currentSlug: string }) {
+  // Fetch recent published posts from Supabase (excluding current)
+  const { data: dbPosts } = await supabase
+    .from("blog_posts")
+    .select("slug, title, description, published_at, category")
+    .eq("published", true)
+    .neq("slug", currentSlug)
+    .order("published_at", { ascending: false })
+    .limit(10);
+
+  // Normalize DB posts to common shape
+  const normalizedDb = (dbPosts || []).map((p) => ({
+    slug: `/blog/${p.slug}`,
+    title: p.title,
+    description: p.description,
+    date: new Date(p.published_at).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      timeZone: "UTC",
+    }),
+    category: p.category,
+  }));
+
+  // Merge with static posts, exclude current slug
+  const currentPath = `/blog/${currentSlug}`;
+  const allCandidates = [
+    ...normalizedDb,
+    ...staticPosts.filter(
+      (sp) =>
+        sp.slug !== currentPath &&
+        !normalizedDb.some((dp) => dp.slug === sp.slug)
+    ),
+  ];
+
+  if (allCandidates.length === 0) return null;
+
+  // Pick 3 random posts
+  const shuffled = allCandidates.sort(() => Math.random() - 0.5);
+  const selected = shuffled.slice(0, 3);
+
+  return (
+    <section className="mt-16 mb-4">
+      <h2 className="text-2xl font-bold text-primary-dark mb-8">
+        You Might Also Like
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {selected.map((rp) => (
+          <Link
+            key={rp.slug}
+            href={rp.slug}
+            className="rounded-2xl shadow-sm border border-gray-100 card-hover overflow-hidden flex flex-col no-underline group"
+          >
+            <div className="p-5 flex flex-col flex-1">
+              <span className="inline-block self-start px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary mb-3">
+                {rp.category}
+              </span>
+              <h3 className="text-base font-bold text-primary-dark mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                {rp.title}
+              </h3>
+              <p className="text-sm text-gray-500 line-clamp-2 mb-3 flex-1">
+                {rp.description}
+              </p>
+              <div className="flex items-center justify-between mt-auto">
+                <span className="text-xs text-gray-400">{rp.date}</span>
+                <span className="text-sm font-medium text-primary group-hover:underline">
+                  Read more &rarr;
+                </span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
     year: "numeric",
@@ -186,6 +298,9 @@ export default async function BlogPostPage({
           className="blog-content [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:text-primary-dark [&>h2]:mt-10 [&>h2]:mb-4 [&>h3]:text-lg [&>h3]:font-semibold [&>h3]:text-primary-dark [&>h3]:mt-6 [&>h3]:mb-3 [&>p]:text-gray-600 [&>p]:text-base [&>p]:mb-4 [&>p]:leading-relaxed [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:text-gray-600 [&>ul]:mb-6 [&>ul]:space-y-2 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:text-gray-600 [&>ol]:mb-6 [&>ol]:space-y-2 [&_strong]:text-gray-800"
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
         />
+
+        {/* Related Posts Section */}
+        <RelatedPosts currentSlug={post.slug} />
 
         {/* CTA Section */}
         <div className="mt-12 p-8 bg-gradient-to-br from-primary/5 to-accent/10 rounded-2xl shadow-sm border border-gray-100 text-center">
