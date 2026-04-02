@@ -1909,6 +1909,7 @@ ${header("Spring Special: 15% Off")}
 </div>
 <p style="font-size:16px;line-height:1.6;">Or call us: <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> | WhatsApp: <a href="https://wa.me/15615767667" style="color:#2d5016;font-weight:bold;">wa.me/15615767667</a></p>
 ${signoff()}
+<p style="font-size:14px;line-height:1.6;color:#666;margin-top:20px;"><strong>P.S.</strong> This offer expires April 30th. After that, it's back to regular pricing. Don't wait — book now and save 15%.</p>
 </div></div>`,
       unsubscribeUrl,
     ),

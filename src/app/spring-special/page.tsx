@@ -176,6 +176,11 @@ export default function SpringSpecialPage() {
               <i className="fas fa-clock" />
               Offer expires April 30, 2026
             </p>
+            <div className="flex flex-wrap justify-center gap-6 text-sm text-green-200 mt-4">
+              <span><strong className="text-white text-lg">400+</strong> Happy Clients</span>
+              <span><strong className="text-white text-lg">10+</strong> Years Experience</span>
+              <span><strong className="text-white text-lg">5★</strong> Google Rated</span>
+            </div>
             <div className="flex gap-4 justify-center flex-wrap">
               <Link
                 href="/quote"
@@ -321,6 +326,15 @@ export default function SpringSpecialPage() {
                 &mdash; Wellington, FL
               </span>
             </p>
+            <div className="max-w-2xl mx-auto text-center mt-8">
+              <div className="flex items-center justify-center gap-1 mb-3">
+                {[...Array(5)].map((_, i) => (
+                  <i key={i} className="fas fa-star text-yellow-400" />
+                ))}
+              </div>
+              <p className="text-gray-600 italic text-lg">&ldquo;Called Jose for a post-season fence repair and junk removal. His crew knocked it out in one day. Fair price, great work. Already booked them for next season.&rdquo;</p>
+              <p className="text-gray-400 text-sm mt-2">&mdash; Mike R., Loxahatchee</p>
+            </div>
           </div>
         </section>
 
