@@ -209,11 +209,11 @@ const services = [
     price: "Free Quote",
   },
   {
-    title: "Waste Removal",
-    description: "Scheduled pickups and leak-proof bin rentals keep your property clean and odor-free year-round.",
+    title: "Manure Removal",
+    description: "Bin pickups from $25 or bulk truckloads from $300. Keep your property clean and odor-free year-round.",
     image: "/images/service-manure.jpg",
     href: "/manure-removal",
-    price: "Free Quote",
+    price: "From $25",
   },
 ];
 

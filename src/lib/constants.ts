@@ -89,8 +89,8 @@ export const FAQ_CATEGORIES = [
     category: "Manure Removal",
     icon: "fas fa-recycle",
     items: [
-      { question: "Do you provide manure bins, or do I need my own?", answer: "We provide leak-proof manure bins as part of our service. We deliver the container, schedule regular pickups and handle all disposal. You don\u2019t need to supply your own bin." },
-      { question: "How often do you pick up manure?", answer: "We offer weekly and bi-weekly pickup schedules. During WEF season, many Wellington clients opt for twice-weekly service. We\u2019ll work with you to find the right frequency." },
+      { question: "Do you provide manure bins, or do I need my own?", answer: "You can purchase a bin through us or supply your own. We charge a one-time $100 drop-off fee for bin placement, then $25 per pickup. Alternatively, for larger operations we offer bulk truckload removal starting at $300 for 20\u201340 yards of waste." },
+      { question: "How does bulk livestock waste removal work?", answer: "We bring a dump trailer and machine to your property and haul away a full truckload of manure \u2014 20 to 40 cubic yards per load. Starting at $300, pricing depends on load size. Ideal for large farms, seasonal cleanouts, or pit emptying." },
       { question: "What makes your disposal eco-friendly?", answer: "We dispose of waste at approved facilities and work with composting operations. For junk removal, we sort items for recycling, donation and responsible disposal to minimize landfill impact." },
     ],
   },
