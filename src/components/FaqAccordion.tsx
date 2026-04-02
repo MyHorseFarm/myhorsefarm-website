@@ -1,13 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { FAQ_ITEMS, PHONE_OFFICE, PHONE_OFFICE_TEL } from "@/lib/constants";
+import { FAQ_CATEGORIES, PHONE_OFFICE, PHONE_OFFICE_TEL } from "@/lib/constants";
 
 export default function FaqAccordion() {
+  const [activeCategory, setActiveCategory] = useState("General");
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const toggle = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
+  };
+
+  const visibleItems =
+    activeCategory === "All"
+      ? FAQ_CATEGORIES.flatMap((cat) => cat.items)
+      : FAQ_CATEGORIES.find((cat) => cat.category === activeCategory)?.items ?? [];
+
+  const handleCategoryClick = (category: string) => {
+    setActiveCategory(category);
+    setOpenIndex(null);
   };
 
   return (
@@ -22,8 +33,36 @@ export default function FaqAccordion() {
           </p>
         </div>
 
+        {/* Category tabs */}
+        <div className="flex flex-wrap justify-center gap-2 mb-6">
+          <button
+            onClick={() => handleCategoryClick("All")}
+            className={`rounded-full px-4 py-2 text-sm transition-colors cursor-pointer ${
+              activeCategory === "All"
+                ? "bg-primary text-white font-semibold"
+                : "bg-white font-medium text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            All
+          </button>
+          {FAQ_CATEGORIES.map((cat) => (
+            <button
+              key={cat.category}
+              onClick={() => handleCategoryClick(cat.category)}
+              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm transition-colors cursor-pointer ${
+                activeCategory === cat.category
+                  ? "bg-primary text-white font-semibold"
+                  : "bg-white font-medium text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              <i className={`${cat.icon} text-xs`} />
+              {cat.category}
+            </button>
+          ))}
+        </div>
+
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          {FAQ_ITEMS.map((item, index) => {
+          {visibleItems.map((item, index) => {
             const isOpen = openIndex === index;
             return (
               <div

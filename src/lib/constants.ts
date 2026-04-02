@@ -74,43 +74,46 @@ export const LP_TESTIMONIALS = [
   },
 ];
 
-export const FAQ_ITEMS = [
+export const FAQ_CATEGORIES = [
   {
-    question: "What areas do you serve?",
-    answer:
-      "We serve Royal Palm Beach, Wellington, Loxahatchee, Loxahatchee Groves, West Palm Beach and Palm Beach Gardens. If you\u2019re in Palm Beach County and nearby, contact us \u2014 we may be able to accommodate your location.",
+    category: "General",
+    icon: "fas fa-circle-question",
+    items: [
+      { question: "What areas do you serve?", answer: "We serve Royal Palm Beach, Wellington, Loxahatchee, Loxahatchee Groves, West Palm Beach and Palm Beach Gardens. If you\u2019re in Palm Beach County and nearby, contact us \u2014 we may be able to accommodate your location." },
+      { question: "Are you licensed and insured?", answer: "Absolutely. My Horse Farm is fully licensed and insured in the state of Florida. We comply with all Palm Beach County regulations for waste disposal, hauling and agricultural services." },
+      { question: "How do I schedule a service?", answer: "You can book online using our quote system, call us at (561) 576-7667, or chat with our AI assistant. We\u2019ll confirm your appointment and answer any questions." },
+      { question: "Do you offer same-day service?", answer: "Yes, we offer same-day and next-day service for junk removal and many other services, subject to availability. Call us at (561) 576-7667 for urgent requests." },
+    ],
   },
   {
-    question: "How is pricing determined?",
-    answer:
-      "Pricing depends on the type of service and scope of work. Junk removal starts at $75 per ton. For services like sod installation, fill dirt delivery, dumpster rental and manure removal, we provide custom quotes based on your specific needs. Contact us for a free estimate.",
+    category: "Manure Removal",
+    icon: "fas fa-recycle",
+    items: [
+      { question: "Do you provide manure bins, or do I need my own?", answer: "We provide leak-proof manure bins as part of our service. We deliver the container, schedule regular pickups and handle all disposal. You don\u2019t need to supply your own bin." },
+      { question: "How often do you pick up manure?", answer: "We offer weekly and bi-weekly pickup schedules. During WEF season, many Wellington clients opt for twice-weekly service. We\u2019ll work with you to find the right frequency." },
+      { question: "What makes your disposal eco-friendly?", answer: "We dispose of waste at approved facilities and work with composting operations. For junk removal, we sort items for recycling, donation and responsible disposal to minimize landfill impact." },
+    ],
   },
   {
-    question: "Do you offer same-day service?",
-    answer:
-      "Yes, we offer same-day and next-day service for junk removal and many other services, subject to availability. Call us at (561) 576-7667 for urgent requests and we\u2019ll do our best to accommodate your schedule.",
+    category: "Junk & Dumpster",
+    icon: "fas fa-dumpster",
+    items: [
+      { question: "How is junk removal pricing determined?", answer: "Junk removal starts at $75 per ton. We provide weight tickets for transparency. For dumpster rentals, our 20-yard containers start at $350 for a 7-day rental including delivery, pickup and disposal." },
+      { question: "What can I put in a dumpster rental?", answer: "Farm debris, old fencing, furniture, construction waste, yard waste, and general junk. Hazardous materials, tires, and paint are excluded. We\u2019ll let you know if anything can\u2019t go in." },
+      { question: "How long can I keep a rental dumpster?", answer: "Standard rental is 7 days. Additional days are $15/day. Need it longer? Just let us know \u2014 we\u2019re flexible." },
+    ],
   },
   {
-    question: "Are you licensed and insured?",
-    answer:
-      "Absolutely. My Horse Farm is fully licensed and insured in the state of Florida. We comply with all Palm Beach County regulations for waste disposal, hauling and agricultural services.",
-  },
-  {
-    question: "How do I schedule a service?",
-    answer:
-      "You can book online using our scheduling system on this page, call us at (561) 576-7667, or fill out the contact form below. We\u2019ll confirm your appointment and answer any questions you have.",
-  },
-  {
-    question: "Do you provide manure bins, or do I need my own?",
-    answer:
-      "We provide leak-proof manure bins and dumpsters as part of our service. We deliver the container, schedule regular pickups and handle all disposal. You don\u2019t need to supply your own bin.",
-  },
-  {
-    question: "What makes your disposal eco-friendly?",
-    answer:
-      "We dispose of waste at approved facilities and recycle materials whenever possible. For manure, we work with composting facilities. For junk removal, we sort items for recycling, donation and responsible disposal to minimize landfill impact.",
+    category: "Sod & Fill Dirt",
+    icon: "fas fa-seedling",
+    items: [
+      { question: "What type of sod do you install?", answer: "We install St. Augustine (most popular for South Florida), Bahia, and Zoysia varieties. We\u2019ll recommend the best option based on your property, shade levels, and how your horses use the space." },
+      { question: "Do you deliver fill dirt, or just install it?", answer: "Both. We deliver fill dirt by the cubic yard (minimum 10 yards) and also provide grading and leveling services. We can handle everything from small paddock repairs to full arena construction." },
+    ],
   },
 ];
+
+export const FAQ_ITEMS = FAQ_CATEGORIES.flatMap(cat => cat.items);
 
 export const SERVICE_AREAS = [
   { value: "wellington", label: "Wellington" },

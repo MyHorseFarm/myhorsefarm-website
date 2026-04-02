@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import NewsletterSignup from "@/components/NewsletterSignup";
 import {
   SOCIAL,
   PHONE_OFFICE,
@@ -12,6 +13,26 @@ import {
 export default function Footer() {
   return (
     <footer className="bg-[#1a2e1c] text-white">
+      {/* Newsletter signup */}
+      <div className="border-b border-white/10">
+        <div className="max-w-6xl mx-auto px-6 py-10">
+          <div className="max-w-xl mx-auto text-center md:text-left md:max-w-none md:flex md:items-center md:justify-between md:gap-8">
+            <div className="mb-5 md:mb-0">
+              <h3 className="text-lg font-bold text-white">
+                Subscribe to Our Newsletter
+              </h3>
+              <p className="mt-1 text-sm text-gray-400">
+                Get farm tips, seasonal guides, and exclusive offers delivered to
+                your inbox.
+              </p>
+            </div>
+            <div className="relative md:w-[420px] shrink-0">
+              <NewsletterSignup />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Main footer content */}
       <div className="max-w-6xl mx-auto px-6 py-14">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -96,6 +117,11 @@ export default function Footer() {
               <li>
                 <Link href="/wellington-manure-regulations" className="text-sm text-gray-400 hover:text-white transition-colors">
                   Regulations Guide
+                </Link>
+              </li>
+              <li>
+                <Link href="/pricing" className="text-sm text-gray-400 hover:text-white transition-colors">
+                  Pricing
                 </Link>
               </li>
               <li>
