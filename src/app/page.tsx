@@ -176,7 +176,7 @@ const services = [
   {
     title: "Dumpster Rental",
     description: "20-yard roll-off dumpsters for cleanouts, renovations, and large projects. Drop-off and haul-away.",
-    image: "/images/service-dumpster.jpg",
+    image: "/images/mhf-trailer-at-farm.jpg",
     href: "/dumpster-rental",
     price: "From $75/ton",
   },
@@ -190,7 +190,7 @@ const services = [
   {
     title: "Sod Installation",
     description: "Lush, durable sod for paddocks and arenas. Delivered, graded, and professionally installed.",
-    image: "/images/service-sod.jpg",
+    image: "/images/sod-delivery.jpg",
     href: "/sod-installation",
     price: "Free Quote",
   },
@@ -211,7 +211,7 @@ const services = [
   {
     title: "Manure Removal",
     description: "Bin pickups from $25 or bulk truckloads from $300. Keep your property clean and odor-free year-round.",
-    image: "/images/service-manure.jpg",
+    image: "/images/bins-at-barn.jpg",
     href: "/manure-removal",
     price: "From $25",
   },

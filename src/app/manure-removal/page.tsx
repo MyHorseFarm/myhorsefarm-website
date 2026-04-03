@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
@@ -51,6 +52,28 @@ export default function ManureRemovalPage() {
             fresh, minimize odor and flies, and maintain compliance with local
             waste ordinances.
           </p>
+
+          {/* Inline photos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-10">
+            <div className="relative aspect-[3/2] rounded-2xl overflow-hidden">
+              <Image
+                src="/images/bins-at-barn.jpg"
+                alt="Manure bins at equestrian barn"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
+            <div className="relative aspect-[3/2] rounded-2xl overflow-hidden">
+              <Image
+                src="/images/trailer-loaded-manure.jpg"
+                alt="Loaded manure trailer ready for hauling"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
+          </div>
 
           <h3 className="text-primary-dark">Why Choose Our Service?</h3>
           <ul className="pl-5 leading-relaxed text-gray-500">
