@@ -54,32 +54,45 @@ export async function generateMetadata({
     return { title: "Post Not Found" };
   }
 
+  const publishedDate = post.published_at.split("T")[0];
+  const canonicalUrl = `https://www.myhorsefarm.com/blog/${post.slug}`;
+  const ogImageUrl = post.image_url || "https://www.myhorsefarm.com/images/hero-farm.jpg";
+
   return {
     title: post.title,
     description: post.description,
+    keywords: post.tags && post.tags.length > 0 ? post.tags.join(", ") : undefined,
     robots: "index, follow",
     authors: [{ name: post.author }],
     alternates: {
-      canonical: `https://www.myhorsefarm.com/blog/${post.slug}`,
+      canonical: canonicalUrl,
     },
     openGraph: {
       title: post.title,
       description: post.description,
       type: "article",
-      url: `https://www.myhorsefarm.com/blog/${post.slug}`,
-      images: post.image_url
-        ? [{ url: post.image_url }]
-        : [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
+      url: canonicalUrl,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+          type: "image/jpeg",
+        },
+      ],
       siteName: "My Horse Farm",
       locale: "en_US",
+      publishedTime: publishedDate,
+      authors: [post.author],
+      tags: post.tags && post.tags.length > 0 ? post.tags : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.description,
-      images: post.image_url
-        ? [post.image_url]
-        : ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
+      images: [ogImageUrl],
+      creator: "@myhorsefarm",
     },
   };
 }
@@ -309,34 +322,17 @@ export default async function BlogPostPage({
           </h2>
           <p className="text-gray-600 mb-6 max-w-lg mx-auto">
             My Horse Farm provides manure removal, sod installation, fill
-            dirt, dumpster rental, farm repairs, and property cleanouts for
-            equestrian properties throughout Wellington, Loxahatchee, and
-            Royal Palm Beach.
+            dirt, dumpster rental, farm repairs, property cleanouts, and
+            junk removal services across Wellington, Loxahatchee, and the
+            greater West Palm Beach area.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/quote"
-              className="inline-block rounded-xl bg-primary px-7 py-3.5 font-semibold text-white text-lg hover:bg-primary-dark transition-colors no-underline"
-            >
-              Get a Free Quote
-            </Link>
-            <Link
-              href="tel:+15615767667"
-              className="inline-block rounded-xl border-2 border-primary text-primary px-7 py-3.5 font-semibold text-lg hover:bg-primary hover:text-white transition-colors no-underline"
-            >
-              <i className="fas fa-phone mr-2" />
-              (561) 576-7667
-            </Link>
-          </div>
-        </div>
-
-        <hr className="my-10 border-gray-200" />
-
-        <p className="text-sm text-gray-400">
-          <Link href="/blog" className="text-primary hover:underline">
-            &larr; Back to Blog
+          <Link
+            href="/#contact"
+            className="inline-block px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+          >
+            Get a Free Quote
           </Link>
-        </p>
+        </div>
       </main>
       <Footer />
     </>
