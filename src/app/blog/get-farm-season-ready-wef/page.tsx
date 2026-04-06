@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
@@ -48,10 +49,12 @@ export default function SeasonReadyPost() {
         style={{ backgroundImage: "url('/images/hero-farm.jpg')" }}
       >
         <div className="text-center bg-black/50 p-5 rounded-lg">
-          <img
+          <Image
             src="/logo.png"
             alt="My Horse Farm logo"
             className="w-[80px] mx-auto mb-3"
+            width={80}
+            height={80}
           />
           <p className="text-accent text-sm mb-1">
             <Link href="/blog" className="text-accent hover:underline">
@@ -213,129 +216,4 @@ export default function SeasonReadyPost() {
               Clear overgrown vegetation along fence lines and around buildings.
             </li>
             <li>
-              Haul away accumulated construction debris, pallets, and junk.
-            </li>
-            <li>
-              Power wash barn aisles, wash racks, and common areas.
-            </li>
-            <li>
-              Clean out tack rooms and storage areas to make room for seasonal
-              tenants.
-            </li>
-          </ul>
-          <p className="text-gray-600 mb-6">
-            A professional junk removal service can handle the heavy lifting in a
-            single visit. We bring a heavy-duty dump trailer that handles
-            everything from furniture to farm equipment to old fencing.
-          </p>
-
-          <h2 className="text-xl font-bold text-primary-dark mt-10 mb-4">
-            Step 5: Verify Permits and Compliance (December)
-          </h2>
-          <p className="text-gray-600 mb-4">
-            With horses arriving and inspections increasing during season, make
-            sure your paperwork is in order:
-          </p>
-          <ul className="list-disc pl-6 text-gray-600 mb-6 space-y-2">
-            <li>
-              Confirm your manure hauler&apos;s permit is current with the
-              Village of Wellington.
-            </li>
-            <li>
-              Verify that your manure bins meet containment requirements
-              (leak-proof, covered, away from waterways).
-            </li>
-            <li>
-              Ensure property signage and addressing is visible for deliveries
-              and emergency access.
-            </li>
-            <li>
-              Review your insurance coverage for the increased activity during
-              season.
-            </li>
-          </ul>
-
-          <h2 className="text-xl font-bold text-primary-dark mt-10 mb-4">
-            Step 6: Plan for the Unexpected
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Even with thorough preparation, things come up during season. A fence
-            breaks, a storm dumps debris across the property, or you suddenly
-            need an extra dumpster for a barn cleanout. Having a reliable
-            service provider on speed dial makes the difference between a minor
-            inconvenience and a major disruption.
-          </p>
-          <p className="text-gray-600 mb-6">
-            Look for a provider who offers same-day service, handles multiple
-            service types (not just one thing), and actually answers the phone.
-            During WEF, responsiveness is everything.
-          </p>
-
-          <h2 className="text-xl font-bold text-primary-dark mt-10 mb-4">
-            The Season-Ready Checklist
-          </h2>
-          <div className="bg-gray-50 rounded-lg p-6 mb-8">
-            <ul className="space-y-3 text-gray-700">
-              <li><i className="fas fa-check text-primary mr-2" /> Manure removal service booked with permitted hauler</li>
-              <li><i className="fas fa-check text-primary mr-2" /> Leak-proof bins delivered and positioned</li>
-              <li><i className="fas fa-check text-primary mr-2" /> All fencing inspected and repaired</li>
-              <li><i className="fas fa-check text-primary mr-2" /> Gates, latches, and hardware checked</li>
-              <li><i className="fas fa-check text-primary mr-2" /> Stall walls, floors, and mats inspected</li>
-              <li><i className="fas fa-check text-primary mr-2" /> Barn roof and gutters cleared</li>
-              <li><i className="fas fa-check text-primary mr-2" /> Paddocks leveled with fill dirt where needed</li>
-              <li><i className="fas fa-check text-primary mr-2" /> Sod installed on bare paddock areas</li>
-              <li><i className="fas fa-check text-primary mr-2" /> Driveways resurfaced or graded</li>
-              <li><i className="fas fa-check text-primary mr-2" /> Property debris and junk removed</li>
-              <li><i className="fas fa-check text-primary mr-2" /> Tack rooms and storage areas cleaned</li>
-              <li><i className="fas fa-check text-primary mr-2" /> Hauler permit verified with Village of Wellington</li>
-              <li><i className="fas fa-check text-primary mr-2" /> Insurance coverage reviewed</li>
-            </ul>
-          </div>
-
-          <h2 className="text-xl font-bold text-primary-dark mt-10 mb-4">
-            One Call Handles It All
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Most farms need to coordinate three or four different vendors to get
-            season-ready &mdash; a manure hauler, a fencing company, a
-            landscaper, and a junk removal crew. At My Horse Farm, we handle all
-            of it: manure removal, sod installation, fill dirt delivery,
-            dumpster rental, junk removal, and farm repairs. One call, one
-            trusted provider, one less thing to manage.
-          </p>
-          <p className="text-gray-600 mb-4">
-            We have been getting Palm Beach County farms season-ready for over a
-            decade. Jose Gomez and the team bring nearly 20 years of equestrian
-            service experience &mdash; and we are horse owners ourselves, so we
-            know what it takes.
-          </p>
-          <p className="mb-8">
-            <Link
-              href="/#contact"
-              className="inline-block px-8 py-3.5 bg-primary text-white rounded font-bold text-lg hover:bg-primary-dark transition-colors no-underline"
-            >
-              <i className="fas fa-phone" /> Call (561) 576-7667
-            </Link>
-          </p>
-          <p className="text-gray-600 mb-6">
-            Or{" "}
-            <Link href="/#calendar" className="text-primary underline">
-              book online
-            </Link>{" "}
-            for a free estimate. We will get back to you within one business
-            hour.
-          </p>
-
-          <hr className="my-10 border-gray-200" />
-
-          <p className="text-sm text-gray-400">
-            <Link href="/blog" className="text-primary hover:underline">
-              &larr; Back to Blog
-            </Link>
-          </p>
-        </article>
-      </main>
-      <Footer />
-    </>
-  );
-}
+              Haul away accumulat</output>

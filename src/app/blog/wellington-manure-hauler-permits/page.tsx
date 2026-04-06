@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import SchemaMarkup from "@/components/SchemaMarkup";
@@ -48,10 +49,12 @@ export default function WellingtonPermitsPost() {
         style={{ backgroundImage: "url('/images/hero-farm.jpg')" }}
       >
         <div className="text-center bg-black/50 p-5 rounded-lg">
-          <img
+          <Image
             src="/logo.png"
             alt="My Horse Farm logo"
             className="w-[80px] mx-auto mb-3"
+            width={80}
+            height={80}
           />
           <p className="text-accent text-sm mb-1">
             <Link href="/blog" className="text-accent hover:underline">
@@ -210,110 +213,4 @@ export default function WellingtonPermitsPost() {
               are full.
             </li>
             <li>
-              <strong>Illegal dumping:</strong> Some haulers have been known to
-              dump waste at unauthorized sites. Ask for weight tickets and
-              disposal receipts as proof.
-            </li>
-          </ul>
-
-          <h2 className="text-xl font-bold text-primary-dark mt-10 mb-4">
-            Peak Season Considerations
-          </h2>
-          <p className="text-gray-600 mb-4">
-            During the Winter Equestrian Festival (typically January through
-            March), Wellington&apos;s horse population can double or triple.
-            Haulers who manage 20 to 30 loads per week in the off-season may
-            handle 75 to 100 loads per week during WEF. This creates several
-            challenges:
-          </p>
-          <ul className="list-disc pl-6 text-gray-600 mb-6 space-y-2">
-            <li>
-              Hauler availability tightens &mdash; book your service well before
-              season starts (ideally by November).
-            </li>
-            <li>
-              Some haulers cut corners during peak demand, arriving with
-              half-full trucks or skipping scheduled pickups.
-            </li>
-            <li>
-              Inspection frequency increases during season. Keep your storage
-              area compliant at all times.
-            </li>
-            <li>
-              Emergency cleanups before shows or inspections may be needed
-              &mdash; choose a hauler who offers same-day service.
-            </li>
-          </ul>
-
-          <h2 className="text-xl font-bold text-primary-dark mt-10 mb-4">
-            How My Horse Farm Keeps You Compliant
-          </h2>
-          <p className="text-gray-600 mb-4">
-            We have been serving Wellington&apos;s equestrian community for over
-            a decade. Here is how we make compliance effortless:
-          </p>
-          <ul className="list-disc pl-6 text-gray-600 mb-6 space-y-2">
-            <li>
-              <strong>Leak-proof bins provided:</strong> We deliver and maintain
-              bins sized for 5 to 60+ stalls. You do not need to buy your own.
-            </li>
-            <li>
-              <strong>Flexible scheduling:</strong> Weekly, bi-weekly, or custom
-              pickup schedules that adjust for season demand.
-            </li>
-            <li>
-              <strong>Weight tickets on every load:</strong> Full documentation
-              for your records and any inspection requirements.
-            </li>
-            <li>
-              <strong>DEP-approved composting disposal:</strong> Every load goes
-              to an approved facility. We can provide disposal receipts on
-              request.
-            </li>
-            <li>
-              <strong>Same-day emergency service:</strong> Inspection tomorrow?
-              Show this weekend? We can get there fast.
-            </li>
-            <li>
-              <strong>60-yard capacity:</strong> Our heavy-duty dump trailer
-              handles the largest facilities without multiple trips.
-            </li>
-          </ul>
-
-          <h2 className="text-xl font-bold text-primary-dark mt-10 mb-4">
-            Get a Free Quote
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Whether you are a year-round Wellington farm or setting up for
-            season, we can have bins delivered and pickups scheduled within days.
-            Transparent pricing starts at $75 per ton with no hidden fees.
-          </p>
-          <p className="mb-8">
-            <Link
-              href="/#contact"
-              className="inline-block px-8 py-3.5 bg-primary text-white rounded font-bold text-lg hover:bg-primary-dark transition-colors no-underline"
-            >
-              <i className="fas fa-phone" /> Call (561) 576-7667
-            </Link>
-          </p>
-          <p className="text-gray-600 mb-6">
-            Or{" "}
-            <Link href="/#calendar" className="text-primary underline">
-              book online
-            </Link>{" "}
-            and we will confirm your service within one business hour.
-          </p>
-
-          <hr className="my-10 border-gray-200" />
-
-          <p className="text-sm text-gray-400">
-            <Link href="/blog" className="text-primary hover:underline">
-              &larr; Back to Blog
-            </Link>
-          </p>
-        </article>
-      </main>
-      <Footer />
-    </>
-  );
-}
+        </output>

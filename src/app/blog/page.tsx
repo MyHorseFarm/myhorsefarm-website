@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
@@ -190,11 +191,13 @@ export default async function BlogPage() {
               itemType="https://schema.org/BlogPosting"
             >
               {post.image_url && (
-                <div className="h-48 overflow-hidden">
-                  <img
+                <div className="h-48 overflow-hidden relative">
+                  <Image
                     src={post.image_url}
                     alt={post.title}
                     className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 </div>
               )}
