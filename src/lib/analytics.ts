@@ -2,6 +2,7 @@ declare global {
   interface Window {
     dataLayer: Record<string, unknown>[];
     gtag?: (...args: unknown[]) => void;
+    fbq?: (...args: unknown[]) => void;
   }
 }
 
@@ -67,5 +68,22 @@ export function trackConversion(
       send_to: `${GADS_CONVERSION_ID}/${GADS_CONVERSION_LABEL}`,
       event_callback: () => {},
     });
+  }
+
+  // Fire Meta Pixel events
+  if (window.fbq) {
+    if (event === "generate_lead") {
+      window.fbq("track", "Lead", {
+        content_name: params.service || "quote",
+        currency: "USD",
+        value: params.value || 0,
+      }, { eventID: eventId });
+    } else if (event === "purchase" || event === "begin_checkout") {
+      window.fbq("track", "Schedule", {
+        content_name: params.service || "booking",
+        currency: "USD",
+        value: params.value || 0,
+      }, { eventID: eventId });
+    }
   }
 }
