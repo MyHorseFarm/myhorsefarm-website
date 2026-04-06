@@ -216,4 +216,57 @@ export default function SeasonReadyPost() {
               Clear overgrown vegetation along fence lines and around buildings.
             </li>
             <li>
-              Haul away accumulat</output>
+              Haul away accumulated debris, old hay, and waste materials that
+              have piled up over the off-season.
+            </li>
+            <li>
+              Pressure wash barn aisles, wash racks, and common areas.
+            </li>
+          </ul>
+          <p className="text-gray-600 mb-6">
+            A clean property makes a strong first impression on seasonal
+            tenants and clients, and it eliminates safety hazards before horses
+            arrive.
+          </p>
+
+          <h2 className="text-xl font-bold text-primary-dark mt-10 mb-4">
+            Step 5: Confirm Service Providers (December)
+          </h2>
+          <p className="text-gray-600 mb-4">
+            By December, you should have confirmed schedules with every
+            service provider you rely on during season &mdash; farriers,
+            veterinarians, feed suppliers, manure haulers, and maintenance
+            crews. Do not assume your off-season arrangements carry over.
+            Providers get booked fast once WEF approaches.
+          </p>
+          <p className="text-gray-600 mb-6">
+            If you need farm maintenance, manure removal, sod installation,
+            fill dirt delivery, or property cleanout services to get your
+            farm season-ready, contact My Horse Farm early. We serve
+            Wellington, Loxahatchee, and the surrounding equestrian
+            communities.
+          </p>
+
+          <div className="bg-primary/10 border border-primary/30 rounded-lg p-6 mt-10">
+            <h2 className="text-xl font-bold text-primary-dark mb-3">
+              Get Your Farm Ready for WEF
+            </h2>
+            <p className="text-gray-700 mb-4">
+              My Horse Farm provides manure removal, sod installation, fill
+              dirt delivery, fence repair, property cleanouts, and full farm
+              maintenance for equestrian properties in Wellington,
+              Loxahatchee, and the surrounding areas. Call us at{" "}
+              <a href="tel:+15615767667" className="text-primary font-semibold hover:underline">(561) 576-7667</a>{" "}
+              or{" "}
+              <Link href="/quote" className="text-primary font-semibold hover:underline">
+                request a free quote
+              </Link>{" "}
+              to get started.
+            </p>
+          </div>
+        </article>
+      </main>
+      <Footer />
+    </>
+  );
+}

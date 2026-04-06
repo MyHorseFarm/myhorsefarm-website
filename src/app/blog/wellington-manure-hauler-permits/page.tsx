@@ -213,4 +213,47 @@ export default function WellingtonPermitsPost() {
               are full.
             </li>
             <li>
-        </output>
+              <strong>Improper disposal:</strong> Dumping manure on
+              unapproved land or in unauthorized locations can result in
+              significant fines and environmental remediation costs.
+            </li>
+          </ul>
+
+          <h2 className="text-xl font-bold text-primary-dark mt-10 mb-4">
+            How My Horse Farm Stays Compliant
+          </h2>
+          <p className="text-gray-600 mb-4">
+            My Horse Farm holds a valid Commercial Livestock Waste Hauler
+            Permit from the Village of Wellington. We use leak-proof,
+            covered containers, provide weight tickets for every load, and
+            dispose of all waste at DEP-approved composting facilities.
+          </p>
+          <p className="text-gray-600 mb-6">
+            We handle manure removal for farms of all sizes throughout
+            Wellington, Loxahatchee, and the surrounding equestrian
+            communities. Whether you need weekly service during WEF season
+            or year-round pickup, we make compliance simple.
+          </p>
+
+          <div className="bg-primary/10 border border-primary/30 rounded-lg p-6 mt-10">
+            <h2 className="text-xl font-bold text-primary-dark mb-3">
+              Need a Permitted Manure Hauler in Wellington?
+            </h2>
+            <p className="text-gray-700 mb-4">
+              My Horse Farm provides fully permitted, compliant manure
+              removal for horse farms in Wellington, Loxahatchee, and the
+              surrounding areas. Call us at{" "}
+              <a href="tel:+15615767667" className="text-primary font-semibold hover:underline">(561) 576-7667</a>{" "}
+              or{" "}
+              <Link href="/quote" className="text-primary font-semibold hover:underline">
+                request a free quote
+              </Link>{" "}
+              to set up your service.
+            </p>
+          </div>
+        </article>
+      </main>
+      <Footer />
+    </>
+  );
+}

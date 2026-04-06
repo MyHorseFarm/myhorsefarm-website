@@ -1,8 +1,12 @@
 declare global {
   interface Window {
     dataLayer: Record<string, unknown>[];
+    gtag?: (...args: unknown[]) => void;
   }
 }
+
+const GADS_CONVERSION_ID = "AW-385210685";
+const GADS_CONVERSION_LABEL = "vzneCILiqIccEL2y17cB";
 
 export function trackEvent(event: string, params?: Record<string, unknown>) {
   if (typeof window !== "undefined" && window.dataLayer) {
@@ -53,4 +57,15 @@ export function trackConversion(
     enhanced_conversions: enhanced,
     ...params,
   });
+
+  // Fire Google Ads conversion for lead events
+  if (
+    window.gtag &&
+    (event === "generate_lead" || event === "purchase" || event === "begin_checkout")
+  ) {
+    window.gtag("event", "conversion", {
+      send_to: `${GADS_CONVERSION_ID}/${GADS_CONVERSION_LABEL}`,
+      event_callback: () => {},
+    });
+  }
 }

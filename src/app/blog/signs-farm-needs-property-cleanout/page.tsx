@@ -191,4 +191,60 @@ export default function SignsFarmNeedsPropertyCleanoutPost() {
           </p>
 
           <h2 className="text-xl font-bold text-primary-dark mt-10 mb-4">
-            Sign 4: The Off-Se</output>
+            Sign 4: The Off-Season Pile Has Become a Permanent Fixture
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Many farms accumulate debris during the off-season with the
+            intention of dealing with it before the next season starts.
+            Old fence boards, broken equipment, leftover construction
+            materials, and general junk get pushed to the back of the
+            property where they sit month after month.
+          </p>
+          <p className="text-gray-600 mb-6">
+            If that pile has survived more than one season, it is not
+            temporary &mdash; it is permanent clutter that is only going to
+            grow. A professional farm cleanout crew can remove it in a
+            single visit, hauling away everything from scrap metal to old
+            lumber to broken equipment.
+          </p>
+
+          <h2 className="text-xl font-bold text-primary-dark mt-10 mb-4">
+            Sign 5: You Are Embarrassed When Visitors See the Property
+          </h2>
+          <p className="text-gray-600 mb-4">
+            This one is subjective, but it matters. If you find yourself
+            apologizing for the state of your property when the vet, farrier,
+            or a potential tenant comes by, that is a sign. Equestrian
+            properties in Wellington and Loxahatchee are held to a high
+            standard, and your farm&apos;s appearance affects everything from
+            lease rates to client confidence.
+          </p>
+          <p className="text-gray-600 mb-6">
+            A full property cleanout transforms the look and function of
+            your farm. It is one of the highest-impact, lowest-cost
+            improvements you can make.
+          </p>
+
+          <div className="bg-primary/10 border border-primary/30 rounded-lg p-6 mt-10">
+            <h2 className="text-xl font-bold text-primary-dark mb-3">
+              Ready for a Farm Property Cleanout?
+            </h2>
+            <p className="text-gray-700 mb-4">
+              My Horse Farm provides full property cleanouts, junk removal,
+              debris hauling, and farm cleanup services for equestrian
+              properties in Wellington, Loxahatchee, and the surrounding
+              areas. Call us at{" "}
+              <a href="tel:+15615767667" className="text-primary font-semibold hover:underline">(561) 576-7667</a>{" "}
+              or{" "}
+              <Link href="/quote" className="text-primary font-semibold hover:underline">
+                request a free quote
+              </Link>{" "}
+              to get started.
+            </p>
+          </div>
+        </article>
+      </main>
+      <Footer />
+    </>
+  );
+}

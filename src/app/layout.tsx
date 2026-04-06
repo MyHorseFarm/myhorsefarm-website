@@ -24,6 +24,7 @@ const inter = Inter({
 });
 
 const GTM_ID = "GTM-TWDPWRQV";
+const GADS_ID = "AW-385210685";
 
 export const metadata: Metadata = {
   title: {
@@ -37,11 +38,20 @@ export const metadata: Metadata = {
     siteName: "My Horse Farm",
     locale: "en_US",
     type: "website",
-    images: [{ url: "https://www.myhorsefarm.com/images/hero-farm.jpg" }],
+    images: [
+      {
+        url: "/api/og?title=Farm%20%26%20Property%20Services%20in%20Palm%20Beach&description=Dumpster%20rentals%2C%20junk%20hauling%2C%20sod%20installation%20and%20farm%20services",
+        width: 1200,
+        height: 630,
+        alt: "My Horse Farm - Farm & Property Services",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    images: ["https://www.myhorsefarm.com/images/hero-farm.jpg"],
+    images: [
+      "/api/og?title=Farm%20%26%20Property%20Services%20in%20Palm%20Beach&description=Dumpster%20rentals%2C%20junk%20hauling%2C%20sod%20installation%20and%20farm%20services",
+    ],
   },
 };
 
@@ -89,6 +99,13 @@ export default function RootLayout({
         <AudienceSignals />
         <Script id="gtm" strategy="afterInteractive">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GTM_ID}');`}
+        </Script>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GADS_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="gads-config" strategy="afterInteractive">
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GADS_ID}',{allow_enhanced_conversions:true});`}
         </Script>
       </body>
     </html>

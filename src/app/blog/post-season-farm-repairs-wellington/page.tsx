@@ -187,4 +187,64 @@ export default function PostSeasonFarmRepairsWellingtonPost() {
             every weakness &mdash; every lifted shingle, every gap in the
             flashing, every spot where a seal has degraded. A small leak in
             April becomes a serious structural problem by September if water
-            is</output>
+            is allowed to penetrate the structure unchecked. Check the
+            underside of your roof from inside the barn for daylight, water
+            stains, and soft spots.
+          </p>
+          <p className="text-gray-600 mb-6">
+            Gutters and downspouts need attention too. Clogged gutters
+            overflow, sending water against walls and foundations where it
+            causes erosion and rot. Clean them out, repair any damaged
+            sections, and make sure water is being directed away from the
+            barn and stall areas.
+          </p>
+
+          <h2 className="text-xl font-bold text-primary-dark mt-10 mb-4">
+            Driveway and Access Road Repairs
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Three months of heavy trailer traffic takes a toll on driveways
+            and access roads. Potholes develop, edges erode, and gravel
+            surfaces thin out in high-traffic areas. These issues get
+            significantly worse once summer rain arrives, so address them
+            now while the ground is dry and contractors are available.
+          </p>
+          <p className="text-gray-600 mb-6">
+            Millings asphalt is an affordable and durable option for
+            resurfacing farm driveways and parking areas. It compacts well,
+            drains properly, and holds up to heavy equipment and trailer
+            traffic.
+          </p>
+
+          <h2 className="text-xl font-bold text-primary-dark mt-10 mb-4">
+            Schedule Your Post-Season Repairs Now
+          </h2>
+          <p className="text-gray-600 mb-6">
+            The window between the end of WEF and the start of Florida&apos;s
+            rainy season is short. Every repair you complete now prevents a
+            bigger, more expensive problem later. Do not wait until summer
+            storms expose every weakness on your property.
+          </p>
+
+          <div className="bg-primary/10 border border-primary/30 rounded-lg p-6 mt-10">
+            <h2 className="text-xl font-bold text-primary-dark mb-3">
+              Need Post-Season Farm Repairs?
+            </h2>
+            <p className="text-gray-700 mb-4">
+              My Horse Farm handles fence repair, arena resurfacing, barn
+              maintenance, driveway work, and full property cleanouts for
+              Wellington equestrian properties. Call us at{" "}
+              <a href="tel:+15615767667" className="text-primary font-semibold hover:underline">(561) 576-7667</a>{" "}
+              or{" "}
+              <Link href="/quote" className="text-primary font-semibold hover:underline">
+                request a free quote
+              </Link>{" "}
+              to get your farm back in shape.
+            </p>
+          </div>
+        </article>
+      </main>
+      <Footer />
+    </>
+  );
+}

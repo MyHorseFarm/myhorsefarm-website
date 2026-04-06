@@ -191,4 +191,64 @@ export default function SodInstallationHorsePaddocksPost() {
             thick, and it does not tolerate shade well. If your paddocks are
             near tree lines or structures that cast afternoon shade, bermuda may
             thin out in those areas. It also goes dormant in winter, though it
-            greens up quic</output>
+            greens up quickly once temperatures rise in spring.
+          </p>
+          <h3 className="text-lg font-semibold text-primary-dark mt-6 mb-3">
+            Zoysia Grass
+          </h3>
+          <p className="text-gray-600 mb-4">
+            Zoysia is a premium option that offers a dense, carpet-like
+            surface with good wear tolerance. It handles moderate hoof
+            traffic well and is more shade-tolerant than bermuda, making it
+            a viable option for paddocks with partial tree cover. However,
+            zoysia is slower to establish and recover from damage, and it
+            costs more per pallet than bahia or bermuda.
+          </p>
+          <p className="text-gray-600 mb-6">
+            For most Florida horse farms, bahia or bermuda will be the best
+            choice depending on your maintenance capacity and traffic levels.
+            We can help you evaluate your specific paddocks and recommend
+            the right variety for each area of your property.
+          </p>
+
+          <h2 className="text-xl font-bold text-primary-dark mt-10 mb-4">
+            The Installation Process
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Professional paddock sod installation is more involved than
+            laying sod on a residential lawn. Horse paddocks require proper
+            site preparation, grading for drainage, and soil conditioning
+            to give the turf the best chance of establishing before horses
+            are turned out on it.
+          </p>
+          <p className="text-gray-600 mb-6">
+            The process includes clearing existing vegetation and debris,
+            grading the paddock surface for proper drainage, amending the
+            soil if needed, laying fresh sod in tight seams, and rolling
+            or tamping to ensure root-to-soil contact. After installation,
+            the paddock needs to be kept off limits for two to three weeks
+            to allow the root system to establish.
+          </p>
+
+          <div className="bg-primary/10 border border-primary/30 rounded-lg p-6 mt-10">
+            <h2 className="text-xl font-bold text-primary-dark mb-3">
+              Need Paddock Sod Installation?
+            </h2>
+            <p className="text-gray-700 mb-4">
+              My Horse Farm provides professional sod installation for horse
+              paddocks, pastures, and equestrian properties throughout
+              Wellington, Loxahatchee, and the surrounding areas. Call us at{" "}
+              <a href="tel:+15615767667" className="text-primary font-semibold hover:underline">(561) 576-7667</a>{" "}
+              or{" "}
+              <Link href="/quote" className="text-primary font-semibold hover:underline">
+                request a free quote
+              </Link>{" "}
+              to get started.
+            </p>
+          </div>
+        </article>
+      </main>
+      <Footer />
+    </>
+  );
+}
