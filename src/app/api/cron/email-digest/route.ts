@@ -175,14 +175,19 @@ ${sent === 0 && newQuotes === 0 && newBookings === 0 ? `
 </body></html>`;
 
     // Send the digest
-    const { error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "My Horse Farm <onboarding@resend.dev>",
-      to: DIGEST_TO,
-      subject: `MHF Daily Digest: ${sent} sent, ${opened} opened, ${clicked} clicked — ${today}`,
-      html,
-    });
+    try {
+      const { error } = await resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || "My Horse Farm <onboarding@resend.dev>",
+        to: DIGEST_TO,
+        subject: `MHF Daily Digest: ${sent} sent, ${opened} opened, ${clicked} clicked — ${today}`,
+        html,
+      });
 
-    if (error) throw new Error(`Resend: ${JSON.stringify(error)}`);
+      if (error) throw new Error(`Resend: ${JSON.stringify(error)}`);
+    } catch (sendErr) {
+      console.error("[email-digest] Failed to send digest:", sendErr instanceof Error ? sendErr.message : sendErr);
+      throw sendErr;
+    }
 
     return {
       processed: 1,

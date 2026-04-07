@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/cron/review-request",
-      "schedule": "0 16 * * *"
+      "schedule": "0 18 * * *"
     },
     {
       "path": "/api/cron/pre-season",
@@ -14,11 +14,11 @@
     },
     {
       "path": "/api/cron/client-engagement",
-      "schedule": "0 15 * * *"
+      "schedule": "0 16 * * *"
     },
     {
       "path": "/api/cron/quote-followup",
-      "schedule": "0 15 * * *"
+      "schedule": "30 14 * * *"
     },
     {
       "path": "/api/cron/auto-charge",
@@ -83,6 +83,10 @@
     {
       "path": "/api/cron/gbp-post",
       "schedule": "0 14 * * 3"
+    },
+    {
+      "path": "/api/cron/social-post",
+      "schedule": "0 14 * * 2,4,6"
     }
   ]
 }

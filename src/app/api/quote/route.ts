@@ -23,7 +23,32 @@ import type { QuoteRequest } from "@/lib/types";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
+// In-memory rate limiting: 5 requests per IP per hour
+const RATE_LIMIT = 5;
+const RATE_WINDOW_MS = 60 * 60 * 1000;
+const rateLimitMap = new Map<string, number[]>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const timestamps = rateLimitMap.get(ip) || [];
+  const recent = timestamps.filter((t) => now - t < RATE_WINDOW_MS);
+  rateLimitMap.set(ip, recent);
+  if (recent.length >= RATE_LIMIT) return false;
+  recent.push(now);
+  return true;
+}
+
 export async function POST(request: NextRequest) {
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+
+  if (!checkRateLimit(ip)) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429 },
+    );
+  }
+
   try {
     const body = (await request.json()) as QuoteRequest;
 

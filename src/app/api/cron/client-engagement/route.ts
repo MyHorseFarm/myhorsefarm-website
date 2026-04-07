@@ -44,7 +44,7 @@ function currentUpsellTag(): string {
   return `${UPSELL_TAG_PREFIX}${new Date().getFullYear()}]`;
 }
 
-/** Get all contacts that have at least one Square payment note */
+/** Get contacts that have at least one Square payment note (capped to avoid rate limits) */
 async function getPayingContacts(): Promise<Contact[]> {
   // Search for contacts created in the last 13 months (covers 12-month milestone)
   const thirteenMonthsAgo = new Date(
@@ -64,6 +64,7 @@ async function getPayingContacts(): Promise<Contact[]> {
       },
     ],
     ["email", "firstname", "createdate"],
+    500, // Cap to avoid HubSpot rate limits on the per-contact API calls
   );
 }
 

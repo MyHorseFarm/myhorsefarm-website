@@ -38,20 +38,25 @@ export async function GET(request: NextRequest) {
     // -----------------------------------------------------------------------
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-    const newContacts = await searchContacts(
-      [
-        {
-          filters: [
-            {
-              propertyName: "createdate",
-              operator: "GTE",
-              value: oneDayAgo,
-            },
-          ],
-        },
-      ],
-      ["email", "firstname", "createdate"],
-    );
+    let newContacts: Awaited<ReturnType<typeof searchContacts>> = [];
+    try {
+      newContacts = await searchContacts(
+        [
+          {
+            filters: [
+              {
+                propertyName: "createdate",
+                operator: "GTE",
+                value: oneDayAgo,
+              },
+            ],
+          },
+        ],
+        ["email", "firstname", "createdate"],
+      );
+    } catch (err) {
+      errors.push(`searchContacts (new) failed: ${err}`);
+    }
 
     for (const contact of newContacts) {
       const email = contact.properties.email;
@@ -93,25 +98,30 @@ export async function GET(request: NextRequest) {
       Date.now() - 10 * 24 * 60 * 60 * 1000,
     ).toISOString();
 
-    const midContacts = await searchContacts(
-      [
-        {
-          filters: [
-            {
-              propertyName: "createdate",
-              operator: "LTE",
-              value: threeDaysAgo,
-            },
-            {
-              propertyName: "createdate",
-              operator: "GTE",
-              value: tenDaysAgo,
-            },
-          ],
-        },
-      ],
-      ["email", "firstname"],
-    );
+    let midContacts: Awaited<ReturnType<typeof searchContacts>> = [];
+    try {
+      midContacts = await searchContacts(
+        [
+          {
+            filters: [
+              {
+                propertyName: "createdate",
+                operator: "LTE",
+                value: threeDaysAgo,
+              },
+              {
+                propertyName: "createdate",
+                operator: "GTE",
+                value: tenDaysAgo,
+              },
+            ],
+          },
+        ],
+        ["email", "firstname"],
+      );
+    } catch (err) {
+      errors.push(`searchContacts (mid) failed: ${err}`);
+    }
 
     for (const contact of midContacts) {
       const email = contact.properties.email;
@@ -152,25 +162,30 @@ export async function GET(request: NextRequest) {
       Date.now() - 21 * 24 * 60 * 60 * 1000,
     ).toISOString();
 
-    const lateContacts = await searchContacts(
-      [
-        {
-          filters: [
-            {
-              propertyName: "createdate",
-              operator: "LTE",
-              value: sevenDaysAgo,
-            },
-            {
-              propertyName: "createdate",
-              operator: "GTE",
-              value: twentyOneDaysAgo,
-            },
-          ],
-        },
-      ],
-      ["email", "firstname"],
-    );
+    let lateContacts: Awaited<ReturnType<typeof searchContacts>> = [];
+    try {
+      lateContacts = await searchContacts(
+        [
+          {
+            filters: [
+              {
+                propertyName: "createdate",
+                operator: "LTE",
+                value: sevenDaysAgo,
+              },
+              {
+                propertyName: "createdate",
+                operator: "GTE",
+                value: twentyOneDaysAgo,
+              },
+            ],
+          },
+        ],
+        ["email", "firstname"],
+      );
+    } catch (err) {
+      errors.push(`searchContacts (late) failed: ${err}`);
+    }
 
     for (const contact of lateContacts) {
       const email = contact.properties.email;

@@ -35,6 +35,7 @@ export interface Deal {
 export async function searchContacts(
   filterGroups: unknown[],
   properties: string[],
+  maxResults = 10000,
 ): Promise<Contact[]> {
   const results: Contact[] = [];
   let after: string | undefined;
@@ -54,6 +55,12 @@ export async function searchContacts(
 
     results.push(...data.results);
     after = data.paging?.next?.after;
+
+    // Cap results to avoid exhausting API rate limits
+    if (results.length >= maxResults) break;
+
+    // Brief pause between pages to stay under HubSpot rate limits
+    if (after) await new Promise((r) => setTimeout(r, 120));
   } while (after);
 
   return results;

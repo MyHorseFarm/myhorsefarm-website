@@ -58,7 +58,8 @@ export async function withCronMonitor(
     const durationMs = Date.now() - start;
     const error = err instanceof Error ? err : new Error(String(err));
 
-    console.error(`[cron-monitor] ${cronName} FAILED after ${durationMs}ms:`, error);
+    console.error(`[cron-monitor] ${cronName} FAILED after ${durationMs}ms: ${error.message}`);
+    if (error.stack) console.error(`[cron-monitor] ${cronName} stack:`, error.stack);
 
     // Send alert email
     try {

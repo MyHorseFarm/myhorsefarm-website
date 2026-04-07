@@ -136,6 +136,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages = [
     { url: '/', priority: 1.0, changeFrequency: 'weekly' as const },
     { url: '/blog', priority: 0.9, changeFrequency: 'weekly' as const },
+    { url: '/pricing', priority: 0.9, changeFrequency: 'monthly' as const },
+    { url: '/quote', priority: 0.9, changeFrequency: 'monthly' as const },
+    { url: '/referrals', priority: 0.7, changeFrequency: 'monthly' as const },
+    { url: '/offers', priority: 0.7, changeFrequency: 'monthly' as const },
+    { url: '/spring-special', priority: 0.7, changeFrequency: 'monthly' as const },
+    { url: '/wellington-manure-regulations', priority: 0.6, changeFrequency: 'monthly' as const },
+    { url: '/terms-of-service', priority: 0.3, changeFrequency: 'yearly' as const },
     { url: '/privacy-policy', priority: 0.3, changeFrequency: 'yearly' as const },
   ];
 
@@ -150,8 +157,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Service category pages
   const serviceCategories = [
     { name: 'junk-removal', priority: 0.9 },
+    { name: 'manure-removal', priority: 0.9 },
     { name: 'dumpster-rental', priority: 0.8 },
     { name: 'sod-installation', priority: 0.8 },
+    { name: 'fill-dirt', priority: 0.8 },
+    { name: 'season-ready', priority: 0.8 },
     { name: 'repairs', priority: 0.8 },
   ];
 
