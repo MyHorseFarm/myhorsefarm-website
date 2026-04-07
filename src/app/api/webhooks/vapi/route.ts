@@ -82,16 +82,15 @@ export async function POST(request: NextRequest) {
 
       case "status-update":
         // Acknowledge status updates (call started, ringing, etc.)
-        console.log("[Vapi] Status update:", JSON.stringify(payload.message).slice(0, 200));
+        console.info("[Vapi] Status update:", JSON.stringify(payload.message).slice(0, 200));
         break;
 
       case "hang":
         // Vapi "hang" notification — caller or system hung up
-        console.log("[Vapi] Hang notification received");
         break;
 
       default:
-        console.log(`[Vapi] Unhandled message type: ${messageType}`);
+        console.warn(`[Vapi] Unhandled message type: ${messageType}`);
     }
   } catch (err) {
     console.error(`[Vapi] Error handling ${messageType}:`, err);
@@ -123,7 +122,7 @@ async function handleCallEnded(payload: VapiCallEndedPayload): Promise<void> {
     : 0;
   const durationFormatted = `${Math.floor(durationSec / 60)}m ${durationSec % 60}s`;
 
-  console.log(
+  console.info(
     `[Vapi] Call ended: ${callerPhone} | Duration: ${durationFormatted} | Reason: ${payload.message.endedReason}`,
   );
 
@@ -248,7 +247,7 @@ async function handleFunctionCall(
   const { name, parameters } = functionCall;
   const callerPhone = call.customer?.number || "";
 
-  console.log(`[Vapi] Function call: ${name}`, JSON.stringify(parameters).slice(0, 300));
+  console.info(`[Vapi] Function call: ${name}`, JSON.stringify(parameters).slice(0, 300));
 
   try {
     switch (name) {
@@ -573,7 +572,7 @@ async function handleTransferToJose(
   const reason = (params.reason as string) || "Caller requested transfer";
 
   // Log the transfer
-  console.log(`[Vapi] Transfer to Jose: ${customerName || callerPhone} – ${reason}`);
+  console.info(`[Vapi] Transfer to Jose: ${customerName || callerPhone} – ${reason}`);
 
   // Add HubSpot note if we can find the contact
   try {

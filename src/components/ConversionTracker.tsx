@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { trackEvent } from "@/lib/analytics";
+import { trackEvent, trackConversion, generateEventId } from "@/lib/analytics";
 
 export default function ConversionTracker() {
   const pathname = usePathname();
@@ -37,10 +37,16 @@ export default function ConversionTracker() {
           form_id: e.data.id,
           page: pathname,
         });
-        trackEvent("generate_lead", {
-          source: "contact_form",
-          page: pathname,
-        });
+        const eventId = generateEventId();
+        trackConversion(
+          "generate_lead",
+          {
+            source: "contact_form",
+            page: pathname,
+          },
+          {},
+          eventId,
+        );
       }
     }
 

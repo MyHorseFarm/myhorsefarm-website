@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import NextImage from "next/image";
 import { trackEvent } from "@/lib/analytics";
 
 interface QuoteCard {
@@ -301,7 +302,7 @@ export default function ChatWidget() {
           {/* Header */}
           <div className="bg-primary text-white px-4 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="" className="w-8 h-8 rounded-full bg-white p-0.5" />
+              <NextImage src="/logo.png" alt="My Horse Farm logo" width={32} height={32} className="w-8 h-8 rounded-full bg-white p-0.5" />
               <div>
                 <div className="font-semibold text-sm">My Horse Farm</div>
                 <div className="text-xs opacity-80">Usually replies instantly</div>
@@ -358,6 +359,7 @@ export default function ChatWidget() {
                   {/* Photo thumbnail */}
                   {msg.imageUrl && (
                     <div className="p-1.5 pb-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={msg.imageUrl}
                         alt="Uploaded photo"
@@ -426,6 +428,7 @@ export default function ChatWidget() {
           {pendingImage && (
             <div className="px-3 pb-1 shrink-0">
               <div className="relative inline-block">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={pendingImage.objectUrl}
                   alt="Photo to send"

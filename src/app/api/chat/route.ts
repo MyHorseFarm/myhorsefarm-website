@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     // Load session and check limits
     const { data: session, error: sessionError } = await supabase
       .from("chat_sessions")
-      .select("messages, status")
+      .select("messages, status, extracted_details")
       .eq("id", session_id)
       .single();
 
@@ -46,6 +46,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Session not found" },
         { status: 404 },
+      );
+    }
+
+    // Validate IP ownership — only the IP that created the session can post to it
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const sessionIp = (session.extracted_details as Record<string, unknown>)?.client_ip;
+    if (sessionIp && sessionIp !== ip) {
+      return NextResponse.json(
+        { error: "Forbidden" },
+        { status: 403 },
       );
     }
 

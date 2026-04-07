@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import DateTimePicker from "./DateTimePicker";
+import Image from "next/image";
 import { trackConversion, generateEventId } from "@/lib/analytics";
 import { getUtmParams } from "@/lib/utm";
 
@@ -103,7 +104,7 @@ export default function ServiceCalendar({
     <section id="calendar" className="py-16 px-5 max-w-[1200px] mx-auto text-center max-md:py-10 max-md:px-4">
       <h2 className="text-2xl max-md:text-xl">Schedule &amp; Availability</h2>
       <p className="text-gray-600 mb-4">Choose a date that works for you.</p>
-      <img src="/logo.png" alt="My Horse Farm logo" className="w-[160px] h-auto mb-3 mx-auto" />
+      <Image src="/logo.png" alt="My Horse Farm logo" width={160} height={160} className="w-[160px] h-auto mb-3 mx-auto" />
 
       {error && (
         <div className="bg-red-50 text-red-700 px-4 py-3 rounded-lg mb-4 max-w-md mx-auto">

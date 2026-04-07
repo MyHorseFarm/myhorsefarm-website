@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { supabase } from "@/lib/supabase";
 import { sendEmail } from "@/lib/emails";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const maxDuration = 120; // 2 min timeout for AI generation
 
@@ -172,7 +173,7 @@ export async function GET(request: NextRequest) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  try {
+  return withCronMonitor("blog-generate", async () => {
     // Check for recent posts — but use 5 days instead of 7 so a Monday
     // failure can be retried on Tuesday/Wednesday without being blocked
     const fiveDaysAgo = new Date();
@@ -185,10 +186,10 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (recentPosts && recentPosts.length > 0) {
-      return Response.json({
-        success: false,
+      return {
+        processed: 0,
         reason: "Already generated a blog post this week",
-      });
+      };
     }
 
     // Pick a topic — weighted towards categories we haven't covered recently
@@ -256,24 +257,6 @@ export async function GET(request: NextRequest) {
       Tags: ${parsed.tags.join(", ")}`,
     );
 
-    return Response.json({ success: true, post: data });
-  } catch (err) {
-    console.error("Blog generation error:", err);
-
-    // Alert Jose about the failure
-    const errorMsg = err instanceof Error ? err.message : "Unknown error";
-    await alertAdmin(
-      "Blog Generation FAILED",
-      `The weekly blog post failed to generate after 3 attempts.<br><br>
-      <strong>Error:</strong> ${errorMsg}<br><br>
-      The system will retry on the next cron run. If this keeps happening,
-      check the Vercel logs at
-      <a href="https://vercel.com/dashboard" style="color:#2d6a30;">vercel.com/dashboard</a>.`,
-    );
-
-    return Response.json(
-      { success: false, error: errorMsg },
-      { status: 500 },
-    );
-  }
+    return { processed: 1, post: data };
+  });
 }

@@ -42,7 +42,7 @@ interface MetaEventParams {
  */
 export async function sendMetaEvent(params: MetaEventParams): Promise<void> {
   if (!PIXEL_ID || !ACCESS_TOKEN) {
-    console.log("Meta CAPI: skipped (no PIXEL_ID or ACCESS_TOKEN)");
+    console.warn("Meta CAPI: skipped (no PIXEL_ID or ACCESS_TOKEN)");
     return;
   }
 

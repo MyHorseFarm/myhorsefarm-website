@@ -123,15 +123,20 @@ export async function POST(request: NextRequest) {
 
     // HubSpot: update deal to Scheduled stage
     let hubspotDealId: string | null = null;
+    let bookingValue = 0;
 
     try {
       // If from a quote, use the quote's deal
       if (body.quote_id) {
         const { data: quote } = await supabase
           .from("quotes")
-          .select("hubspot_deal_id, hubspot_contact_id")
+          .select("hubspot_deal_id, hubspot_contact_id, estimated_amount")
           .eq("id", body.quote_id)
           .single();
+
+        if (quote?.estimated_amount && typeof quote.estimated_amount === "number") {
+          bookingValue = quote.estimated_amount;
+        }
 
         if (quote?.hubspot_deal_id) {
           hubspotDealId = quote.hubspot_deal_id as string;
@@ -263,7 +268,7 @@ export async function POST(request: NextRequest) {
         },
         custom_data: {
           currency: "USD",
-          value: 0,
+          value: bookingValue,
           content_name: serviceName,
         },
       });

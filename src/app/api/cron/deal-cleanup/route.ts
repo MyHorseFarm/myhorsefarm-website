@@ -10,6 +10,7 @@ import {
   STAGE_LOST,
 } from "@/lib/hubspot";
 import { sendEmail } from "@/lib/emails";
+import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -27,11 +28,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const results: string[] = [];
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
+  return withCronMonitor("deal-cleanup", async () => {
+    const results: string[] = [];
+    const errors: string[] = [];
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
 
-  try {
     // -----------------------------------------------------------------
     // 1. Expired quotes: 14+ days past expiry, still in "expired" status
     // -----------------------------------------------------------------
@@ -90,7 +92,7 @@ export async function GET(request: NextRequest) {
 
         results.push(`lost_quote → ${quote.customer_email} (${quote.quote_number})`);
       } catch (err) {
-        results.push(`lost_quote FAIL ${quote.quote_number}: ${err}`);
+        errors.push(`lost_quote FAIL ${quote.quote_number}: ${err}`);
       }
     }
 
@@ -161,20 +163,14 @@ export async function GET(request: NextRequest) {
 
         results.push(`lost_booking → ${booking.customer_email} (${booking.booking_number})`);
       } catch (err) {
-        results.push(`lost_booking FAIL ${booking.booking_number}: ${err}`);
+        errors.push(`lost_booking FAIL ${booking.booking_number}: ${err}`);
       }
     }
-  } catch (err) {
-    return NextResponse.json(
-      { error: String(err), results },
-      { status: 500 },
-    );
-  }
 
-  return NextResponse.json({
-    ok: true,
-    processed: results.length,
-    results,
-    timestamp: new Date().toISOString(),
+    return {
+      processed: results.length,
+      results,
+      errors: errors.length > 0 ? errors : undefined,
+    };
   });
 }

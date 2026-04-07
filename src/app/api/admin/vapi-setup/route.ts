@@ -61,16 +61,16 @@ export async function POST(request: NextRequest) {
       try {
         await getAssistant(existingId);
         assistant = await updateAssistant(existingId, webhookUrl);
-        console.log(`[Vapi Setup] Updated assistant: ${assistant.id}`);
+        console.info(`[Vapi Setup] Updated assistant: ${assistant.id}`);
       } catch {
         // Assistant not found — create new one
-        console.log(`[Vapi Setup] Assistant ${existingId} not found, creating new one`);
+        console.info(`[Vapi Setup] Assistant ${existingId} not found, creating new one`);
         assistant = await createAssistant(webhookUrl);
-        console.log(`[Vapi Setup] Created new assistant: ${assistant.id}`);
+        console.info(`[Vapi Setup] Created new assistant: ${assistant.id}`);
       }
     } else {
       assistant = await createAssistant(webhookUrl);
-      console.log(`[Vapi Setup] Created new assistant: ${assistant.id}`);
+      console.info(`[Vapi Setup] Created new assistant: ${assistant.id}`);
     }
 
     // Assign to phone number
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       try {
         await assignPhoneNumber(assistant.id);
         phoneAssigned = true;
-        console.log(`[Vapi Setup] Assigned assistant to phone number`);
+        console.info(`[Vapi Setup] Assigned assistant to phone number`);
       } catch (err) {
         console.error("[Vapi Setup] Phone assignment error:", err);
       }
