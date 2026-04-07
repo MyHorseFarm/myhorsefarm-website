@@ -34,14 +34,17 @@ export const metadata: Metadata = {
   },
   description:
     "Dumpster rentals, junk hauling, sod installation, fill dirt & farm services at the lowest prices in Palm Beach County. Call (561) 576-7667 for a free quote!",
-  icons: { icon: "/logo.png" },
+  icons: {
+    icon: "/logo.png",
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     siteName: "My Horse Farm",
     locale: "en_US",
     type: "website",
     images: [
       {
-        url: "/api/og?title=Farm%20%26%20Property%20Services%20in%20Palm%20Beach&description=Dumpster%20rentals%2C%20junk%20hauling%2C%20sod%20installation%20and%20farm%20services",
+        url: "https://www.myhorsefarm.com/api/og?title=Farm%20%26%20Property%20Services%20in%20Palm%20Beach&description=Dumpster%20rentals%2C%20junk%20hauling%2C%20sod%20installation%20and%20farm%20services",
         width: 1200,
         height: 630,
         alt: "My Horse Farm - Farm & Property Services",
@@ -51,7 +54,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     images: [
-      "/api/og?title=Farm%20%26%20Property%20Services%20in%20Palm%20Beach&description=Dumpster%20rentals%2C%20junk%20hauling%2C%20sod%20installation%20and%20farm%20services",
+      "https://www.myhorsefarm.com/api/og?title=Farm%20%26%20Property%20Services%20in%20Palm%20Beach&description=Dumpster%20rentals%2C%20junk%20hauling%2C%20sod%20installation%20and%20farm%20services",
     ],
   },
 };
