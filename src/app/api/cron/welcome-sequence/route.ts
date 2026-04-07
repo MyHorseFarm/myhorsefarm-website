@@ -53,6 +53,7 @@ export async function GET(request: NextRequest) {
           },
         ],
         ["email", "firstname", "createdate"],
+        50,
       );
     } catch (err) {
       errors.push(`searchContacts (new) failed: ${err}`);
@@ -118,6 +119,7 @@ export async function GET(request: NextRequest) {
           },
         ],
         ["email", "firstname"],
+        50,
       );
     } catch (err) {
       errors.push(`searchContacts (mid) failed: ${err}`);
@@ -182,6 +184,7 @@ export async function GET(request: NextRequest) {
           },
         ],
         ["email", "firstname"],
+        50,
       );
     } catch (err) {
       errors.push(`searchContacts (late) failed: ${err}`);
