@@ -545,6 +545,104 @@ Spread the word! ${PHONE} | myhorsefarm.com
     cta: "Refer a friend and save!",
     link: SITE,
   },
+
+  // --- Summer 2026 (6) ---
+  {
+    id: "summer-fly-control",
+    theme: "seasonal",
+    service: "manure",
+    text: `Summer in South Florida means one thing for horse farms: FLIES. And the #1 cause? Manure buildup.
+
+Regular removal is your best defense against fly infestations. We offer weekly and biweekly schedules that keep your barn clean and your horses comfortable all summer long.
+
+Don't wait until it's a problem. Call ${PHONE} to set up your summer schedule.
+
+#flycontrol #horsefarm #wellington #manureremoval #summertips #myhorsefarm #palmbeach #equestrian #barnlife #southflorida`,
+    image: "horses-paddock.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "Set up your summer schedule!",
+    link: PRICING_URL,
+  },
+  {
+    id: "summer-heat-warning",
+    theme: "seasonal",
+    service: "waste",
+    text: `90+ degrees and rising. In this heat, waste breaks down FAST — and the smell travels even faster.
+
+Your neighbors will thank you for staying on top of removal. Your horses will thank you even more.
+
+My Horse Farm keeps your property clean through the hottest months. Call ${PHONE}.
+
+#summerheat #floridaheat #horsefarm #manureremoval #wellington #palmbeach #myhorsefarm #southflorida #propertymaintenance #barnmanagement`,
+    image: "service-manure.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "Beat the heat — schedule now!",
+    link: PRICING_URL,
+  },
+  {
+    id: "summer-barn-deep-clean",
+    theme: "service-spotlight",
+    service: "cleanout",
+    text: `Summer is the perfect time for a deep barn cleanout. Old hay, broken equipment, accumulated junk — let's clear it ALL out.
+
+We'll haul everything away so you start the season fresh. One call, one crew, one clean barn.
+
+${PHONE} | myhorsefarm.com
+
+#barncleanout #horsefarm #deepclean #wellington #palmbeach #myhorsefarm #equestrian #barnlife #summercleaning #southflorida`,
+    image: "before-1.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "Book your barn cleanout!",
+    link: QUOTE_URL,
+  },
+  {
+    id: "summer-pool-junk",
+    theme: "seasonal",
+    service: "junk",
+    text: `Pool season is here! But first — you need to clear out all that stuff piled up on the patio and around the pool deck.
+
+Old furniture, broken grills, random junk — we'll haul it all so you can actually enjoy your backyard this summer.
+
+Call ${PHONE} for same-day pickup.
+
+#poolseason #junkremoval #palmbeach #summercleaning #myhorsefarm #southflorida #wellington #backyardcleanup #patioseason #royalpalmbeach`,
+    image: "after-1.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "Clear your yard for summer!",
+    link: QUOTE_URL,
+  },
+  {
+    id: "summer-storm-prep",
+    theme: "seasonal",
+    service: "general",
+    text: `Storm season starts June 1st. Is your property ready?
+
+Loose debris, old fencing, and junk piles become DANGEROUS in high winds. Let us clear your property BEFORE the first storm hits.
+
+We've helped hundreds of properties across Palm Beach County prep for hurricane season. Call ${PHONE}.
+
+#stormprep #hurricaneseason #palmbeach #wellington #myhorsefarm #southflorida #propertymaintenance #horsefarm #safetyfirst #floridaweather`,
+    image: "hero-farm.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "Prep your property now!",
+    link: QUOTE_URL,
+  },
+  {
+    id: "summer-schedule-discount",
+    theme: "special-offer",
+    service: "manure",
+    text: `SUMMER SPECIAL: Sign up for a weekly or biweekly removal plan this month and get your first pickup FREE.
+
+Lock in your summer schedule now before we're fully booked. Slots are filling up fast in Wellington and Loxahatchee.
+
+Call ${PHONE} to claim your free first pickup.
+
+#summerdeal #manureremoval #horsefarm #wellington #loxahatchee #myhorsefarm #palmbeach #specialoffer #equestrian #southflorida`,
+    image: "mhf-trailer-at-farm.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "Claim your free first pickup!",
+    link: PRICING_URL,
+  },
 ];
 
 // ---------------------------------------------------------------------------
