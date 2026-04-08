@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { sendEmail } from "@/lib/emails";
 import { withCronMonitor } from "@/lib/cron-monitor";
 
+export const runtime = "nodejs";
 export const maxDuration = 120; // 2 min timeout for AI generation
 
 const ADMIN_EMAIL = process.env.ADMIN_ALERT_EMAIL || "manureservice@gmail.com";

@@ -19,7 +19,7 @@ export const maxDuration = 300;
 const SEND_LIMIT = 80;
 
 /** Maximum contacts to scan per run to stay within Vercel timeout. */
-const SCAN_LIMIT = 200;
+const SCAN_LIMIT = 500;
 
 function getMonthlyTag(date: Date): string {
   const yyyy = date.getFullYear();

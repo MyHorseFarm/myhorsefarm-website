@@ -15,8 +15,8 @@ import { withCronMonitor } from "@/lib/cron-monitor";
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-/** Maximum emails to send per run. */
-const SEND_LIMIT = 50;
+/** Maximum emails to send per run. Runs daily Oct 1-7 with yearly tag dedup. */
+const SEND_LIMIT = 100;
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
