@@ -47,12 +47,22 @@ export async function GET(request: NextRequest) {
   // Phase 1: Lost Deals
   // -----------------------------------------------------------------------
   try {
+    // Only look at deals updated in the last 12 months to avoid scanning
+    // ancient deals that have already been tagged
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1);
+
     const lostDeals = await searchDeals(
       [
         {
           filters: [
             { propertyName: "pipeline", operator: "EQ", value: HUBSPOT_PIPELINE_ID },
             { propertyName: "dealstage", operator: "EQ", value: STAGE_LOST },
+            {
+              propertyName: "hs_lastmodifieddate",
+              operator: "GTE",
+              value: twelveMonthsAgo.getTime().toString(),
+            },
           ],
         },
       ],

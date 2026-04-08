@@ -79,7 +79,17 @@ export async function GET(request: NextRequest) {
 
     const contacts = await getPayingContacts();
 
+    // Batch: pre-filter contacts with payment tags to reduce API calls.
+    // Process max 50 contacts per run to stay within HubSpot rate limits.
+    const BATCH_LIMIT = 50;
+    let processed = 0;
+
     for (const contactSummary of contacts) {
+      if (processed >= BATCH_LIMIT) {
+        results.push(`Hit batch limit of ${BATCH_LIMIT}, stopping to respect rate limits`);
+        break;
+      }
+
       try {
         const email = contactSummary.properties.email;
         if (!email) continue;
@@ -90,6 +100,8 @@ export async function GET(request: NextRequest) {
           PAYMENT_TAG_PREFIX,
         );
         if (paymentCount === 0) continue;
+
+        processed++;
 
         // Only one engagement email per contact per run — check in priority order
         let sent = false;
@@ -179,18 +191,18 @@ export async function GET(request: NextRequest) {
                 contactSummary.properties.lastname || "",
               ].filter(Boolean).join(" ") || "Customer";
 
-              // Generate a personalized referral link
+              // Generate a personalized referral link via direct Supabase insert
+              // (avoids fragile self-fetch to /api/referral)
               let referralUrl = "";
               try {
-                const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
-                const refRes = await fetch(`${siteUrl}/api/referral`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ name: customerName, email }),
+                const code = `REF-${customerName.replace(/\s+/g, "").slice(0, 8).toUpperCase()}-${Date.now().toString(36).slice(-4).toUpperCase()}`;
+                const { error: refErr } = await supabase.from("referrals").insert({
+                  code,
+                  referrer_name: customerName,
+                  referrer_email: email,
                 });
-                if (refRes.ok) {
-                  const refData = await refRes.json();
-                  referralUrl = refData.referral_url;
+                if (!refErr) {
+                  referralUrl = `https://www.myhorsefarm.com/refer/${code}`;
                 }
               } catch {
                 // Fall back to generic referral email

@@ -304,11 +304,12 @@ export async function GET(request: NextRequest) {
       const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString();
 
       // Find all contacts who received a step-1 nurture email 3+ days ago
+      // Match by tag prefix instead of fragile subject-line matching
       const { data: step1Sent } = await supabase
         .from("email_events")
         .select("recipient_email")
         .eq("event_type", "sent")
-        .like("subject", "%$50 off%") // step-1 subjects all contain "$50 off"
+        .or("subject.ilike.%$50 off%,subject.ilike.%nurture step 1%,tags.cs.{nurture_step_1}")
         .lte("event_at", threeDaysAgo);
 
       if (step1Sent?.length) {
@@ -327,7 +328,10 @@ export async function GET(request: NextRequest) {
 
         results.push(`Step-1 non-openers found: ${nonOpeners.length}`);
 
-        for (const recipientEmail of nonOpeners) {
+        // Cap non-opener processing to avoid HubSpot rate limits
+        const cappedNonOpeners = nonOpeners.slice(0, MAX_RESENDS);
+
+        for (const recipientEmail of cappedNonOpeners) {
           if (resendCount >= MAX_RESENDS) break;
 
           try {
