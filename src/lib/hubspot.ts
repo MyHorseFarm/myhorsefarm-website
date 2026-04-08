@@ -109,7 +109,7 @@ export async function getDealContacts(dealId: string): Promise<string[]> {
   const data = await hubspotRequest(
     `/crm/v3/objects/deals/${dealId}/associations/contacts`,
   );
-  return data.results.map((r: Record<string, string>) => r.toObjectId ?? r.id);
+  return data.results.map((r: Record<string, unknown>) => (r.toObjectId ?? r.id) as string);
 }
 
 // ---------------------------------------------------------------------------
@@ -126,7 +126,7 @@ async function getAssociatedNoteBodies(
     );
 
     const noteIds: string[] = assocData.results.map(
-      (r: Record<string, string>) => r.toObjectId ?? r.id,
+      (r: Record<string, unknown>) => (r.toObjectId ?? r.id) as string,
     );
     if (noteIds.length === 0) return [];
 
@@ -333,7 +333,7 @@ export async function findActiveDealForContact(
   );
 
   const dealIds: string[] = assocData.results.map(
-    (r: Record<string, string>) => r.toObjectId ?? r.id,
+    (r: Record<string, unknown>) => (r.toObjectId ?? r.id) as string,
   );
   if (dealIds.length === 0) return null;
 
@@ -375,7 +375,7 @@ export async function getContactDealSummary(
   );
 
   const dealIds: string[] = assocData.results.map(
-    (r: Record<string, string>) => r.toObjectId ?? r.id,
+    (r: Record<string, unknown>) => (r.toObjectId ?? r.id) as string,
   );
 
   if (dealIds.length === 0) {
@@ -464,7 +464,7 @@ export async function findDealByNoteContent(
   );
 
   const dealIds: string[] = assocData.results.map(
-    (r: Record<string, string>) => r.toObjectId ?? r.id,
+    (r: Record<string, unknown>) => (r.toObjectId ?? r.id) as string,
   );
   if (dealIds.length === 0) return null;
 

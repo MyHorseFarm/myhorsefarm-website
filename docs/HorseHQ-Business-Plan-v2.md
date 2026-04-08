@@ -282,4 +282,4 @@ The equestrian waste problem isn't going away. Horse HQ is the solution — and 
 
 ---
 
-*Contact: Jose Gomez | jose@agriculturalhauling.com | (561) 889-9016*
+*Contact: Jose Gomez | gomez@myhorsefarm.com | (561) 576-7667*

@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          # Stub env vars so Next.js build succeeds without real secrets
+          HUBSPOT_API_TOKEN: ""
+          RESEND_API_KEY: ""
+          RESEND_FROM_EMAIL: ""
+          CRON_SECRET: ""
+          UNSUBSCRIBE_SECRET: ""
+          SUPABASE_URL: "https://placeholder.supabase.co"
+          SUPABASE_SERVICE_ROLE_KEY: ""
+          ANTHROPIC_API_KEY: ""
+          ADMIN_SECRET: ""
+          GOOGLE_CLIENT_ID: ""
+          GOOGLE_CLIENT_SECRET: ""
+          GOOGLE_REFRESH_TOKEN: ""
+          GOOGLE_CALENDAR_ID: ""
+          CREW_PIN: ""
+          NEXT_PUBLIC_SQUARE_APPLICATION_ID: ""
+          NEXT_PUBLIC_SQUARE_LOCATION_ID: ""
+          PORTAL_SECRET: ""
+          NEXT_PUBLIC_SITE_URL: "https://myhorsefarm.com"
+          ADMIN_EMAIL: ""
+          ADMIN_ALERT_EMAIL: ""
+          SQUARE_ENVIRONMENT: "sandbox"
+          REMOTION_AWS_ACCESS_KEY_ID: ""
+          REMOTION_AWS_SECRET_ACCESS_KEY: ""
+          REMOTION_AWS_REGION: "us-east-1"
+          REMOTION_FUNCTION_NAME: ""
+          REMOTION_WEBHOOK_SECRET: ""
+          REMOTION_MHF_SERVE_URL: ""
+          EMAIL_BCC_ADDRESS: ""
+          NEXT_PUBLIC_SENTRY_DSN: ""
+          GOOGLE_SERVICE_ACCOUNT_JSON: "{}"
+          SENTRY_AUTH_TOKEN: ""
