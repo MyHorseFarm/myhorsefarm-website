@@ -86,7 +86,7 @@
     },
     {
       "path": "/api/cron/social-post",
-      "schedule": "0 14 * * 2,4,6"
+      "schedule": "0 14 * * *"
     }
   ]
 }

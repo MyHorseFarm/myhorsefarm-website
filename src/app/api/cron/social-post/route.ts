@@ -299,8 +299,8 @@ export async function GET(request: NextRequest) {
     const post = getPostForDate(today);
     const results: string[] = [];
 
-    // === Saturday: Post a VIDEO AD to both platforms ===
-    if (dayOfWeek === 6) {
+    // === Wednesday & Saturday: Post a VIDEO AD to both platforms ===
+    if (dayOfWeek === 3 || dayOfWeek === 6) {
       const weekOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000));
       const videoAd = VIDEO_ADS[weekOfYear % VIDEO_ADS.length];
       const videoPostId = `video-${videoAd.file}`;
