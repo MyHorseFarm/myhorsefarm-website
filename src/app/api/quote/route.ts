@@ -231,23 +231,6 @@ export async function POST(request: NextRequest) {
       console.error("Email send error (non-fatal):", err);
     }
 
-    // Send SMS notification to customer (non-fatal)
-    if (!service.requires_site_visit && body.customer_phone) {
-      try {
-        const { sendSMS, quoteReadySMS } = await import("@/lib/twilio");
-        const smsQuoteUrl = buildSignedUrl(`/quote/${quote.id}`, "quote", quote.id);
-        const sms = quoteReadySMS(
-          body.customer_name,
-          breakdown.total,
-          service.display_name,
-          smsQuoteUrl,
-        );
-        await sendSMS(body.customer_phone, sms);
-      } catch (err) {
-        console.error("SMS send error (non-fatal):", err);
-      }
-    }
-
     // Instant lead alert email to Jose — speed to lead (non-fatal)
     try {
       const esc = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');

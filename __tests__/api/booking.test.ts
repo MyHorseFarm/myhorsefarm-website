@@ -36,11 +36,6 @@ jest.mock("@/lib/meta-capi", () => ({
   sendMetaEvent: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@/lib/twilio", () => ({
-  sendSMS: jest.fn().mockResolvedValue(undefined),
-  bookingConfirmedSMS: jest.fn().mockReturnValue("sms body"),
-}));
-
 jest.mock("@/lib/google-calendar", () => ({
   createCalendarEvent: jest.fn().mockResolvedValue("event-123"),
 }));

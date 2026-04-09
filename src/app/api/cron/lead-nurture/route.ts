@@ -265,20 +265,6 @@ export async function GET(request: NextRequest) {
           } catch { /* recording non-fatal */ }
         }
 
-        // SMS for steps 1 and 5 (non-fatal)
-        if (phone && (nextStep === 1 || nextStep === 5)) {
-          try {
-            const { sendSMS } = await import("@/lib/twilio");
-            const smsBody =
-              nextStep === 1
-                ? `Hi ${firstname}! Jose from My Horse Farm here. We're offering $50 off any service $300+. Get a free quote at myhorsefarm.com/offers or call (561) 576-7667`
-                : `Last chance ${firstname}! $50 off + free gym membership + free dance class when you book with My Horse Farm. Details: myhorsefarm.com/offers`;
-            await sendSMS(phone, smsBody);
-          } catch (smsErr) {
-            console.error(`SMS nurture step ${nextStep} error (non-fatal):`, smsErr);
-          }
-        }
-
         // Tag the contact
         await createContactNote(
           contact.id,

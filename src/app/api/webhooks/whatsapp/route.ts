@@ -86,7 +86,7 @@ interface WhatsAppWebhookPayload {
 }
 
 // ---------------------------------------------------------------------------
-// Interest keyword detection (matches Twilio handler)
+// Interest keyword detection
 // ---------------------------------------------------------------------------
 
 const INTEREST_KEYWORDS = [

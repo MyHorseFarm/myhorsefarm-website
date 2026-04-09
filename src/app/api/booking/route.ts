@@ -202,21 +202,6 @@ export async function POST(request: NextRequest) {
       console.error("Email send error (non-fatal):", err);
     }
 
-    // Send SMS confirmation (non-fatal)
-    if (body.customer_phone) {
-      try {
-        const { sendSMS, bookingConfirmedSMS } = await import("@/lib/twilio");
-        const formattedDate = new Date(body.scheduled_date + "T12:00:00").toLocaleDateString(
-          "en-US",
-          { weekday: "short", month: "short", day: "numeric" },
-        );
-        const sms = bookingConfirmedSMS(body.customer_name, formattedDate, body.time_slot);
-        await sendSMS(body.customer_phone, sms);
-      } catch (err) {
-        console.error("SMS send error (non-fatal):", err);
-      }
-    }
-
     // Google Calendar: create event on business calendar
     try {
       const { createCalendarEvent } = await import("@/lib/google-calendar");

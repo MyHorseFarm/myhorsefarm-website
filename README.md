@@ -15,7 +15,7 @@ Full-stack marketing and operations site for [myhorsefarm.com](https://myhorsefa
 | Video Ads | Remotion + AWS Lambda |
 | Error Tracking | Sentry |
 | CRM | HubSpot |
-| SMS / Voice | Twilio, VAPI |
+| Voice | VAPI |
 | Scheduling | Google Calendar |
 | Reviews | Google Business Profile, Places API |
 | Analytics | Meta CAPI, Google Ads |

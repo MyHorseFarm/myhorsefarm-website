@@ -38,11 +38,6 @@ jest.mock("@/lib/meta-capi", () => ({
   sendMetaEvent: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@/lib/twilio", () => ({
-  sendSMS: jest.fn().mockResolvedValue(undefined),
-  quoteReadySMS: jest.fn().mockReturnValue("sms body"),
-}));
-
 jest.mock("resend", () => ({
   Resend: jest.fn().mockImplementation(() => ({
     emails: { send: jest.fn().mockResolvedValue({}) },

@@ -263,13 +263,6 @@ export async function GET(request: NextRequest) {
             await sendEmail(customer.email, failEmail.subject, failEmail.html);
           } catch { /* non-fatal */ }
         }
-        if (customer.phone) {
-          try {
-            const { sendSMS, paymentFailedSMS } = await import("@/lib/twilio");
-            await sendSMS(customer.phone, paymentFailedSMS(customer.name));
-          } catch { /* non-fatal */ }
-        }
-
         chargeResults.push({
           name: customer.name,
           amount: totalAmount.toFixed(2),

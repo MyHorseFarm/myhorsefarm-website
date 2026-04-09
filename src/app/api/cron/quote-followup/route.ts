@@ -128,17 +128,6 @@ export async function GET(request: NextRequest) {
           } catch { /* recording non-fatal */ }
         }
 
-        // SMS followup at day 1 (email + SMS)
-        if (quote.customer_phone) {
-          try {
-            const { sendSMS, quoteFollowupSMS } = await import("@/lib/twilio");
-            const sms = quoteFollowupSMS(quote.customer_name, acceptUrl);
-            await sendSMS(quote.customer_phone, sms);
-          } catch (smsErr) {
-            console.error("SMS followup error (non-fatal):", smsErr);
-          }
-        }
-
         await createContactNote(
           contactId,
           `${TAGS.FOLLOWUP_1} Sent for ${quote.quote_number} on ${new Date().toISOString()}`,
@@ -262,17 +251,6 @@ export async function GET(request: NextRequest) {
           unsub,
         );
         await sendEmail(quote.customer_email, template.subject, template.html);
-
-        // SMS expiry warning (email + SMS)
-        if (quote.customer_phone) {
-          try {
-            const { sendSMS, quoteExpiringSMS } = await import("@/lib/twilio");
-            const sms = quoteExpiringSMS(quote.customer_name, daysLeft, acceptUrl);
-            await sendSMS(quote.customer_phone, sms);
-          } catch (smsErr) {
-            console.error("SMS expiring error (non-fatal):", smsErr);
-          }
-        }
 
         await createContactNote(
           contactId,

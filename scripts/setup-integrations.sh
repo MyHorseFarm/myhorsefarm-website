@@ -5,7 +5,7 @@
 # This script validates and tests all third-party integrations
 # after env vars are set on Vercel.
 #
-# Usage: ./scripts/setup-integrations.sh [check|test-square|test-meta|test-twilio|test-all]
+# Usage: ./scripts/setup-integrations.sh [check|test-square|test-meta|test-all]
 # ============================================================
 
 set -euo pipefail
@@ -98,30 +98,6 @@ check_env() {
     log_ok "FACEBOOK_PAGE_ACCESS_TOKEN is set"
   else
     log_warn "FACEBOOK_PAGE_ACCESS_TOKEN not set (ad posting won't work)"
-  fi
-
-  # Twilio
-  echo ""
-  log_info "--- Twilio ---"
-  if [ -n "${TWILIO_ACCOUNT_SID:-}" ]; then
-    log_ok "TWILIO_ACCOUNT_SID is set (${TWILIO_ACCOUNT_SID:0:8}...)"
-  else
-    log_fail "TWILIO_ACCOUNT_SID is NOT set"
-    all_good=false
-  fi
-
-  if [ -n "${TWILIO_AUTH_TOKEN:-}" ]; then
-    log_ok "TWILIO_AUTH_TOKEN is set (${#TWILIO_AUTH_TOKEN} chars)"
-  else
-    log_fail "TWILIO_AUTH_TOKEN is NOT set"
-    all_good=false
-  fi
-
-  if [ -n "${TWILIO_PHONE_NUMBER:-}" ]; then
-    log_ok "TWILIO_PHONE_NUMBER = ${TWILIO_PHONE_NUMBER}"
-  else
-    log_fail "TWILIO_PHONE_NUMBER is NOT set"
-    all_good=false
   fi
 
   # Summary
@@ -227,52 +203,10 @@ JSONEOF
   fi
 }
 
-# ---- TEST: Twilio connectivity ----
-test_twilio() {
-  echo ""
-  log_info "Testing Twilio API connectivity..."
-
-  if [ -z "${TWILIO_ACCOUNT_SID:-}" ] || [ -z "${TWILIO_AUTH_TOKEN:-}" ]; then
-    log_fail "TWILIO_ACCOUNT_SID or TWILIO_AUTH_TOKEN not set, skipping"
-    return 1
-  fi
-
-  # Just check account info, don't send any SMS
-  local response
-  response=$(curl -s -w "\n%{http_code}" \
-    -u "${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}" \
-    "https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}.json")
-
-  local http_code
-  http_code=$(echo "$response" | tail -n1)
-  local body
-  body=$(echo "$response" | sed '$d')
-
-  if [ "$http_code" = "200" ]; then
-    log_ok "Twilio API connection successful (HTTP 200)"
-    local friendly_name
-    friendly_name=$(echo "$body" | python3 -c "import sys,json; print(json.load(sys.stdin).get('friendly_name',''))" 2>/dev/null || echo "?")
-    local status
-    status=$(echo "$body" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status',''))" 2>/dev/null || echo "?")
-    log_info "Account: ${friendly_name} (${status})"
-
-    if [ -n "${TWILIO_PHONE_NUMBER:-}" ]; then
-      log_ok "TWILIO_PHONE_NUMBER = ${TWILIO_PHONE_NUMBER}"
-    else
-      log_warn "TWILIO_PHONE_NUMBER is not set — SMS sending will be disabled"
-    fi
-  else
-    log_fail "Twilio API returned HTTP ${http_code}"
-    echo "$body" | python3 -c "import sys,json; print(json.load(sys.stdin).get('message','Unknown error'))" 2>/dev/null || echo "$body"
-    return 1
-  fi
-}
-
 # ---- TEST ALL ----
 test_all() {
   test_square || true
   test_meta || true
-  test_twilio || true
 
   echo ""
   echo "========================================="
@@ -285,10 +219,9 @@ case "${1:-check}" in
   check)       check_env ;;
   test-square) test_square ;;
   test-meta)   test_meta ;;
-  test-twilio) test_twilio ;;
   test-all)    check_env && test_all ;;
   *)
-    echo "Usage: $0 [check|test-square|test-meta|test-twilio|test-all]"
+    echo "Usage: $0 [check|test-square|test-meta|test-all]"
     exit 1
     ;;
 esac
