@@ -197,15 +197,28 @@ export async function PUT(request: NextRequest) {
 
   const body = await request.json();
 
+  // Allowlist of updatable fields to prevent mass assignment
+  const ALLOWED_FIELDS = [
+    "name", "email", "phone", "address", "notes", "active",
+    "default_service", "default_bins", "default_bin_rate", "auto_charge", "auto_renew",
+    "contract_type", "contract_start_date", "contract_end_date",
+    "contract_discount_pct", "sms_opted_in", "preferred_day",
+    "preferred_time_slot", "billing_address", "square_customer_id",
+  ];
+
   // Bulk update: { ids: [...], updates: { ... } }
   if (Array.isArray(body.ids)) {
-    const { ids, updates } = body;
-    if (!ids.length || !updates || typeof updates !== "object") {
+    const { ids, updates: rawBulkUpdates } = body;
+    if (!ids.length || !rawBulkUpdates || typeof rawBulkUpdates !== "object") {
       return NextResponse.json({ error: "ids and updates required" }, { status: 400 });
+    }
+    const filteredUpdates: Record<string, unknown> = {};
+    for (const key of ALLOWED_FIELDS) {
+      if (key in rawBulkUpdates) filteredUpdates[key] = rawBulkUpdates[key];
     }
     const { error } = await supabase
       .from("recurring_customers")
-      .update(updates)
+      .update(filteredUpdates)
       .in("id", ids);
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
@@ -220,14 +233,6 @@ export async function PUT(request: NextRequest) {
 
   const { id, ...rawUpdates } = body;
 
-  // Allowlist of updatable fields to prevent mass assignment
-  const ALLOWED_FIELDS = [
-    "name", "email", "phone", "address", "notes", "active",
-    "default_service", "default_bins", "auto_charge", "auto_renew",
-    "contract_type", "contract_start_date", "contract_end_date",
-    "contract_discount_pct", "sms_opted_in", "preferred_day",
-    "preferred_time_slot", "billing_address",
-  ];
   const updates: Record<string, unknown> = {};
   for (const key of ALLOWED_FIELDS) {
     if (key in rawUpdates) updates[key] = rawUpdates[key];

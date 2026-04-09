@@ -69,6 +69,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Service log not found" }, { status: 404 });
   }
 
+  if (log.crew_member !== crew.name) {
+    return NextResponse.json({ error: "Not authorized for this log" }, { status: 403 });
+  }
+
   // Upload to Supabase Storage
   const ext = file.name.split(".").pop() || "jpg";
   const filename = `${logId}-${Date.now()}.${ext}`;

@@ -335,7 +335,9 @@ export async function GET(request: NextRequest) {
     }
 
     // === Tue/Thu/Sat: Post the regular image post ===
+    const isImageDay = dayOfWeek === 2 || dayOfWeek === 4 || dayOfWeek === 6; // Tue/Thu/Sat
 
+    if (isImageDay && !post.image?.endsWith(".mp4")) {
     // Facebook photo
     if (!(await alreadyPostedToday(post.id, "facebook"))) {
       try {
@@ -371,6 +373,7 @@ export async function GET(request: NextRequest) {
         results.push(`ig-photo FAIL: ${msg}`);
       }
     }
+    } // end isImageDay && !mp4
 
     return {
       processed: results.length,

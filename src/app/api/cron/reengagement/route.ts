@@ -224,6 +224,7 @@ export async function GET(request: NextRequest) {
           },
         ],
         ["email", "firstname", "lastname", "createdate"],
+        300, // Cap to avoid excessive API calls
       );
 
       for (const contact of coldContacts) {

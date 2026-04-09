@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
             // ---------------------------------------------------------------
             try {
               const pixelId = process.env.META_PIXEL_ID;
-              const accessToken = process.env.META_CAPI_TOKEN;
+              const accessToken = process.env.META_CAPI_ACCESS_TOKEN;
               if (pixelId && accessToken) {
                 await fetch(
                   `https://graph.facebook.com/v21.0/${pixelId}/events`,

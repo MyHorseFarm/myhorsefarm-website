@@ -59,6 +59,7 @@ export async function GET(request: NextRequest) {
         },
       ],
       ["email", "firstname", "lastname"],
+      500, // Cap to match SCAN_LIMIT and avoid excessive API calls
     );
 
     results.push(`Found ${allContacts.length} contacts with email`);

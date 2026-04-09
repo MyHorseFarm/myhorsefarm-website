@@ -201,6 +201,31 @@ create table if not exists rate_limits (
   window_start timestamptz not null default now()
 );
 
+-- Atomic rate limit check: upsert + increment in one operation
+create or replace function check_rate_limit(
+  p_key text,
+  p_limit integer,
+  p_window_start timestamptz
+) returns integer as $$
+declare
+  v_count integer;
+begin
+  insert into rate_limits (key, count, window_start)
+  values (p_key, 1, now())
+  on conflict (key) do update set
+    count = case
+      when rate_limits.window_start < p_window_start then 1
+      else rate_limits.count + 1
+    end,
+    window_start = case
+      when rate_limits.window_start < p_window_start then now()
+      else rate_limits.window_start
+    end
+  returning count into v_count;
+  return v_count;
+end;
+$$ language plpgsql;
+
 -- ---------------------------------------------------------------------------
 -- RLS: Deny all public access (service_role key bypasses RLS)
 -- ---------------------------------------------------------------------------

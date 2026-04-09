@@ -86,7 +86,7 @@ export async function PUT(request: NextRequest) {
   const { id, ...rawUpdates } = body;
 
   // Allowlist of updatable fields to prevent mass assignment
-  const ALLOWED_FIELDS = ["name", "phone", "pin", "active", "role", "notes"];
+  const ALLOWED_FIELDS = ["name", "email", "phone", "pin", "active", "role", "notes"];
   const updates: Record<string, unknown> = {};
   for (const key of ALLOWED_FIELDS) {
     if (key in rawUpdates) updates[key] = rawUpdates[key];

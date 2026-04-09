@@ -32,13 +32,15 @@ export async function GET(request: NextRequest) {
     const issues: string[] = [];
     const stats: Record<string, unknown> = {};
 
-    // --- Check 1: Did today's posts go out? ---
+    // --- Check 1: Did yesterday's posts go out? ---
+    // (This cron runs at midnight UTC / 8 PM ET, so today's posts are from the morning)
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split("T")[0];
     const today = new Date().toISOString().split("T")[0];
 
     const { data: todayPosts } = await supabase
       .from("social_posts")
       .select("post_id, platform, status, error_message")
-      .gte("posted_at", `${today}T00:00:00Z`)
+      .gte("posted_at", `${yesterday}T00:00:00Z`)
       .lt("posted_at", `${today}T23:59:59Z`);
 
     const fbPosted = todayPosts?.some((p) => p.platform === "facebook" && p.status === "posted");

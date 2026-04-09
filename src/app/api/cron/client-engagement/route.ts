@@ -63,7 +63,7 @@ async function getPayingContacts(): Promise<Contact[]> {
         ],
       },
     ],
-    ["email", "firstname", "createdate"],
+    ["email", "firstname", "lastname", "createdate"],
     500, // Cap to avoid HubSpot rate limits on the per-contact API calls
   );
 }
