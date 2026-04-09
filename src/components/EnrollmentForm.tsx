@@ -1,27 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { getUtmParams } from "@/lib/utm";
-
-// Square Web Payments SDK types
-interface SquarePayments {
-  card: (options?: Record<string, unknown>) => Promise<SquareCard>;
-}
-interface SquareCard {
-  attach: (selector: string) => Promise<void>;
-  tokenize: () => Promise<{ status: string; token?: string; errors?: { message: string }[] }>;
-  destroy: () => void;
-}
-interface SquareGlobal {
-  payments: (appId: string, locationId: string) => Promise<SquarePayments>;
-}
-
-declare global {
-  interface Window {
-    Square?: SquareGlobal;
-  }
-}
+import SquareCardForm, { SquareCardFormHandle } from "./SquareCardForm";
+import SignaturePad, { SignaturePadHandle } from "./SignaturePad";
 
 type Step = "info" | "card" | "signature" | "success";
 
@@ -46,134 +29,17 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
   const [contractType, setContractType] = useState<"month_to_month" | "6_month" | "annual">("month_to_month");
   const [authorized, setAuthorized] = useState(false);
 
-  // Square card
-  const [squareReady, setSquareReady] = useState(false);
-  const cardRef = useRef<SquareCard | null>(null);
+  // Component refs
+  const squareCardRef = useRef<SquareCardFormHandle>(null);
+  const signaturePadRef = useRef<SignaturePadHandle>(null);
 
-  // Signature canvas
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const isDrawing = useRef(false);
-  const [hasSigned, setHasSigned] = useState(false);
+  // Stored values
   const nonceRef = useRef("");
+  const [hasSigned, setHasSigned] = useState(false);
 
   // Success data
   const [cardLast4, setCardLast4] = useState("");
   const [cardBrand, setCardBrand] = useState("");
-
-  // Load Square SDK when entering card step
-  useEffect(() => {
-    if (step !== "card") return;
-
-    let cancelled = false;
-
-    const init = async () => {
-      // Load script if not present
-      if (!window.Square) {
-        await new Promise<void>((resolve, reject) => {
-          const existing = document.querySelector('script[src*="squarecdn.com/v1/square.js"]');
-          if (existing) {
-            if (window.Square) { resolve(); return; }
-            existing.addEventListener("load", () => resolve());
-            return;
-          }
-          const script = document.createElement("script");
-          const isSandbox = squareAppId.startsWith("sandbox-");
-          script.src = isSandbox
-            ? "https://sandbox.web.squarecdn.com/v1/square.js"
-            : "https://web.squarecdn.com/v1/square.js";
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error("Failed to load Square SDK"));
-          document.head.appendChild(script);
-        });
-      }
-
-      if (cancelled) return;
-
-      const payments = await window.Square!.payments(squareAppId, squareLocationId);
-      const card = await payments.card({ includeInputLabels: true });
-      if (cancelled) {
-        card.destroy();
-        return;
-      }
-      await card.attach("#square-card-container");
-      cardRef.current = card;
-      setSquareReady(true);
-    };
-
-    init().catch((err) => {
-      if (!cancelled) setError(err.message || "Failed to initialize card form");
-    });
-
-    return () => {
-      cancelled = true;
-      if (cardRef.current) {
-        cardRef.current.destroy();
-        cardRef.current = null;
-      }
-      setSquareReady(false);
-    };
-  }, [step, squareAppId, squareLocationId]);
-
-  // Signature canvas setup
-  useEffect(() => {
-    if (step !== "signature") return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    const ctx = canvas.getContext("2d")!;
-    ctx.scale(dpr, dpr);
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = "#000";
-  }, [step]);
-
-  const getPos = (e: React.MouseEvent | React.TouchEvent) => {
-    const canvas = canvasRef.current!;
-    const rect = canvas.getBoundingClientRect();
-    if ("touches" in e) {
-      return {
-        x: e.touches[0].clientX - rect.left,
-        y: e.touches[0].clientY - rect.top,
-      };
-    }
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-  };
-
-  const startDraw = (e: React.MouseEvent | React.TouchEvent) => {
-    isDrawing.current = true;
-    const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx) return;
-    const pos = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(pos.x, pos.y);
-    setHasSigned(true);
-  };
-
-  const draw = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDrawing.current) return;
-    const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx) return;
-    const pos = getPos(e);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-  };
-
-  const endDraw = () => {
-    isDrawing.current = false;
-  };
-
-  const clearSignature = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d")!;
-    const dpr = window.devicePixelRatio || 1;
-    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
-    setHasSigned(false);
-  };
 
   // Step handlers
   const handleInfoNext = (e: React.FormEvent) => {
@@ -188,22 +54,23 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
       setError("Please accept the authorization to continue.");
       return;
     }
-    if (!cardRef.current) {
+    if (!squareCardRef.current) {
       setError("Card form not ready. Please wait.");
       return;
     }
 
-    const result = await cardRef.current.tokenize();
-    if (result.status !== "OK" || !result.token) {
-      const msg = result.errors?.map((e) => e.message).join(", ") || "Card tokenization failed";
-      setError(msg);
-      return;
+    try {
+      const token = await squareCardRef.current.tokenize();
+      nonceRef.current = token;
+      setStep("signature");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Card tokenization failed");
     }
-
-    // Store nonce temporarily — we'll use it on final submit
-    nonceRef.current = result.token;
-    setStep("signature");
   }, [authorized]);
+
+  const handleSignatureChange = useCallback((dataUrl: string | null) => {
+    setHasSigned(dataUrl !== null);
+  }, []);
 
   const handleSubmit = async () => {
     setError("");
@@ -215,7 +82,7 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
     setSubmitting(true);
 
     try {
-      const signatureData = canvasRef.current?.toDataURL("image/png") || "";
+      const signatureData = signaturePadRef.current?.toDataURL() || "";
       const nonce = nonceRef.current;
 
       const utm = getUtmParams();
@@ -452,13 +319,11 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
           <p className="text-sm text-gray-600 mb-4">
             Your card will be securely stored for recurring service charges.
           </p>
-          <div
-            id="square-card-container"
-            className="min-h-[50px] border border-gray-300 rounded-lg p-3"
+          <SquareCardForm
+            ref={squareCardRef}
+            squareAppId={squareAppId}
+            squareLocationId={squareLocationId}
           />
-          {!squareReady && (
-            <p className="text-sm text-gray-500">Loading secure card form...</p>
-          )}
           <label className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer">
             <input
               type="checkbox"
@@ -482,7 +347,6 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
             <button
               type="button"
               onClick={handleCardNext}
-              disabled={!squareReady}
               className="flex-1 bg-green-800 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50"
             >
               Continue
@@ -499,32 +363,11 @@ export default function EnrollmentForm({ squareAppId, squareLocationId }: Props)
             Sign below to authorize card-on-file charges for services rendered by My
             Horse Farm.
           </p>
-          <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
-            <canvas
-              ref={canvasRef}
-              className="w-full h-48 cursor-crosshair"
-              style={{ touchAction: "none" }}
-              onMouseDown={startDraw}
-              onMouseMove={draw}
-              onMouseUp={endDraw}
-              onMouseLeave={endDraw}
-              onTouchStart={startDraw}
-              onTouchMove={draw}
-              onTouchEnd={endDraw}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-gray-500">
-              {hasSigned ? "Signature captured" : "Draw your signature above"}
-            </p>
-            <button
-              type="button"
-              onClick={clearSignature}
-              className="text-sm text-gray-500 underline hover:text-gray-700"
-            >
-              Clear
-            </button>
-          </div>
+          <SignaturePad
+            ref={signaturePadRef}
+            onSignatureChange={handleSignatureChange}
+            height={192}
+          />
           <div className="flex gap-3">
             <button
               type="button"

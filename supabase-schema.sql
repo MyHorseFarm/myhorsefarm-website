@@ -255,3 +255,16 @@ create index idx_recurring_customers_active on recurring_customers(active);
 create index idx_service_logs_customer on service_logs(customer_id);
 create index idx_service_logs_status on service_logs(status);
 create index idx_service_logs_date on service_logs(service_date);
+
+-- ---------------------------------------------------------------------------
+-- Customer profile & farm details columns
+-- ---------------------------------------------------------------------------
+ALTER TABLE recurring_customers ADD COLUMN IF NOT EXISTS gate_code text;
+ALTER TABLE recurring_customers ADD COLUMN IF NOT EXISTS num_horses integer;
+ALTER TABLE recurring_customers ADD COLUMN IF NOT EXISTS num_stalls integer;
+ALTER TABLE recurring_customers ADD COLUMN IF NOT EXISTS property_size text;
+ALTER TABLE recurring_customers ADD COLUMN IF NOT EXISTS access_instructions text;
+ALTER TABLE recurring_customers ADD COLUMN IF NOT EXISTS billing_address text;
+
+ALTER TABLE quotes ADD COLUMN IF NOT EXISTS recurring_customer_id uuid REFERENCES recurring_customers(id);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS recurring_customer_id uuid REFERENCES recurring_customers(id);

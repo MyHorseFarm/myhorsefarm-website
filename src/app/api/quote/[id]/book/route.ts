@@ -95,6 +95,17 @@ export async function POST(
       .single();
     const serviceName = service?.display_name ?? quote.service_key;
 
+    // Fetch recurring customer if linked to quote
+    let recurringCustomer: { id: string; gate_code?: string; access_instructions?: string; num_horses?: number; property_size?: string } | null = null;
+    if (quote.recurring_customer_id) {
+      const { data: rc } = await supabase
+        .from("recurring_customers")
+        .select("id, gate_code, access_instructions, num_horses, property_size")
+        .eq("id", quote.recurring_customer_id)
+        .single();
+      recurringCustomer = rc;
+    }
+
     // Insert booking using quote's customer data
     const { data: booking, error: insertError } = await supabase
       .from("bookings")
@@ -109,6 +120,7 @@ export async function POST(
         service_key: quote.service_key,
         scheduled_date,
         time_slot,
+        ...(quote.recurring_customer_id ? { recurring_customer_id: quote.recurring_customer_id } : {}),
       })
       .select()
       .single();
@@ -162,9 +174,26 @@ export async function POST(
     let googleCalendarEventId: string | null = null;
     try {
       const { createCalendarEvent } = await import("@/lib/google-calendar");
+
+      // Build description with farm details if available
+      const descriptionLines = [
+        `Booking #${bookingNumber}`,
+        `Service: ${serviceName}`,
+        `Customer: ${quote.customer_name}`,
+        `Phone: ${quote.customer_phone}`,
+        `Location: ${quote.customer_location}`,
+        `Quote: ${quote.quote_number}`,
+      ];
+      if (recurringCustomer) {
+        if (recurringCustomer.gate_code) descriptionLines.push(`Gate Code: ${recurringCustomer.gate_code}`);
+        if (recurringCustomer.access_instructions) descriptionLines.push(`Access: ${recurringCustomer.access_instructions}`);
+        if (recurringCustomer.num_horses) descriptionLines.push(`Horses: ${recurringCustomer.num_horses}`);
+        if (recurringCustomer.property_size) descriptionLines.push(`Property: ${recurringCustomer.property_size}`);
+      }
+
       googleCalendarEventId = await createCalendarEvent({
         summary: `${bookingNumber} | ${serviceName} - ${quote.customer_name}`,
-        description: `Booking #${bookingNumber}\nService: ${serviceName}\nCustomer: ${quote.customer_name}\nPhone: ${quote.customer_phone}\nLocation: ${quote.customer_location}\nQuote: ${quote.quote_number}`,
+        description: descriptionLines.join("\n"),
         location: quote.customer_location,
         startDate: scheduled_date,
         timeSlot: time_slot,

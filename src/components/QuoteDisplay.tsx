@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DateTimePicker from "./DateTimePicker";
+import CustomerProfileForm from "./CustomerProfileForm";
 import { trackConversion, generateEventId } from "@/lib/analytics";
 
 interface QuoteData {
@@ -33,16 +34,22 @@ interface BookingData {
   service_name: string;
 }
 
-type Phase = "review" | "schedule" | "confirmed";
+type Phase = "review" | "profile" | "schedule" | "confirmed";
 
 export default function QuoteDisplay({
   quote,
   existingBooking,
   token,
+  squareAppId,
+  squareLocationId,
+  hasProfile,
 }: {
   quote: QuoteData;
   existingBooking?: BookingData | null;
   token?: string;
+  squareAppId: string;
+  squareLocationId: string;
+  hasProfile?: boolean;
 }) {
   const expired = new Date(quote.expires_at) < new Date();
 
@@ -51,7 +58,9 @@ export default function QuoteDisplay({
 
   function getInitialPhase(): Phase {
     if (existingBooking || quote.status === "booked") return "confirmed";
-    if (quote.status === "accepted") return "schedule";
+    if (quote.status === "accepted") {
+      return hasProfile ? "schedule" : "profile";
+    }
     return "review";
   }
 
@@ -91,7 +100,7 @@ export default function QuoteDisplay({
       const res = await fetch(`/api/quote/${quote.id}/accept${tokenQs}`, { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setPhase("schedule");
+      setPhase("profile");
       const nameParts = quote.customer_name.split(" ");
       trackConversion("begin_checkout", {
         currency: "USD",
@@ -184,7 +193,7 @@ export default function QuoteDisplay({
               className={`px-3 py-1 rounded-full text-xs font-semibold ${
                 phase === "confirmed" || quote.status === "booked"
                   ? "bg-green-100 text-green-700"
-                  : phase === "schedule" || quote.status === "accepted"
+                  : phase === "schedule" || phase === "profile" || quote.status === "accepted"
                     ? "bg-blue-100 text-blue-700"
                     : expired
                       ? "bg-red-100 text-red-700"
@@ -193,7 +202,7 @@ export default function QuoteDisplay({
             >
               {phase === "confirmed" || quote.status === "booked"
                 ? "Booked"
-                : phase === "schedule" || quote.status === "accepted"
+                : phase === "schedule" || phase === "profile" || quote.status === "accepted"
                   ? "Accepted"
                   : expired
                     ? "Expired"
@@ -342,6 +351,21 @@ export default function QuoteDisplay({
                 </p>
               </div>
             </>
+          )}
+
+          {/* ─── PHASE: PROFILE ─── */}
+          {phase === "profile" && (
+            <CustomerProfileForm
+              quoteId={quote.id}
+              token={token || ""}
+              customerName={quote.customer_name}
+              customerEmail={quote.customer_email}
+              customerPhone={quote.customer_phone}
+              customerLocation={quote.customer_location}
+              squareAppId={squareAppId}
+              squareLocationId={squareLocationId}
+              onComplete={() => setPhase("schedule")}
+            />
           )}
 
           {/* ─── PHASE: SCHEDULE ─── */}

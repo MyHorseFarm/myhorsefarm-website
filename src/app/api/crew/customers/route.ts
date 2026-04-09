@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
   const [customersRes, jobsRes] = await Promise.all([
     supabase
       .from("recurring_customers")
-      .select("id, name, address, default_bin_rate, notes")
+      .select("id, name, address, default_bin_rate, notes, gate_code, access_instructions, num_horses, property_size")
       .eq("active", true)
       .order("name"),
     crewId
