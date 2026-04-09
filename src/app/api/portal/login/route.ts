@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { rateLimit } from "@/lib/rate-limit";
 import { createPortalUrl } from "@/lib/portal-auth";
 import { sendEmail, createUnsubscribeUrl, portalLoginEmail } from "@/lib/emails";
 
@@ -7,6 +8,12 @@ export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const { allowed } = await rateLimit(ip, "portal-login", 3, 900);
+    if (!allowed) {
+      return NextResponse.json({ ok: true }); // Don't reveal rate limiting
+    }
+
     const { email } = (await request.json()) as { email?: string };
 
     if (!email || typeof email !== "string") {

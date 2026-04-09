@@ -11,6 +11,7 @@ import {
   createUnsubscribeUrl,
   bookingConfirmationEmail,
 } from "@/lib/emails";
+import { verifySignedToken } from "@/lib/url-signing";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -20,6 +21,15 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+
+  // Require valid token to book
+  const token = request.nextUrl.searchParams.get("token");
+  if (!token || !verifySignedToken("quote", id, token)) {
+    return NextResponse.json(
+      { error: "Invalid or missing token" },
+      { status: 403 },
+    );
+  }
 
   try {
     const body = await request.json();

@@ -218,7 +218,20 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: "Missing customer id" }, { status: 400 });
   }
 
-  const { id, ...updates } = body;
+  const { id, ...rawUpdates } = body;
+
+  // Allowlist of updatable fields to prevent mass assignment
+  const ALLOWED_FIELDS = [
+    "name", "email", "phone", "address", "notes", "active",
+    "default_service", "default_bins", "auto_charge", "auto_renew",
+    "contract_type", "contract_start_date", "contract_end_date",
+    "contract_discount_pct", "sms_opted_in", "preferred_day",
+    "preferred_time_slot", "billing_address",
+  ];
+  const updates: Record<string, unknown> = {};
+  for (const key of ALLOWED_FIELDS) {
+    if (key in rawUpdates) updates[key] = rawUpdates[key];
+  }
 
   const { data, error } = await supabase
     .from("recurring_customers")

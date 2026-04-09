@@ -3,8 +3,8 @@ import { supabase } from "./supabase";
 
 const REMOTION_AWS_REGION = (process.env.REMOTION_AWS_REGION ||
   "us-east-1") as AwsRegion;
-const REMOTION_FUNCTION_NAME = process.env.REMOTION_FUNCTION_NAME!;
-const REMOTION_MHF_SERVE_URL = process.env.REMOTION_MHF_SERVE_URL!;
+const REMOTION_FUNCTION_NAME = process.env.REMOTION_FUNCTION_NAME || "";
+const REMOTION_MHF_SERVE_URL = process.env.REMOTION_MHF_SERVE_URL || "";
 const REMOTION_WEBHOOK_SECRET = process.env.REMOTION_WEBHOOK_SECRET || "";
 
 const SITE_URL =

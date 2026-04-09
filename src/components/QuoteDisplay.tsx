@@ -38,11 +38,16 @@ type Phase = "review" | "schedule" | "confirmed";
 export default function QuoteDisplay({
   quote,
   existingBooking,
+  token,
 }: {
   quote: QuoteData;
   existingBooking?: BookingData | null;
+  token?: string;
 }) {
   const expired = new Date(quote.expires_at) < new Date();
+
+  // Build query string suffix for token-authenticated API calls
+  const tokenQs = token ? `?token=${encodeURIComponent(token)}` : "";
 
   function getInitialPhase(): Phase {
     if (existingBooking || quote.status === "booked") return "confirmed";
@@ -83,7 +88,7 @@ export default function QuoteDisplay({
     setAccepting(true);
     setError("");
     try {
-      const res = await fetch(`/api/quote/${quote.id}/accept`, { method: "POST" });
+      const res = await fetch(`/api/quote/${quote.id}/accept${tokenQs}`, { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setPhase("schedule");
@@ -111,7 +116,7 @@ export default function QuoteDisplay({
     setBookingInProgress(true);
     setError("");
     try {
-      const res = await fetch(`/api/quote/${quote.id}/book`, {
+      const res = await fetch(`/api/quote/${quote.id}/book${tokenQs}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

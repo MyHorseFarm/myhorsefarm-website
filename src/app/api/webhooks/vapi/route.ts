@@ -15,6 +15,7 @@ import {
 } from "@/lib/hubspot";
 import { getServiceByKey, calculateQuote } from "@/lib/pricing";
 import { sendEmail, createUnsubscribeUrl, quoteConfirmationEmail } from "@/lib/emails";
+import { buildSignedUrl } from "@/lib/url-signing";
 import { EMAIL_SALES } from "@/lib/constants";
 import type { VapiWebhookPayload, VapiCallEndedPayload, VapiFunctionCallPayload } from "@/lib/vapi";
 
@@ -428,13 +429,13 @@ async function handleCreateQuote(
           buildSiteVisitEmailHtml(customerName.split(" ")[0], service?.display_name || serviceKey, quoteNumber),
         );
       } else {
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
+        const vapiQuoteUrl = buildSignedUrl(`/quote/${quote.id}`, "quote", quote.id);
         const template = quoteConfirmationEmail(
           customerName.split(" ")[0],
           quoteNumber,
           service?.display_name || serviceKey,
           pricingBreakdown,
-          `${siteUrl}/quote/${quote.id}`,
+          vapiQuoteUrl,
           unsub,
         );
         await sendEmail(customerEmail, template.subject, template.html);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { chargeCard } from "@/lib/square";
 import { afterServiceEmail, chargeFailedAlertEmail, createUnsubscribeUrl, sendEmail } from "@/lib/emails";
+import { buildSignedUrl } from "@/lib/url-signing";
 import { findContactByEmail, findActiveDealForContact, updateDealStage, STAGE_COMPLETED } from "@/lib/hubspot";
 
 export const runtime = "nodejs";
@@ -148,7 +149,7 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (invoice) {
-        invoiceUrl = `${siteUrl}/api/invoice/${invoice.id}`;
+        invoiceUrl = buildSignedUrl(`/api/invoice/${invoice.id}`, "invoice", invoice.id);
       }
     } catch (invErr) {
       console.error("Invoice creation failed:", invErr);

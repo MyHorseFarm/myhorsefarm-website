@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHmac, timingSafeEqual } from "crypto";
 import {
   findContactByPhone,
   createContact,
@@ -136,9 +137,42 @@ export async function GET(request: NextRequest) {
 // ---------------------------------------------------------------------------
 
 export async function POST(request: NextRequest) {
+  // -------------------------------------------------------------------------
+  // Meta signature verification
+  // -------------------------------------------------------------------------
+  const rawBody = await request.text();
+  const appSecret = process.env.META_APP_SECRET;
+
+  if (!appSecret) {
+    return NextResponse.json({ error: "App secret not configured" }, { status: 401 });
+  }
+
+  const hubSignature = request.headers.get("x-hub-signature-256");
+  if (!hubSignature) {
+    return NextResponse.json({ error: "Missing signature header" }, { status: 401 });
+  }
+
+  const computedHash = createHmac("sha256", appSecret)
+    .update(rawBody)
+    .digest("hex");
+
+  const expectedSig = `sha256=${computedHash}`;
+
+  try {
+    const valid = timingSafeEqual(
+      Buffer.from(expectedSig),
+      Buffer.from(hubSignature)
+    );
+    if (!valid) {
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    }
+  } catch {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+  }
+
   // Meta requires 200 OK within 20 seconds — always return 200
   try {
-    const payload = (await request.json()) as WhatsAppWebhookPayload;
+    const payload = JSON.parse(rawBody) as WhatsAppWebhookPayload;
 
     // Only process whatsapp_business_account events
     if (payload.object !== "whatsapp_business_account") {

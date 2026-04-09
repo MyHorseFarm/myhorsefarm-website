@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { verifySignedToken } from "@/lib/url-signing";
 
 export const runtime = "nodejs";
 
@@ -8,6 +9,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+  const token = _request.nextUrl.searchParams.get("token");
 
   const { data: invoice, error } = await supabase
     .from("invoices")
@@ -17,6 +19,21 @@ export async function GET(
 
   if (error || !invoice) {
     return new NextResponse("Invoice not found", { status: 404 });
+  }
+
+  // Verify token — if missing or invalid, return limited info (no PII)
+  const hasValidToken = token
+    ? verifySignedToken("invoice", id, token)
+    : false;
+
+  if (!hasValidToken) {
+    const paidLabel = invoice.sent_at ? "PAID" : "PENDING";
+    return NextResponse.json({
+      invoice_number: invoice.invoice_number,
+      amount: invoice.amount,
+      status: paidLabel,
+      due_date: invoice.service_date || invoice.created_at?.split("T")[0] || null,
+    });
   }
 
   const paidLabel = invoice.sent_at ? "PAID" : "PENDING";

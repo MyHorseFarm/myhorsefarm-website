@@ -176,6 +176,7 @@ export async function GET(request: NextRequest) {
         },
       ],
       ["email", "firstname", "lastname", "phone"],
+      200, // Cap contacts fetched per run to avoid excessive API calls
     );
 
     results.push(`Found ${contacts.length} contacts with NEW status`);

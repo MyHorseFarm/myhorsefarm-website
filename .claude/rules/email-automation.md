@@ -1,6 +1,9 @@
 ---
 description: Email automation — Resend sending, cron schedules, unsubscribe flow
-globs: src/app/api/cron/**, src/lib/emails.ts, src/app/api/unsubscribe/**
+paths:
+  - src/app/api/cron/**
+  - src/lib/emails.ts
+  - src/app/api/unsubscribe/**
 ---
 
 # Email Automation

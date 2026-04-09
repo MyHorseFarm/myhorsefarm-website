@@ -75,6 +75,7 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
     quote_number: string;
     estimated_amount: number;
     requires_site_visit: boolean;
+    token?: string;
   } | null>(null);
   const [error, setError] = useState("");
   const [showExitModal, setShowExitModal] = useState(false);
@@ -647,7 +648,7 @@ export default function QuoteForm({ services, referralCode }: QuoteFormProps) {
                 We&rsquo;ve sent the details to your email. Ready to schedule?
               </p>
               <a
-                href={`/quote/${result.id}`}
+                href={`/quote/${result.id}${result.token ? `?token=${result.token}` : ""}`}
                 className="inline-block px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
               >
                 Accept &amp; Schedule

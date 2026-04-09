@@ -26,16 +26,21 @@ export async function POST(req: NextRequest) {
     const body = await req.text();
     const payload = JSON.parse(body) as WebhookPayload;
 
-    // Validate webhook signature if secret is set
+    // Validate webhook signature — fail-closed if secret is not configured
     const secret = process.env.REMOTION_WEBHOOK_SECRET;
-    if (secret) {
-      const signature = req.headers.get("x-remotion-signature");
-      if (!signature || !validateSignature(secret, body, signature)) {
-        return NextResponse.json(
-          { error: "Invalid signature" },
-          { status: 401 }
-        );
-      }
+    if (!secret) {
+      return NextResponse.json(
+        { error: "Webhook secret not configured" },
+        { status: 401 }
+      );
+    }
+
+    const signature = req.headers.get("x-remotion-signature");
+    if (!signature || !validateSignature(secret, body, signature)) {
+      return NextResponse.json(
+        { error: "Invalid signature" },
+        { status: 401 }
+      );
     }
 
     const jobId = (payload.customData as { jobId?: string })?.jobId;

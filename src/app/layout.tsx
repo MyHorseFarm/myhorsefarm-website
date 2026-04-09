@@ -28,6 +28,7 @@ const GADS_ID = "AW-385210685";
 const META_PIXEL_ID = "1247574672351702";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.myhorsefarm.com"),
   title: {
     default: "Farm & Property Services in Palm Beach County | My Horse Farm",
     template: "%s | My Horse Farm",

@@ -6,6 +6,7 @@ import {
   isSubscribed,
   findContactByEmail,
 } from "@/lib/hubspot";
+import { buildSignedUrl } from "@/lib/url-signing";
 import {
   sendEmail,
   createUnsubscribeUrl,
@@ -97,7 +98,7 @@ export async function GET(request: NextRequest) {
           continue;
 
         const unsub = createUnsubscribeUrl(quote.customer_email);
-        const acceptUrl = `${siteUrl}/quote/${quote.id}`;
+        const acceptUrl = buildSignedUrl(`/quote/${quote.id}`, "quote", quote.id);
         const template = quoteFollowup1Email(
           quote.customer_name.split(" ")[0],
           quote.quote_number,
@@ -180,7 +181,7 @@ export async function GET(request: NextRequest) {
           continue;
 
         const unsub = createUnsubscribeUrl(quote.customer_email);
-        const acceptUrl = `${siteUrl}/quote/${quote.id}`;
+        const acceptUrl = buildSignedUrl(`/quote/${quote.id}`, "quote", quote.id);
         const template = quoteFollowup2Email(
           quote.customer_name.split(" ")[0],
           quote.quote_number,
@@ -252,7 +253,7 @@ export async function GET(request: NextRequest) {
         );
 
         const unsub = createUnsubscribeUrl(quote.customer_email);
-        const acceptUrl = `${siteUrl}/quote/${quote.id}`;
+        const acceptUrl = buildSignedUrl(`/quote/${quote.id}`, "quote", quote.id);
         const template = quoteExpiringEmail(
           quote.customer_name.split(" ")[0],
           quote.quote_number,

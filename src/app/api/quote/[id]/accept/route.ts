@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { updateDealStage, STAGE_QUOTED } from "@/lib/hubspot";
+import { verifySignedToken } from "@/lib/url-signing";
 
 export const runtime = "nodejs";
 
@@ -10,6 +11,15 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
+
+    // Require valid token to accept
+    const token = _request.nextUrl.searchParams.get("token");
+    if (!token || !verifySignedToken("quote", id, token)) {
+      return NextResponse.json(
+        { error: "Invalid or missing token" },
+        { status: 403 },
+      );
+    }
 
     const { data: quote, error } = await supabase
       .from("quotes")

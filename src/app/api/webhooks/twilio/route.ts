@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHmac, timingSafeEqual } from "crypto";
 import { supabase } from "@/lib/supabase";
 import {
   findContactByPhone,
@@ -54,15 +55,65 @@ function twimlResponse(message?: string): NextResponse {
 
 /**
  * Twilio webhook for inbound SMS.
+ * - Validates Twilio request signature
  * - Handles STOP/START opt-out/opt-in keywords
  * - Detects interest keywords and auto-creates HubSpot deals
  * - Logs all inbound messages as HubSpot notes
  */
 export async function POST(request: NextRequest) {
   try {
+    // -----------------------------------------------------------------------
+    // Twilio signature verification
+    // -----------------------------------------------------------------------
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    if (!authToken) {
+      return NextResponse.json({ error: "Twilio auth token not configured" }, { status: 401 });
+    }
+
+    const twilioSignature = request.headers.get("x-twilio-signature");
+    if (!twilioSignature) {
+      return NextResponse.json({ error: "Missing Twilio signature" }, { status: 401 });
+    }
+
     const formData = await request.formData();
-    const from = formData.get("From") as string;
-    const rawBody = (formData.get("Body") as string || "").trim();
+
+    // Build the validation URL from the request
+    const validationUrl = request.url;
+
+    // Sort form params alphabetically and append key+value to URL
+    const params: Record<string, string> = {};
+    formData.forEach((value, key) => {
+      params[key] = value as string;
+    });
+
+    const sortedKeys = Object.keys(params).sort();
+    let dataString = validationUrl;
+    for (const key of sortedKeys) {
+      dataString += key + params[key];
+    }
+
+    // Compute HMAC-SHA1 and base64-encode
+    const computedSignature = createHmac("sha1", authToken)
+      .update(dataString)
+      .digest("base64");
+
+    try {
+      const valid = timingSafeEqual(
+        Buffer.from(computedSignature),
+        Buffer.from(twilioSignature)
+      );
+      if (!valid) {
+        return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+      }
+    } catch {
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    }
+
+    // -----------------------------------------------------------------------
+    // Business logic (unchanged)
+    // -----------------------------------------------------------------------
+    const from = params["From"] || "";
+    const rawBody = (params["Body"] || "").trim();
     const upperBody = rawBody.toUpperCase();
 
     if (!from) {

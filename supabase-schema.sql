@@ -193,6 +193,15 @@ create table invoices (
 );
 
 -- ---------------------------------------------------------------------------
+-- Rate limiting (cross-instance, serverless-safe)
+-- ---------------------------------------------------------------------------
+create table if not exists rate_limits (
+  key text primary key,
+  count integer not null default 1,
+  window_start timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------------------------
 -- RLS: Deny all public access (service_role key bypasses RLS)
 -- ---------------------------------------------------------------------------
 alter table service_pricing enable row level security;

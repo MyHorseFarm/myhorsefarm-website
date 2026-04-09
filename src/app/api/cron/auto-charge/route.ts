@@ -8,6 +8,7 @@ import {
   createUnsubscribeUrl,
   sendEmail,
 } from "@/lib/emails";
+import { buildSignedUrl } from "@/lib/url-signing";
 import {
   findContactByEmail,
   findActiveDealForContact,
@@ -202,7 +203,7 @@ export async function GET(request: NextRequest) {
             .single();
 
           if (invoice) {
-            invoiceUrl = `${siteUrl}/api/invoice/${invoice.id}`;
+            invoiceUrl = buildSignedUrl(`/api/invoice/${invoice.id}`, "invoice", invoice.id);
           }
         } catch {
           // non-fatal

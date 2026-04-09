@@ -4,7 +4,7 @@ import { getPostForDate, SocialPost } from "@/lib/social-posts";
 import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
-export const maxDuration = 120; // Increased for video uploads
+export const maxDuration = 300; // Extended for video uploads + Instagram Reel polling
 
 const FB_PAGE_ID = process.env.FACEBOOK_PAGE_ID;
 const FB_PAGE_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;

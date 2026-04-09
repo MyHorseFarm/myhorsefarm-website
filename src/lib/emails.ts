@@ -18,7 +18,9 @@ function escapeHtml(str: string): string {
 }
 
 export function createUnsubscribeUrl(email: string): string {
-  const sig = createHmac("sha256", process.env.UNSUBSCRIBE_SECRET!)
+  const secret = process.env.UNSUBSCRIBE_SECRET;
+  if (!secret) throw new Error("UNSUBSCRIBE_SECRET not configured");
+  const sig = createHmac("sha256", secret)
     .update(email)
     .digest("hex");
   const base =
@@ -30,7 +32,9 @@ export function verifyUnsubscribeSignature(
   email: string,
   sig: string,
 ): boolean {
-  const expected = createHmac("sha256", process.env.UNSUBSCRIBE_SECRET!)
+  const secret = process.env.UNSUBSCRIBE_SECRET;
+  if (!secret) return false;
+  const expected = createHmac("sha256", secret)
     .update(email)
     .digest("hex");
   const expectedBuf = Buffer.from(expected);
@@ -1916,14 +1920,32 @@ ${signoff()}
   };
 }
 
-// TODO: Implement daily cron health digest that summarizes all cron runs
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function cronHealthDigestEmail(
-  _runs: Array<{ cronName: string; ok: boolean; durationMs: number; error?: string; timestamp: string }>,
+  runs: Array<{ cronName: string; ok: boolean; durationMs: number; error?: string; timestamp: string }>,
 ): { subject: string; html: string } {
-  // TODO: Build an HTML table summarizing all cron runs for the day
+  const date = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  const passed = runs.filter((r) => r.ok).length;
+  const failed = runs.filter((r) => !r.ok).length;
+
+  const rows = runs
+    .map((r) => {
+      const status = r.ok ? "✅" : "❌";
+      const duration = r.durationMs < 1000 ? `${r.durationMs}ms` : `${(r.durationMs / 1000).toFixed(1)}s`;
+      const error = r.error ? `<br/><span style="color:red;font-size:12px;">${escapeHtml(r.error)}</span>` : "";
+      return `<tr><td style="padding:8px;border-bottom:1px solid #eee;">${status} ${escapeHtml(r.cronName)}</td><td style="padding:8px;border-bottom:1px solid #eee;">${duration}</td><td style="padding:8px;border-bottom:1px solid #eee;">${r.ok ? "OK" : "FAILED"}${error}</td></tr>`;
+    })
+    .join("");
+
   return {
-    subject: "MHF Cron Health Digest",
-    html: "<p>TODO: implement cron health digest</p>",
+    subject: `MHF Cron Digest: ${passed} passed, ${failed} failed — ${date}`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+<h2 style="color:#2d5016;">Cron Health Digest — ${date}</h2>
+<p>${passed} passed, ${failed} failed out of ${runs.length} total runs.</p>
+<table style="width:100%;border-collapse:collapse;margin:16px 0;">
+<thead><tr style="background:#f5f5f5;"><th style="padding:8px;text-align:left;">Cron Job</th><th style="padding:8px;text-align:left;">Duration</th><th style="padding:8px;text-align:left;">Status</th></tr></thead>
+<tbody>${rows}</tbody>
+</table>
+<p style="color:#666;font-size:13px;">— My Horse Farm Automation</p>
+</div>`,
   };
 }

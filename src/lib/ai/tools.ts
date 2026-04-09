@@ -2,6 +2,7 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { supabase } from "@/lib/supabase";
 import { getServiceByKey, calculateQuote } from "@/lib/pricing";
 import { getAvailableDates } from "@/lib/availability";
+import { buildSignedUrl } from "@/lib/url-signing";
 import {
   findContactByEmail,
   createContact,
@@ -122,7 +123,10 @@ async function executeGenerateQuote(
     .select()
     .single();
 
-  if (insertError) return JSON.stringify({ error: insertError.message });
+  if (insertError) {
+    console.error("Quote insert error:", insertError.message);
+    return JSON.stringify({ error: "Failed to save quote. Please try again." });
+  }
 
   // HubSpot sync
   try {
@@ -174,8 +178,6 @@ async function executeGenerateQuote(
     console.error("HubSpot sync error in chatbot (non-fatal):", err);
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
-
   return JSON.stringify({
     quote_number: quoteNumber,
     quote_id: quote.id,
@@ -183,7 +185,7 @@ async function executeGenerateQuote(
     total: breakdown.total,
     breakdown,
     requires_site_visit: service.requires_site_visit,
-    quote_url: `${siteUrl}/quote/${quote.id}`,
+    quote_url: buildSignedUrl(`/quote/${quote.id}`, "quote", quote.id),
     status,
   });
 }

@@ -207,15 +207,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   });
 
-  // Landing pages - auto-discovered from filesystem
-  const landingPages = getLandingPages();
-  landingPages.forEach(slug => {
-    entries.push({
-      url: `${DOMAIN}/lp/${slug}`,
-      priority: 0.6,
-      changeFrequency: 'monthly' as const,
-    });
-  });
+  // Landing pages excluded from sitemap — they have noindex meta tags
 
   return entries;
 }

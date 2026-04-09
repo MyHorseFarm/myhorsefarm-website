@@ -83,7 +83,14 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: "Missing crew member id" }, { status: 400 });
   }
 
-  const { id, ...updates } = body;
+  const { id, ...rawUpdates } = body;
+
+  // Allowlist of updatable fields to prevent mass assignment
+  const ALLOWED_FIELDS = ["name", "phone", "pin", "active", "role", "notes"];
+  const updates: Record<string, unknown> = {};
+  for (const key of ALLOWED_FIELDS) {
+    if (key in rawUpdates) updates[key] = rawUpdates[key];
+  }
 
   const { data, error } = await supabase
     .from("crew_members")

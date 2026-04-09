@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createSquareCustomer, saveCardOnFile } from "@/lib/square";
+import { rateLimit } from "@/lib/rate-limit";
 import { supabase } from "@/lib/supabase";
 import {
   findContactByEmail,
@@ -15,8 +16,17 @@ import {
   enrollmentNotificationEmail,
 } from "@/lib/emails";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const { allowed } = await rateLimit(ip, "enroll", 5, 3600);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429 },
+      );
+    }
+
     const body = await req.json();
     const { name, email, phone, address, billingAddress, notes, contractType, nonce, signatureData, utm_params } = body;
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { rateLimit } from "@/lib/rate-limit";
 import { getServiceByKey, calculateQuote } from "@/lib/pricing";
 import {
   findContactByEmail,
@@ -18,31 +19,20 @@ import {
 } from "@/lib/emails";
 import { EMAIL_SALES, PHONE_CELL_TEL } from "@/lib/constants";
 import { sendMetaEvent } from "@/lib/meta-capi";
+import { buildSignedUrl, generateSignedToken } from "@/lib/url-signing";
 import type { QuoteRequest } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-// In-memory rate limiting: 5 requests per IP per hour
-const RATE_LIMIT = 5;
-const RATE_WINDOW_MS = 60 * 60 * 1000;
-const rateLimitMap = new Map<string, number[]>();
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const timestamps = rateLimitMap.get(ip) || [];
-  const recent = timestamps.filter((t) => now - t < RATE_WINDOW_MS);
-  rateLimitMap.set(ip, recent);
-  if (recent.length >= RATE_LIMIT) return false;
-  recent.push(now);
-  return true;
-}
-
 export async function POST(request: NextRequest) {
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 
-  if (!checkRateLimit(ip)) {
+  // Supabase-based rate limiting: 5 per IP per hour (works across serverless instances)
+  const { allowed } = await rateLimit(ip, "quote", 5, 3600);
+
+  if (!allowed) {
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },
       { status: 429 },
@@ -226,13 +216,13 @@ export async function POST(request: NextRequest) {
         );
         await sendEmail(EMAIL_SALES, internalTemplate.subject, internalTemplate.html);
       } else {
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
+        const quoteUrl = buildSignedUrl(`/quote/${quote.id}`, "quote", quote.id);
         const template = quoteConfirmationEmail(
           body.customer_name.split(" ")[0],
           quoteNumber,
           service.display_name,
           breakdown,
-          `${siteUrl}/quote/${quote.id}`,
+          quoteUrl,
           unsub,
         );
         await sendEmail(body.customer_email, template.subject, template.html);
@@ -245,12 +235,12 @@ export async function POST(request: NextRequest) {
     if (!service.requires_site_visit && body.customer_phone) {
       try {
         const { sendSMS, quoteReadySMS } = await import("@/lib/twilio");
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
+        const smsQuoteUrl = buildSignedUrl(`/quote/${quote.id}`, "quote", quote.id);
         const sms = quoteReadySMS(
           body.customer_name,
           breakdown.total,
           service.display_name,
-          `${siteUrl}/quote/${quote.id}`,
+          smsQuoteUrl,
         );
         await sendSMS(body.customer_phone, sms);
       } catch (err) {
@@ -345,6 +335,7 @@ export async function POST(request: NextRequest) {
         pricing_breakdown: breakdown,
         requires_site_visit: service.requires_site_visit,
         status,
+        token: generateSignedToken("quote", quote.id),
       },
     });
     res.cookies.set("mhf_segment", "quoted", {

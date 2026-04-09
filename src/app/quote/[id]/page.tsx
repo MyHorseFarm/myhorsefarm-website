@@ -13,10 +13,13 @@ export const metadata: Metadata = {
 
 export default async function QuoteDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ token?: string }>;
 }) {
   const { id } = await params;
+  const { token } = await searchParams;
 
   const { data: quote } = await supabase
     .from("quotes")
@@ -69,6 +72,7 @@ export default async function QuoteDetailPage({
               service_display_name: service?.display_name ?? quote.service_key,
             }}
             existingBooking={existingBooking}
+            token={token}
           />
         </div>
       </main>

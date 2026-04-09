@@ -5,7 +5,7 @@ import { sendEmail } from "@/lib/emails";
 import { withCronMonitor } from "@/lib/cron-monitor";
 
 export const runtime = "nodejs";
-export const maxDuration = 120; // 2 min timeout for AI generation
+export const maxDuration = 180; // Extended for AI generation with retries
 
 const ADMIN_EMAIL = process.env.ADMIN_ALERT_EMAIL || "manureservice@gmail.com";
 

@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const days = Number(searchParams.get("days")) || 30;
+  const days = Math.min(Number(searchParams.get("days")) || 30, 90);
 
   try {
     const dates = await getAvailableDates(days);

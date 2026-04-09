@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHmac, timingSafeEqual } from "crypto";
 import { supabase } from "@/lib/supabase";
 import {
   findContactByEmail,
@@ -23,7 +24,50 @@ export const runtime = "nodejs";
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // --- Svix signature verification ---
+    const webhookSecret = process.env.RESEND_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      console.error("RESEND_WEBHOOK_SECRET not configured");
+      return NextResponse.json({ error: "Webhook not configured" }, { status: 401 });
+    }
+
+    const svixId = request.headers.get("svix-id");
+    const svixTimestamp = request.headers.get("svix-timestamp");
+    const svixSignature = request.headers.get("svix-signature");
+
+    if (!svixId || !svixTimestamp || !svixSignature) {
+      return NextResponse.json({ error: "Missing signature headers" }, { status: 401 });
+    }
+
+    const rawBody = await request.text();
+
+    // Decode secret (remove "whsec_" prefix if present, then base64-decode)
+    const secretBytes = Buffer.from(
+      webhookSecret.startsWith("whsec_") ? webhookSecret.slice(6) : webhookSecret,
+      "base64",
+    );
+
+    const signedContent = `${svixId}.${svixTimestamp}.${rawBody}`;
+    const expectedSig = createHmac("sha256", secretBytes)
+      .update(signedContent)
+      .digest("base64");
+
+    // Svix signature header may contain multiple signatures: "v1,<sig1> v1,<sig2>"
+    const signatures = svixSignature.split(" ");
+    const verified = signatures.some((versionedSig) => {
+      const sig = versionedSig.split(",")[1];
+      if (!sig) return false;
+      const expectedBuf = Buffer.from(expectedSig);
+      const actualBuf = Buffer.from(sig);
+      if (expectedBuf.length !== actualBuf.length) return false;
+      return timingSafeEqual(expectedBuf, actualBuf);
+    });
+
+    if (!verified) {
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    }
+
+    const body = JSON.parse(rawBody);
     const { type, data, created_at } = body as {
       type: string;
       created_at?: string;
