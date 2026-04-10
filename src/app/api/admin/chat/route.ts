@@ -474,7 +474,7 @@ export async function POST(request: NextRequest) {
 
         for (let iteration = 0; iteration < 5; iteration++) {
           const response = await anthropic.messages.create({
-            model: "claude-haiku-4-5-20250414",
+            model: "claude-haiku-4-5",
             max_tokens: 2048,
             system: "You are the My Horse Farm admin assistant. You help manage the horse farm business operations. You can check payments, customers, invoices, schedules, and perform actions like charging customers and creating invoices. Be concise and actionable.",
             tools: TOOLS,

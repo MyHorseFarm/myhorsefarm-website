@@ -492,7 +492,7 @@ export async function listPayments(
 ): Promise<{ payments: PaymentSummary[]; cursor: string | null }> {
   const client = getClient();
   const locationId =
-    params.locationId || undefined;
+    params.locationId || (await getLocationId()) || undefined;
 
   const result = await client.payments.list({
     beginTime: params.beginTime,
