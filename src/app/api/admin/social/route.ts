@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { google } from "googleapis";
 import {
   getPostForDate,
   getUpcomingPosts,
@@ -243,8 +244,76 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  // --- Post to Google Business Profile ---
+  if (action === "post-to-gbp") {
+    const accountId = process.env.GBP_ACCOUNT_ID;
+    const locationId = process.env.GBP_LOCATION_ID;
+    const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+
+    if (!accountId || !locationId || !serviceAccountJson) {
+      return NextResponse.json(
+        { error: "GBP not configured. Set GBP_ACCOUNT_ID, GBP_LOCATION_ID, GOOGLE_SERVICE_ACCOUNT_JSON." },
+        { status: 500 },
+      );
+    }
+
+    // Use custom message or fall back to a post template
+    const customMessage = body.message as string | undefined;
+    const ctaUrl = (body.url as string) || "https://www.myhorsefarm.com/quote";
+    const ctaType = (body.ctaType as string) || "CALL";
+
+    let summary: string;
+    if (customMessage) {
+      summary = customMessage;
+    } else if (postId) {
+      const found = POST_TEMPLATES.find((p) => p.id === postId);
+      if (!found) {
+        return NextResponse.json({ error: `Post "${postId}" not found` }, { status: 404 });
+      }
+      summary = `${found.text}\n\n${found.cta}`;
+    } else {
+      const todayPost = getPostForDate(new Date());
+      summary = `${todayPost.text}\n\n${todayPost.cta}`;
+    }
+
+    try {
+      const credentials = JSON.parse(serviceAccountJson);
+      const auth = new google.auth.GoogleAuth({
+        credentials,
+        scopes: ["https://www.googleapis.com/auth/business.manage"],
+      });
+      const authClient = await auth.getClient();
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await (authClient as any).request({
+        url: `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/localPosts`,
+        method: "POST",
+        data: {
+          languageCode: "en",
+          summary,
+          callToAction: {
+            actionType: ctaType,
+            url: ctaUrl,
+          },
+          topicType: "STANDARD",
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        platform: "gbp",
+        postId: response.data?.name,
+        summary: summary.substring(0, 80) + "...",
+      });
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "Unknown error";
+      console.error("GBP post failed:", errorMsg);
+      return NextResponse.json({ error: errorMsg }, { status: 500 });
+    }
+  }
+
   return NextResponse.json(
-    { error: 'Invalid action. Use "post-now" or "skip".' },
+    { error: 'Invalid action. Use "post-now", "skip", or "post-to-gbp".' },
     { status: 400 },
   );
 }
