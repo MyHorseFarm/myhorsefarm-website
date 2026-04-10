@@ -438,3 +438,486 @@ export async function chargeCard(
     receiptUrl: payment.receiptUrl ?? null,
   };
 }
+
+// ---------------------------------------------------------------------------
+// List payments (paginated, filtered)
+// ---------------------------------------------------------------------------
+
+export interface ListPaymentsParams {
+  beginTime?: string;
+  endTime?: string;
+  status?: string;
+  cursor?: string;
+  locationId?: string;
+  limit?: number;
+}
+
+export interface PaymentSummary {
+  id: string;
+  status: string;
+  amountCents: number;
+  currency: string;
+  customerId: string | null;
+  orderId: string | null;
+  receiptUrl: string | null;
+  note: string | null;
+  createdAt: string;
+  refundedAmountCents: number;
+  sourceType: string | null;
+  last4: string | null;
+  cardBrand: string | null;
+}
+
+export async function listPayments(
+  params: ListPaymentsParams = {},
+): Promise<{ payments: PaymentSummary[]; cursor: string | null }> {
+  const client = getClient();
+  const locationId =
+    params.locationId || process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID || undefined;
+
+  const result = await client.payments.list({
+    beginTime: params.beginTime,
+    endTime: params.endTime,
+    locationId,
+    cursor: params.cursor,
+    limit: params.limit || 100,
+    sortOrder: "DESC",
+  });
+
+  const payments: PaymentSummary[] = [];
+  // SDK v44 list returns an async iterable; we collect from the first page
+  // Actually, we need to handle paginated results. Let's collect up to limit.
+  const limit = params.limit || 100;
+  let count = 0;
+  let nextCursor: string | null = null;
+
+  for await (const p of result) {
+    if (params.status && p.status !== params.status) continue;
+    payments.push({
+      id: p.id ?? "",
+      status: p.status ?? "UNKNOWN",
+      amountCents: Number(p.totalMoney?.amount ?? 0),
+      currency: p.totalMoney?.currency ?? "USD",
+      customerId: p.customerId ?? null,
+      orderId: p.orderId ?? null,
+      receiptUrl: p.receiptUrl ?? null,
+      note: p.note ?? null,
+      createdAt: p.createdAt ?? new Date().toISOString(),
+      refundedAmountCents: Number(p.refundedMoney?.amount ?? 0),
+      sourceType: p.sourceType ?? null,
+      last4: p.cardDetails?.card?.last4 ?? null,
+      cardBrand: p.cardDetails?.card?.cardBrand ?? null,
+    });
+    count++;
+    if (count >= limit) break;
+  }
+
+  return { payments, cursor: nextCursor };
+}
+
+// ---------------------------------------------------------------------------
+// Refund a payment (full or partial)
+// ---------------------------------------------------------------------------
+
+export interface RefundResult {
+  refundId: string;
+  status: string;
+  amountCents: number;
+}
+
+export async function refundPayment(
+  paymentId: string,
+  amountCents: number,
+  reason?: string,
+): Promise<RefundResult> {
+  const { refund } = await getClient().refunds.refundPayment({
+    paymentId,
+    amountMoney: { amount: BigInt(amountCents), currency: "USD" },
+    reason: reason || "Admin refund",
+    idempotencyKey: randomUUID(),
+  });
+
+  if (!refund) throw new Error("Refund creation returned no refund");
+
+  return {
+    refundId: refund.id ?? "",
+    status: refund.status ?? "UNKNOWN",
+    amountCents: Number(refund.amountMoney?.amount ?? 0),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Get payment receipt URL
+// ---------------------------------------------------------------------------
+
+export async function getPaymentReceipt(
+  paymentId: string,
+): Promise<string | null> {
+  const { payment } = await getClient().payments.get({ paymentId });
+  return payment?.receiptUrl ?? null;
+}
+
+// ---------------------------------------------------------------------------
+// Invoice functions
+// ---------------------------------------------------------------------------
+
+export interface InvoiceSummary {
+  id: string;
+  version: number;
+  invoiceNumber: string | null;
+  status: string;
+  title: string | null;
+  description: string | null;
+  scheduledAt: string | null;
+  publicUrl: string | null;
+  orderId: string | null;
+  locationId: string;
+  primaryRecipient: {
+    customerId: string | null;
+    givenName: string | null;
+    familyName: string | null;
+    emailAddress: string | null;
+    companyName: string | null;
+  } | null;
+  paymentRequests: {
+    uid: string | null;
+    requestType: string | null;
+    dueDate: string | null;
+    totalMoney: { amount: number; currency: string } | null;
+    computedAmountMoney: { amount: number; currency: string } | null;
+  }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+function mapInvoice(inv: Record<string, unknown>): InvoiceSummary {
+  const i = inv as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  const recipient = i.primaryRecipient;
+  return {
+    id: i.id ?? "",
+    version: Number(i.version ?? 0),
+    invoiceNumber: i.invoiceNumber ?? null,
+    status: i.status ?? "UNKNOWN",
+    title: i.title ?? null,
+    description: i.description ?? null,
+    scheduledAt: i.scheduledAt ?? null,
+    publicUrl: i.publicUrl ?? null,
+    orderId: i.orderId ?? null,
+    locationId: i.locationId ?? "",
+    primaryRecipient: recipient
+      ? {
+          customerId: recipient.customerId ?? null,
+          givenName: recipient.givenName ?? null,
+          familyName: recipient.familyName ?? null,
+          emailAddress: recipient.emailAddress ?? null,
+          companyName: recipient.companyName ?? null,
+        }
+      : null,
+    paymentRequests: (i.paymentRequests ?? []).map((pr: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
+      uid: pr.uid ?? null,
+      requestType: pr.requestType ?? null,
+      dueDate: pr.dueDate ?? null,
+      totalMoney: pr.totalMoney
+        ? { amount: Number(pr.totalMoney.amount ?? 0), currency: pr.totalMoney.currency ?? "USD" }
+        : null,
+      computedAmountMoney: pr.computedAmountMoney
+        ? { amount: Number(pr.computedAmountMoney.amount ?? 0), currency: pr.computedAmountMoney.currency ?? "USD" }
+        : null,
+    })),
+    createdAt: i.createdAt ?? new Date().toISOString(),
+    updatedAt: i.updatedAt ?? new Date().toISOString(),
+  };
+}
+
+export async function listInvoices(
+  locationId: string,
+  cursor?: string,
+): Promise<{ invoices: InvoiceSummary[]; cursor: string | null }> {
+  const params: Record<string, unknown> = { locationId, limit: 50 };
+  if (cursor) params.cursor = cursor;
+  const result = await getClient().invoices.list(params as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const invoices: InvoiceSummary[] = [];
+  for await (const inv of result) {
+    invoices.push(mapInvoice(inv as any)); // eslint-disable-line @typescript-eslint/no-explicit-any
+  }
+  return { invoices, cursor: null };
+}
+
+export async function searchInvoices(
+  locationId: string,
+  filters: {
+    customerIds?: string[];
+    status?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  },
+): Promise<{ invoices: InvoiceSummary[]; cursor: string | null }> {
+  const queryFilter: Record<string, unknown> = {
+    locationIds: [locationId],
+  };
+
+  if (filters.customerIds?.length) {
+    queryFilter.customerIds = filters.customerIds;
+  }
+
+  const invoiceFilter: Record<string, unknown> = {};
+  if (filters.status) {
+    invoiceFilter.status = [filters.status];
+  }
+
+  const query: Record<string, unknown> = {
+    filter: {
+      locationIds: [locationId],
+      ...(filters.customerIds?.length ? { customerIds: filters.customerIds } : {}),
+      ...(filters.status ? { status: [filters.status] } : {}),
+    },
+    sort: { field: "INVOICE_SORT_DATE", order: "DESC" },
+  };
+
+  const result = await (getClient().invoices as any).search({ query }); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const invoices = (result.invoices ?? []).map((inv: any) => mapInvoice(inv)); // eslint-disable-line @typescript-eslint/no-explicit-any
+  return { invoices, cursor: result.cursor ?? null };
+}
+
+export async function createInvoice(
+  locationId: string,
+  invoice: {
+    customerId: string;
+    lineItems: { description: string; amount: number; quantity: number }[];
+    dueDate: string; // YYYY-MM-DD
+    note?: string;
+  },
+): Promise<InvoiceSummary> {
+  // First create an order with the line items
+  const orderLineItems = invoice.lineItems.map((item) => ({
+    name: item.description,
+    quantity: String(item.quantity),
+    basePriceMoney: {
+      amount: BigInt(Math.round(item.amount * 100)),
+      currency: "USD" as const,
+    },
+  }));
+
+  const { order } = await getClient().orders.create({
+    order: {
+      locationId,
+      customerId: invoice.customerId,
+      lineItems: orderLineItems,
+    },
+    idempotencyKey: randomUUID(),
+  });
+
+  if (!order?.id) throw new Error("Failed to create order for invoice");
+
+  // Create the invoice
+  const { invoice: created } = await (getClient().invoices as any).create({ // eslint-disable-line @typescript-eslint/no-explicit-any
+    invoice: {
+      locationId,
+      orderId: order.id,
+      primaryRecipient: { customerId: invoice.customerId },
+      paymentRequests: [
+        {
+          requestType: "BALANCE",
+          dueDate: invoice.dueDate,
+        },
+      ],
+      deliveryMethod: "EMAIL",
+      title: invoice.note || "Invoice from My Horse Farm",
+    },
+    idempotencyKey: randomUUID(),
+  });
+
+  if (!created) throw new Error("Failed to create invoice");
+  return mapInvoice(created as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+export async function getInvoice(invoiceId: string): Promise<InvoiceSummary> {
+  const { invoice } = await (getClient().invoices as any).get({ invoiceId }); // eslint-disable-line @typescript-eslint/no-explicit-any
+  if (!invoice) throw new Error(`Invoice ${invoiceId} not found`);
+  return mapInvoice(invoice as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+export async function publishInvoice(
+  invoiceId: string,
+  version: number,
+): Promise<InvoiceSummary> {
+  const { invoice } = await (getClient().invoices as any).publish({ // eslint-disable-line @typescript-eslint/no-explicit-any
+    invoiceId,
+    version,
+    idempotencyKey: randomUUID(),
+  });
+  if (!invoice) throw new Error("Failed to publish invoice");
+  return mapInvoice(invoice as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+export async function cancelInvoice(
+  invoiceId: string,
+  version: number,
+): Promise<InvoiceSummary> {
+  const { invoice } = await (getClient().invoices as any).cancel({ // eslint-disable-line @typescript-eslint/no-explicit-any
+    invoiceId,
+    version,
+  });
+  if (!invoice) throw new Error("Failed to cancel invoice");
+  return mapInvoice(invoice as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+export async function createInvoiceAttachment(
+  invoiceId: string,
+  file: { filename: string; mimeType: string; data: Buffer },
+): Promise<{ attachmentId: string; url: string }> {
+  const blob = new Blob([new Uint8Array(file.data)], { type: file.mimeType });
+  const formData = new FormData();
+  formData.append("file", blob, file.filename);
+
+  const result = await (getClient().invoices as any).createAttachment({ // eslint-disable-line @typescript-eslint/no-explicit-any
+    invoiceId,
+    imageFile: blob,
+    idempotencyKey: randomUUID(),
+  });
+
+  return {
+    attachmentId: result.attachment?.id ?? "",
+    url: result.attachment?.fileUrl ?? "",
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Customer payment history & lifetime value
+// ---------------------------------------------------------------------------
+
+export interface CustomerPaymentHistoryResult {
+  payments: PaymentSummary[];
+  lifetimeValue: number;       // total cents
+  averagePayment: number;      // cents
+  firstPaymentDate: string | null;
+  lastPaymentDate: string | null;
+  totalPayments: number;
+}
+
+export async function getCustomerPaymentHistory(
+  customerId: string,
+): Promise<CustomerPaymentHistoryResult> {
+  const allPayments: PaymentSummary[] = [];
+
+  for await (const p of await getClient().payments.list({
+    locationId: process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID || undefined,
+    sortOrder: "DESC",
+    limit: 100,
+  })) {
+    if (p.customerId !== customerId) continue;
+    if (p.status !== "COMPLETED") continue;
+    allPayments.push({
+      id: p.id ?? "",
+      status: p.status ?? "UNKNOWN",
+      amountCents: Number(p.totalMoney?.amount ?? 0),
+      currency: p.totalMoney?.currency ?? "USD",
+      customerId: p.customerId ?? null,
+      orderId: p.orderId ?? null,
+      receiptUrl: p.receiptUrl ?? null,
+      note: p.note ?? null,
+      createdAt: p.createdAt ?? new Date().toISOString(),
+      refundedAmountCents: Number(p.refundedMoney?.amount ?? 0),
+      sourceType: p.sourceType ?? null,
+      last4: p.cardDetails?.card?.last4 ?? null,
+      cardBrand: p.cardDetails?.card?.cardBrand ?? null,
+    });
+  }
+
+  const totalCents = allPayments.reduce((sum, p) => sum + (p.amountCents - p.refundedAmountCents), 0);
+  const avgCents = allPayments.length > 0 ? Math.round(totalCents / allPayments.length) : 0;
+
+  // Sort by date ascending for first/last
+  const sorted = [...allPayments].sort((a, b) =>
+    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  );
+
+  return {
+    payments: allPayments,
+    lifetimeValue: totalCents,
+    averagePayment: avgCents,
+    firstPaymentDate: sorted.length > 0 ? sorted[0].createdAt : null,
+    lastPaymentDate: sorted.length > 0 ? sorted[sorted.length - 1].createdAt : null,
+    totalPayments: allPayments.length,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Update a Square customer
+// ---------------------------------------------------------------------------
+
+export async function updateSquareCustomer(
+  customerId: string,
+  updates: {
+    givenName?: string;
+    familyName?: string;
+    emailAddress?: string;
+    phoneNumber?: string;
+    note?: string;
+  },
+): Promise<CustomerDetails> {
+  const { customer } = await getClient().customers.update({
+    customerId,
+    ...updates,
+  });
+  if (!customer) throw new Error(`Failed to update customer ${customerId}`);
+
+  return {
+    id: customer.id ?? customerId,
+    email: customer.emailAddress ?? null,
+    firstName: customer.givenName ?? null,
+    lastName: customer.familyName ?? null,
+    phone: customer.phoneNumber ?? null,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Customer groups
+// ---------------------------------------------------------------------------
+
+export interface CustomerGroup {
+  id: string;
+  name: string;
+}
+
+export async function createCustomerGroup(
+  name: string,
+): Promise<CustomerGroup> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const client = getClient() as any;
+  const { group } = await client.customerGroups.create({
+    group: { name },
+    idempotencyKey: randomUUID(),
+  });
+  if (!group?.id) throw new Error("Failed to create customer group");
+  return { id: group.id, name: group.name ?? name };
+}
+
+export async function addCustomerToGroup(
+  customerId: string,
+  groupId: string,
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const client = getClient() as any;
+  await client.customerGroups.addMembers({
+    groupId,
+    customerIds: [customerId],
+  });
+}
+
+export async function listCustomerGroups(): Promise<CustomerGroup[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const client = getClient() as any;
+  const result = await client.customerGroups.list();
+  const groups: CustomerGroup[] = [];
+  if (result && Symbol.asyncIterator in result) {
+    for await (const g of result) {
+      groups.push({ id: g.id ?? "", name: g.name ?? "" });
+    }
+  } else if (Array.isArray(result?.groups)) {
+    for (const g of result.groups) {
+      groups.push({ id: g.id ?? "", name: g.name ?? "" });
+    }
+  }
+  return groups;
+}

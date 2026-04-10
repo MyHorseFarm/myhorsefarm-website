@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { listAllSquareCustomers, searchOrdersByCustomer, inferServiceFromOrders } from "@/lib/square";
+import {
+  listAllSquareCustomers,
+  searchOrdersByCustomer,
+  inferServiceFromOrders,
+  getCustomerPaymentHistory,
+  createCustomerGroup,
+  addCustomerToGroup,
+  listCustomerGroups,
+} from "@/lib/square";
 
 export const runtime = "nodejs";
 
@@ -14,6 +22,69 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const action = request.nextUrl.searchParams.get("action");
+  const customerId = request.nextUrl.searchParams.get("customerId");
+
+  // --- Lifetime value for a specific customer ---
+  if (action === "lifetime-value" && customerId) {
+    try {
+      const history = await getCustomerPaymentHistory(customerId);
+      return NextResponse.json({
+        totalPayments: history.totalPayments,
+        lifetimeValueCents: history.lifetimeValue,
+        lifetimeValue: history.lifetimeValue / 100,
+        averagePaymentCents: history.averagePayment,
+        averagePayment: history.averagePayment / 100,
+        firstServiceDate: history.firstPaymentDate,
+        lastServiceDate: history.lastPaymentDate,
+        totalServicesCount: history.totalPayments,
+      });
+    } catch (err) {
+      console.error("Lifetime value error:", err);
+      return NextResponse.json(
+        { error: err instanceof Error ? err.message : "Failed to fetch lifetime value" },
+        { status: 500 },
+      );
+    }
+  }
+
+  // --- Payment history for a specific customer ---
+  if (action === "payment-history" && customerId) {
+    try {
+      const history = await getCustomerPaymentHistory(customerId);
+      return NextResponse.json({
+        payments: history.payments.map((p) => ({
+          id: p.id,
+          status: p.status,
+          amount: p.amountCents / 100,
+          amountCents: p.amountCents,
+          currency: p.currency,
+          refundedAmount: p.refundedAmountCents / 100,
+          note: p.note,
+          receiptUrl: p.receiptUrl,
+          createdAt: p.createdAt,
+          sourceType: p.sourceType,
+          last4: p.last4,
+          cardBrand: p.cardBrand,
+        })),
+        summary: {
+          totalPayments: history.totalPayments,
+          lifetimeValue: history.lifetimeValue / 100,
+          averagePayment: history.averagePayment / 100,
+          firstPaymentDate: history.firstPaymentDate,
+          lastPaymentDate: history.lastPaymentDate,
+        },
+      });
+    } catch (err) {
+      console.error("Payment history error:", err);
+      return NextResponse.json(
+        { error: err instanceof Error ? err.message : "Failed to fetch payment history" },
+        { status: 500 },
+      );
+    }
+  }
+
+  // --- Default: list all customers ---
   const activeOnly = request.nextUrl.searchParams.get("active") === "true";
 
   let query = supabase
@@ -157,30 +228,71 @@ export async function PATCH(request: NextRequest) {
       .not("square_customer_id", "is", null);
 
     let serviceUpdated = 0;
+    let lifetimeValuesUpdated = 0;
+
+    // Load or create service-type groups for auto-categorization
+    let existingGroups: { id: string; name: string }[] = [];
+    try {
+      existingGroups = await listCustomerGroups();
+    } catch (groupErr) {
+      console.error("Could not list customer groups:", groupErr);
+    }
+    const groupNameToId = new Map(existingGroups.map((g) => [g.name, g.id]));
+
     for (const cust of allCustomers ?? []) {
       try {
         const orders = await searchOrdersByCustomer(cust.square_customer_id!);
         const inferred = inferServiceFromOrders(orders);
-        if (!inferred) continue;
 
-        const serviceUpdates: Record<string, unknown> = {
-          default_service: inferred.serviceKey,
-        };
-        if (inferred.rate > 0) {
-          serviceUpdates.default_bin_rate = inferred.rate;
+        const serviceUpdates: Record<string, unknown> = {};
+
+        if (inferred) {
+          serviceUpdates.default_service = inferred.serviceKey;
+          if (inferred.rate > 0) {
+            serviceUpdates.default_bin_rate = inferred.rate;
+          }
         }
 
-        await supabase
-          .from("recurring_customers")
-          .update(serviceUpdates)
-          .eq("id", cust.id);
-        serviceUpdated++;
+        // Calculate and store lifetime value
+        try {
+          const history = await getCustomerPaymentHistory(cust.square_customer_id!);
+          if (history.totalPayments > 0) {
+            serviceUpdates.lifetime_value = history.lifetimeValue / 100;
+            lifetimeValuesUpdated++;
+          }
+        } catch (payErr) {
+          console.error(`Payment history failed for customer ${cust.id}:`, payErr);
+        }
+
+        if (Object.keys(serviceUpdates).length > 0) {
+          await supabase
+            .from("recurring_customers")
+            .update(serviceUpdates)
+            .eq("id", cust.id);
+          if (inferred) serviceUpdated++;
+        }
+
+        // Auto-categorize into Square groups by service type
+        if (inferred) {
+          const groupName = `Service: ${inferred.serviceKey.replace(/_/g, " ")}`;
+          try {
+            let groupId = groupNameToId.get(groupName);
+            if (!groupId) {
+              const created = await createCustomerGroup(groupName);
+              groupId = created.id;
+              groupNameToId.set(groupName, groupId);
+            }
+            await addCustomerToGroup(cust.square_customer_id!, groupId);
+          } catch (groupErr) {
+            console.error(`Group assignment failed for ${cust.id}:`, groupErr);
+          }
+        }
       } catch (orderErr) {
         console.error(`Order lookup failed for customer ${cust.id}:`, orderErr);
       }
     }
 
-    return NextResponse.json({ imported, updated, skipped, serviceUpdated });
+    return NextResponse.json({ imported, updated, skipped, serviceUpdated, lifetimeValuesUpdated });
   } catch (err) {
     console.error("Square import error:", err);
     return NextResponse.json(
@@ -205,6 +317,7 @@ export async function PUT(request: NextRequest) {
     "contract_discount_pct", "sms_opted_in", "preferred_day",
     "preferred_time_slot", "billing_address", "square_customer_id",
     "gate_code", "num_horses", "num_stalls", "property_size", "access_instructions",
+    "lifetime_value",
   ];
 
   // Bulk update: { ids: [...], updates: { ... } }

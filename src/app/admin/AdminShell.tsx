@@ -1,35 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { getAdminToken } from "@/lib/admin-auth";
+import AdminChat from "@/components/AdminChat";
 
 const navItems = [
+  { href: "/admin", label: "Dashboard", icon: "fa-tachometer-alt" },
   { href: "/admin/daily", label: "Daily", icon: "fa-calendar-day" },
   { href: "/admin/customers", label: "Customers", icon: "fa-users" },
   { href: "/admin/crew", label: "Crew", icon: "fa-hard-hat" },
   { href: "/admin/pricing", label: "Pricing", icon: "fa-dollar-sign" },
   { href: "/admin/analytics", label: "Analytics", icon: "fa-chart-line" },
   { href: "/admin/schedule", label: "Schedule", icon: "fa-calendar-alt" },
+  { href: "/admin/invoices", label: "Invoices", icon: "fa-file-invoice-dollar" },
   { href: "/admin/ads", label: "Ad Generator", icon: "fa-bullhorn" },
 ];
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [adminToken, setTokenState] = useState<string>("");
+
+  useEffect(() => {
+    const token = getAdminToken();
+    setTokenState(token);
+  }, []);
 
   return (
     <div className="flex min-h-screen">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-56 bg-green-900 text-white shrink-0">
         <div className="p-4 border-b border-green-800">
-          <Link href="/admin/daily" className="text-lg font-bold tracking-tight">
+          <Link href="/admin" className="text-lg font-bold tracking-tight">
             MHF Admin
           </Link>
         </div>
         <nav className="flex-1 py-2">
           {navItems.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(item.href + "/");
+            const active = item.href === "/admin"
+              ? pathname === "/admin"
+              : pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <Link
                 key={item.href}
@@ -53,7 +65,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
       {/* Mobile header */}
       <div className="md:hidden fixed top-0 inset-x-0 z-40 bg-green-900 text-white flex items-center justify-between px-4 h-14">
-        <Link href="/admin/daily" className="text-lg font-bold">
+        <Link href="/admin" className="text-lg font-bold">
           MHF Admin
         </Link>
         <button
@@ -74,7 +86,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             onClick={(e) => e.stopPropagation()}
           >
             {navItems.map((item) => {
-              const active = pathname === item.href || pathname.startsWith(item.href + "/");
+              const active = item.href === "/admin"
+                ? pathname === "/admin"
+                : pathname === item.href || pathname.startsWith(item.href + "/");
               return (
                 <Link
                   key={item.href}
@@ -95,6 +109,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
       {/* Main content */}
       <main className="flex-1 md:pt-0 pt-14">{children}</main>
+
+      {/* AI Chat Assistant — only when authenticated */}
+      {adminToken && <AdminChat adminToken={adminToken} />}
     </div>
   );
 }

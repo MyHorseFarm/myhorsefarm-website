@@ -54,6 +54,15 @@ export default function DailyDashboardPage() {
   const [charging, setCharging] = useState<string | null>(null);
   const [editAmounts, setEditAmounts] = useState<Record<string, string>>({});
   const [assigning, setAssigning] = useState<string | null>(null);
+  const [showChargeAllModal, setShowChargeAllModal] = useState(false);
+  const [chargeAllProgress, setChargeAllProgress] = useState<{
+    current: number;
+    total: number;
+    succeeded: number;
+    failed: number;
+    done: boolean;
+    results: { name: string; success: boolean; error?: string }[];
+  } | null>(null);
 
   const headers = useCallback(
     () => adminHeaders(token || undefined),
@@ -153,6 +162,75 @@ export default function DailyDashboardPage() {
     }
   };
 
+  const handleChargeAll = async () => {
+    const chargeable = pendingLogs.filter(
+      (l) => l.recurring_customers.square_customer_id
+    );
+    if (chargeable.length === 0) return;
+
+    setShowChargeAllModal(false);
+    setChargeAllProgress({
+      current: 0,
+      total: chargeable.length,
+      succeeded: 0,
+      failed: 0,
+      done: false,
+      results: [],
+    });
+
+    let succeeded = 0;
+    let failed = 0;
+    const results: { name: string; success: boolean; error?: string }[] = [];
+
+    for (let i = 0; i < chargeable.length; i++) {
+      const log = chargeable[i];
+      setChargeAllProgress((prev) =>
+        prev ? { ...prev, current: i + 1 } : prev
+      );
+
+      try {
+        const overrideStr = editAmounts[log.id];
+        const body: Record<string, unknown> = { log_id: log.id };
+        if (overrideStr !== undefined) {
+          const parsed = parseFloat(overrideStr);
+          if (!isNaN(parsed) && parsed > 0) body.override_amount = parsed;
+        }
+
+        const res = await fetch("/api/admin/charge", {
+          method: "POST",
+          headers: headers(),
+          body: JSON.stringify(body),
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Charge failed");
+        }
+
+        succeeded++;
+        results.push({ name: log.recurring_customers.name, success: true });
+      } catch (err: unknown) {
+        failed++;
+        results.push({
+          name: log.recurring_customers.name,
+          success: false,
+          error: err instanceof Error ? err.message : "Failed",
+        });
+      }
+
+      setChargeAllProgress((prev) =>
+        prev ? { ...prev, succeeded, failed, results: [...results] } : prev
+      );
+    }
+
+    setChargeAllProgress((prev) =>
+      prev ? { ...prev, done: true } : prev
+    );
+
+    // Refresh the list
+    await fetchLogs();
+  };
+
   const exportLogs = () => {
     const csv = csvFromArray(
       logs.map((l) => ({
@@ -217,6 +295,16 @@ export default function DailyDashboardPage() {
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <h1 className="text-2xl font-bold">Daily Dashboard</h1>
           <div className="flex gap-2 items-center">
+            {pendingLogs.length > 0 && (
+              <button
+                onClick={() => setShowChargeAllModal(true)}
+                disabled={chargeAllProgress !== null && !chargeAllProgress.done}
+                className="bg-green-800 text-white px-4 py-2 rounded text-sm font-semibold hover:bg-green-700 disabled:opacity-50"
+              >
+                <i className="fas fa-bolt mr-1" />
+                Charge All Pending ({pendingLogs.length})
+              </button>
+            )}
             <button
               onClick={exportLogs}
               disabled={logs.length === 0}
@@ -440,6 +528,116 @@ export default function DailyDashboardPage() {
           </>
         )}
       </div>
+
+      {/* Charge All Confirmation Modal */}
+      {showChargeAllModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+            <h2 className="text-lg font-bold mb-3">Charge All Pending</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              This will charge {pendingLogs.filter((l) => l.recurring_customers.square_customer_id).length} customer
+              {pendingLogs.filter((l) => l.recurring_customers.square_customer_id).length !== 1 ? "s" : ""} for a
+              total of <span className="font-semibold">${totalPending.toFixed(2)}</span>.
+            </p>
+            {pendingLogs.filter((l) => !l.recurring_customers.square_customer_id).length > 0 && (
+              <p className="text-xs text-amber-600 mb-3">
+                {pendingLogs.filter((l) => !l.recurring_customers.square_customer_id).length} log(s) will be
+                skipped — no Square ID linked.
+              </p>
+            )}
+            <div className="border rounded max-h-48 overflow-y-auto mb-4">
+              {pendingLogs.map((log) => (
+                <div
+                  key={log.id}
+                  className={`px-3 py-2 text-sm flex justify-between border-b last:border-0 ${
+                    !log.recurring_customers.square_customer_id ? "opacity-50" : ""
+                  }`}
+                >
+                  <span className="truncate mr-2">{log.recurring_customers.name}</span>
+                  <span className="font-medium shrink-0">${Number(log.total_amount).toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowChargeAllModal(false)}
+                className="px-4 py-2 rounded text-sm font-semibold border border-gray-300 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleChargeAll}
+                className="bg-green-800 text-white px-4 py-2 rounded text-sm font-semibold hover:bg-green-700"
+              >
+                Confirm & Charge All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Charge All Progress */}
+      {chargeAllProgress && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-lg font-bold mb-3">
+              {chargeAllProgress.done ? "Charging Complete" : "Charging..."}
+            </h2>
+            {!chargeAllProgress.done && (
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-2">
+                  Processing {chargeAllProgress.current} of {chargeAllProgress.total}...
+                </p>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-green-800 h-2 rounded-full transition-all"
+                    style={{
+                      width: `${(chargeAllProgress.current / chargeAllProgress.total) * 100}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            {chargeAllProgress.done && (
+              <div className="mb-4 space-y-1">
+                <p className="text-sm text-green-700">
+                  ✓ {chargeAllProgress.succeeded} succeeded
+                </p>
+                {chargeAllProgress.failed > 0 && (
+                  <p className="text-sm text-red-600">
+                    ✗ {chargeAllProgress.failed} failed
+                  </p>
+                )}
+              </div>
+            )}
+            <div className="border rounded max-h-48 overflow-y-auto mb-4">
+              {chargeAllProgress.results.map((r, i) => (
+                <div
+                  key={i}
+                  className={`px-3 py-2 text-sm flex justify-between border-b last:border-0 ${
+                    r.success ? "text-green-700" : "text-red-600"
+                  }`}
+                >
+                  <span className="truncate mr-2">{r.name}</span>
+                  <span className="shrink-0">
+                    {r.success ? "✓" : r.error || "✗"}
+                  </span>
+                </div>
+              ))}
+            </div>
+            {chargeAllProgress.done && (
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setChargeAllProgress(null)}
+                  className="bg-green-800 text-white px-4 py-2 rounded text-sm font-semibold hover:bg-green-700"
+                >
+                  Done
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
