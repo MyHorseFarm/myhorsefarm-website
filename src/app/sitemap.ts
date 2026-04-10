@@ -106,7 +106,7 @@ function getCityPages(serviceCategory: string): string[] {
  * Get all landing page slugs (lp directory)
  * Only includes directories that contain a page.tsx file
  */
-function getLandingPages(): string[] {
+function _getLandingPages(): string[] {
   const lpDir = path.join(process.cwd(), 'src/app/lp');
   
   if (!fs.existsSync(lpDir)) {

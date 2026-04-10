@@ -9,7 +9,7 @@
  * Falls back to individual creates on batch errors (bad emails).
  */
 
-import { readFileSync } from "fs";
+// import { readFileSync } from "fs";
 
 const XLSX_PATH = "/Users/josegomez/Downloads/deduplicated_valid_emails.xlsx";
 const API_BASE = "https://api.hubapi.com";
@@ -125,7 +125,7 @@ async function batchCreate(
     });
     return { created: result.results?.length || 0, errors: 0, badEmails: [] };
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    const _msg = err instanceof Error ? err.message : String(err);
 
     // Batch failed — fall back to individual creates to salvage good contacts
     let created = 0;

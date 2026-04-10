@@ -217,7 +217,7 @@ export default function SeasonReadyPage() {
           <div className="relative max-w-[700px] mx-auto">
             {/* Vertical line */}
             <div className="absolute left-[28px] top-0 bottom-0 w-[3px] bg-primary/20 max-md:left-[20px]" />
-            {timeline.map((item, idx) => (
+            {timeline.map((item, _idx) => (
               <div key={item.month} className="relative pl-[72px] pb-10 last:pb-0 max-md:pl-[56px]">
                 {/* Dot */}
                 <div className="absolute left-[18px] top-[4px] w-[24px] h-[24px] bg-primary rounded-full border-[3px] border-white shadow-[0_0_0_2px_rgba(var(--color-primary),0.3)] max-md:left-[10px] max-md:w-[22px] max-md:h-[22px]" />

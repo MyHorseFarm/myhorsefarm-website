@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
@@ -88,12 +89,12 @@ export default function JunkRemovalWestPalmBeachPage() {
             removal and hauling options for your project.
           </p>
           <p>
-            <a
+            <Link
               href="/#calendar"
               className="inline-block px-6 py-2.5 bg-primary text-white rounded font-bold hover:bg-primary-dark transition-colors"
             >
               Book Junk Removal
-            </a>
+            </Link>
           </p>
         </section>
       </main>

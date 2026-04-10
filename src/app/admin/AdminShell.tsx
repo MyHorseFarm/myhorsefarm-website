@@ -47,7 +47,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           })}
         </nav>
         <div className="p-4 border-t border-green-800 text-xs text-green-400">
-          <a href="/" className="hover:text-white">View Site</a>
+          <Link href="/" className="hover:text-white">View Site</Link>
         </div>
       </aside>
 

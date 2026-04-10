@@ -177,7 +177,7 @@ export async function GET(request: NextRequest) {
         // Create invoice
         let invoiceUrl: string | null = null;
         try {
-          const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
+          const _siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
           const dateStr = today.replace(/-/g, "");
           const { count } = await supabase
             .from("invoices")

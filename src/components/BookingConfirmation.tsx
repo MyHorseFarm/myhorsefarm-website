@@ -18,15 +18,11 @@ export default function BookingConfirmation() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const [booking, setBooking] = useState<BookingData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(!!id);
+  const [error, setError] = useState(id ? "" : "No booking ID provided");
 
   useEffect(() => {
-    if (!id) {
-      setLoading(false);
-      setError("No booking ID provided");
-      return;
-    }
+    if (!id) return;
 
     fetch(`/api/booking/${id}`)
       .then((res) => res.json())

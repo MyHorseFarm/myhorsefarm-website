@@ -51,7 +51,7 @@ interface CalendarEventInput {
 }
 
 /**
- * Create a Google Calendar event on the business calendar (manureservice@gmail.com).
+ * Create a Google Calendar event on the business calendar (the business calendar).
  * Returns the event ID.
  */
 export async function createCalendarEvent(event: CalendarEventInput): Promise<string | null> {

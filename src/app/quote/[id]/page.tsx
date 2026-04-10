@@ -73,7 +73,7 @@ export default async function QuoteDetailPage({
             }}
             existingBooking={existingBooking}
             token={token}
-            squareAppId={process.env.NEXT_PUBLIC_SQUARE_APP_ID || ""}
+            squareAppId={process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID || ""}
             squareLocationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID || ""}
             hasProfile={!!quote.recurring_customer_id}
           />

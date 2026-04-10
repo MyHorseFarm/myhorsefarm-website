@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     const title = searchParams.get("title") || "My Horse Farm";
     const description = searchParams.get("description") || "Farm & Property Services";
     const type = searchParams.get("type") || "website"; // blog, service, offer, etc.
-    const imageBg = searchParams.get("bg") || "default";
+    const _imageBg = searchParams.get("bg") || "default";
 
     // Define colors based on type
     const colorScheme = {

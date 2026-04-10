@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       console.log(
         `[GOOGLE-AUTH] Refresh token for ${email} — check Vercel logs to retrieve it. Token starts with: ${tokens.refresh_token.slice(0, 8)}...`,
       );
-      console.log(`[GOOGLE-AUTH] GMAIL_REFRESH_TOKEN=${tokens.refresh_token}`);
+      console.log(`[GOOGLE-AUTH] GMAIL_REFRESH_TOKEN=...${tokens.refresh_token.slice(-4)}`);
     }
 
     return new NextResponse(

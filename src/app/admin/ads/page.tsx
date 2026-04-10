@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { getAdminToken, setAdminToken, adminHeaders } from "@/lib/admin-auth";
+import { setAdminToken, adminHeaders } from "@/lib/admin-auth";
 
 interface GoogleAd {
   headline1: string;
@@ -88,7 +88,7 @@ export default function AdsPage() {
   const [copied, setCopied] = useState<string | null>(null);
 
   // Video render state
-  const [renderJobId, setRenderJobId] = useState<string | null>(null);
+  const [_renderJobId, setRenderJobId] = useState<string | null>(null);
   const [renderStatus, setRenderStatus] = useState<string | null>(null);
   const [renderProgress, setRenderProgress] = useState(0);
   const [renderVideoUrl, setRenderVideoUrl] = useState<string | null>(null);

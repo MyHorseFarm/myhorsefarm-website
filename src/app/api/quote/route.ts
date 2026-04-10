@@ -17,7 +17,7 @@ import {
   quoteConfirmationEmail,
   siteVisitRequestEmail,
 } from "@/lib/emails";
-import { EMAIL_SALES, PHONE_CELL_TEL } from "@/lib/constants";
+import { EMAIL_SALES } from "@/lib/constants";
 import { sendMetaEvent } from "@/lib/meta-capi";
 import { buildSignedUrl, generateSignedToken } from "@/lib/url-signing";
 import type { QuoteRequest } from "@/lib/types";
@@ -243,7 +243,7 @@ export async function POST(request: NextRequest) {
         : (body.source || "form").toUpperCase();
       const isPaid = utmSource === "GOOGLE ADS" || utmSource === "FACEBOOK AD";
       const tag = isPaid ? " [PAID AD]" : "";
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
+      const _siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
       const alertSubject = `🚨 NEW LEAD${tag}: ${safeName} - ${service.display_name} $${breakdown.total}`;
       const alertHtml = `
         <div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;">
@@ -268,7 +268,7 @@ export async function POST(request: NextRequest) {
           </div>
         </div>
       `;
-      const joseEmail = process.env.ADMIN_EMAIL || "manureservice@gmail.com";
+      const joseEmail = process.env.ADMIN_EMAIL || "admin@myhorsefarm.com";
       const { Resend } = await import("resend");
       const resend = new Resend(process.env.RESEND_API_KEY);
       await resend.emails.send({

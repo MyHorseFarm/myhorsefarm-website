@@ -7,7 +7,7 @@ import { withCronMonitor } from "@/lib/cron-monitor";
 export const runtime = "nodejs";
 export const maxDuration = 180; // Extended for AI generation with retries
 
-const ADMIN_EMAIL = process.env.ADMIN_ALERT_EMAIL || "manureservice@gmail.com";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@myhorsefarm.com";
 
 const TOPICS = [
   {

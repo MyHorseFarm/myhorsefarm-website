@@ -16,7 +16,7 @@ const API_BASE = "https://api.hubapi.com";
 const TOKEN = process.env.HUBSPOT_API_TOKEN!;
 const DRY_RUN = process.argv.includes("--dry-run");
 const DELAY_MS = 150;
-const BATCH_SIZE = 100;
+const _BATCH_SIZE = 100;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -175,7 +175,7 @@ async function main() {
         tagged++;
         if (tagged % 100 === 0) console.log(`  Tagged ${tagged} contacts...`);
       }
-    } catch (e) {
+    } catch (_e) {
       errors++;
     }
     await sleep(DELAY_MS);

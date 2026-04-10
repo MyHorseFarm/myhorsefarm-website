@@ -35,7 +35,7 @@ export async function GET(
 
   if (hasValidToken) {
     // Full data but strip internal CRM IDs
-    const { hubspot_contact_id, hubspot_deal_id, ...safeQuote } = quote;
+    const { hubspot_contact_id: _hubspot_contact_id, hubspot_deal_id: _hubspot_deal_id, ...safeQuote } = quote;
     return NextResponse.json({
       ...safeQuote,
       service_display_name: service?.display_name ?? quote.service_key,

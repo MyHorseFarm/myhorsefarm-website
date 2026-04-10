@@ -5,8 +5,8 @@ import {
   createContactNote,
   findContactByEmail,
   isSubscribed,
-  STAGE_QUOTED,
-  STAGE_SCHEDULED,
+
+
   STAGE_LOST,
 } from "@/lib/hubspot";
 import { sendEmail } from "@/lib/emails";

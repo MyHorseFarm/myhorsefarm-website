@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Image from "next/image";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
@@ -133,12 +134,12 @@ export default function ManureRemovalPage() {
             questions you may have.
           </p>
           <p>
-            <a
+            <Link
               href="/quote"
               className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors"
             >
               Book Manure Removal
-            </a>
+            </Link>
           </p>
         </section>
       </main>

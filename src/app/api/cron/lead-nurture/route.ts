@@ -186,7 +186,7 @@ export async function GET(request: NextRequest) {
 
       const email = contact.properties.email;
       const firstname = contact.properties.firstname || "";
-      const phone = contact.properties.phone || "";
+      const _phone = contact.properties.phone || "";
       if (!email) continue;
 
       try {

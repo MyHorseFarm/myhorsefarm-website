@@ -6,7 +6,7 @@ import { withCronMonitor } from "@/lib/cron-monitor";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const ADMIN_EMAIL = process.env.ADMIN_ALERT_EMAIL || "manureservice@gmail.com";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@myhorsefarm.com";
 const FB_PAGE_ID = process.env.FACEBOOK_PAGE_ID;
 const FB_PAGE_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
 
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
       const lastFbPost = todayPosts.find((p) => p.platform === "facebook" && p.status === "posted");
       if (lastFbPost) {
         try {
-          const fbPostId = lastFbPost.post_id;
+          const _fbPostId = lastFbPost.post_id;
           // Try to fetch the post from Facebook to verify it exists
           const verifyRes = await fetch(
             `https://graph.facebook.com/v21.0/${FB_PAGE_ID}/feed?fields=id&limit=1&access_token=${FB_PAGE_TOKEN}`,

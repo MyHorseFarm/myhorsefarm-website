@@ -6,7 +6,7 @@ import { withCronMonitor } from "@/lib/cron-monitor";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const DIGEST_TO = process.env.EMAIL_BCC_ADDRESS || "joseadel825@gmail.com";
+const DIGEST_TO = process.env.ADMIN_EMAIL || "admin@myhorsefarm.com";
 
 /**
  * Daily Email Digest — runs at 8:00 PM

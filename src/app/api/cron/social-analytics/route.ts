@@ -6,10 +6,10 @@ import { withCronMonitor } from "@/lib/cron-monitor";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
-const ADMIN_EMAIL = process.env.ADMIN_ALERT_EMAIL || "manureservice@gmail.com";
-const FB_PAGE_ID = process.env.FACEBOOK_PAGE_ID;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@myhorsefarm.com";
+const _FB_PAGE_ID = process.env.FACEBOOK_PAGE_ID;
 const FB_PAGE_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
-const IG_ACCOUNT_ID = process.env.INSTAGRAM_ACCOUNT_ID || "17841400727440467";
+const _IG_ACCOUNT_ID = process.env.INSTAGRAM_ACCOUNT_ID || "17841400727440467";
 
 /**
  * Social Analytics — runs weekly on Monday at 9 AM ET
