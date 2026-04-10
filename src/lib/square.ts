@@ -500,7 +500,6 @@ export async function listPayments(
     locationId,
     cursor: params.cursor,
     limit: params.limit || 100,
-    sortOrder: "DESC",
   });
 
   const payments: PaymentSummary[] = [];
