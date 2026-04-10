@@ -9,7 +9,10 @@ import { NextRequest } from "next/server";
 
 const mockSupabaseFrom = jest.fn();
 jest.mock("@/lib/supabase", () => ({
-  supabase: { from: (...args: unknown[]) => mockSupabaseFrom(...args) },
+  supabase: {
+    from: (...args: unknown[]) => mockSupabaseFrom(...args),
+    rpc: jest.fn().mockResolvedValue({ data: null, error: null }),
+  },
 }));
 
 jest.mock("@/lib/pricing", () => ({
