@@ -5,6 +5,7 @@ import {
   createInvoice,
   publishInvoice,
   cancelInvoice,
+  getLocationId,
 } from "@/lib/square";
 
 export const runtime = "nodejs";
@@ -20,13 +21,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID;
-  if (!locationId) {
-    return NextResponse.json(
-      { error: "NEXT_PUBLIC_SQUARE_LOCATION_ID not configured" },
-      { status: 500 },
-    );
-  }
+  const locationId = await getLocationId();
 
   const params = request.nextUrl.searchParams;
   const status = params.get("status") || undefined;
@@ -70,13 +65,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID;
-  if (!locationId) {
-    return NextResponse.json(
-      { error: "NEXT_PUBLIC_SQUARE_LOCATION_ID not configured" },
-      { status: 500 },
-    );
-  }
+  const locationId = await getLocationId();
 
   try {
     const body = await request.json();

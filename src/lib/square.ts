@@ -20,6 +20,25 @@ function getClient(): SquareClient {
   return _client;
 }
 
+// Cache the main location ID (fetched dynamically from Square)
+let _locationId: string | null = null;
+
+export async function getLocationId(): Promise<string> {
+  if (_locationId) return _locationId;
+  try {
+    const { locations } = await getClient().locations.list();
+    const main = locations?.find((l) => l.status === "ACTIVE") ?? locations?.[0];
+    if (main?.id) {
+      _locationId = main.id;
+      return main.id;
+    }
+  } catch (e) {
+    console.error("Failed to fetch Square location:", e);
+  }
+  // Fallback to env var
+  return process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID || "";
+}
+
 // ---------------------------------------------------------------------------
 // Webhook signature verification
 // ---------------------------------------------------------------------------
@@ -473,7 +492,7 @@ export async function listPayments(
 ): Promise<{ payments: PaymentSummary[]; cursor: string | null }> {
   const client = getClient();
   const locationId =
-    params.locationId || process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID || undefined;
+    params.locationId || undefined;
 
   const result = await client.payments.list({
     beginTime: params.beginTime,
