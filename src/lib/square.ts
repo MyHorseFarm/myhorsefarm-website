@@ -490,45 +490,53 @@ export interface PaymentSummary {
 export async function listPayments(
   params: ListPaymentsParams = {},
 ): Promise<{ payments: PaymentSummary[]; cursor: string | null }> {
-  const client = getClient();
-  const locationId =
-    params.locationId || (await getLocationId()) || undefined;
+  // Use direct REST API to avoid SDK v44 sortOrder bug
+  const token = process.env.SQUARE_ACCESS_TOKEN;
+  const isSandbox = process.env.SQUARE_ENVIRONMENT === "sandbox";
+  const baseUrl = isSandbox
+    ? "https://connect.squareupsandbox.com"
+    : "https://connect.squareup.com";
 
-  const result = await client.payments.list({
-    beginTime: params.beginTime,
-    endTime: params.endTime,
-    locationId,
-    cursor: params.cursor,
-    limit: params.limit || 100,
+  const qp = new URLSearchParams();
+  if (params.beginTime) qp.set("begin_time", params.beginTime);
+  if (params.endTime) qp.set("end_time", params.endTime);
+  if (params.cursor) qp.set("cursor", params.cursor);
+  const locationId = params.locationId || (await getLocationId()) || undefined;
+  if (locationId) qp.set("location_id", locationId);
+  qp.set("limit", String(params.limit || 100));
+  qp.set("sort_order", "DESC");
+
+  const url = `${baseUrl}/v2/payments?${qp.toString()}`;
+  const resp = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
   });
 
-  const payments: PaymentSummary[] = [];
-  // SDK v44 list returns an async iterable; we collect from the first page
-  // Actually, we need to handle paginated results. Let's collect up to limit.
-  const limit = params.limit || 100;
-  let count = 0;
-  let nextCursor: string | null = null;
+  if (!resp.ok) {
+    const body = await resp.text();
+    throw new Error(`Status code: ${resp.status}\nBody: ${body}`);
+  }
 
-  for await (const p of result) {
-    if (params.status && p.status !== params.status) continue;
-    payments.push({
+  const data = await resp.json();
+  const rawPayments = data.payments ?? [];
+  const nextCursor: string | null = data.cursor ?? null;
+
+  const payments: PaymentSummary[] = rawPayments
+    .filter((p: any) => !params.status || p.status === params.status) // eslint-disable-line @typescript-eslint/no-explicit-any
+    .map((p: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
       id: p.id ?? "",
       status: p.status ?? "UNKNOWN",
-      amountCents: Number(p.totalMoney?.amount ?? 0),
-      currency: p.totalMoney?.currency ?? "USD",
-      customerId: p.customerId ?? null,
-      orderId: p.orderId ?? null,
-      receiptUrl: p.receiptUrl ?? null,
+      amountCents: Number(p.total_money?.amount ?? 0),
+      currency: p.total_money?.currency ?? "USD",
+      customerId: p.customer_id ?? null,
+      orderId: p.order_id ?? null,
+      receiptUrl: p.receipt_url ?? null,
       note: p.note ?? null,
-      createdAt: p.createdAt ?? new Date().toISOString(),
-      refundedAmountCents: Number(p.refundedMoney?.amount ?? 0),
-      sourceType: p.sourceType ?? null,
-      last4: p.cardDetails?.card?.last4 ?? null,
-      cardBrand: p.cardDetails?.card?.cardBrand ?? null,
-    });
-    count++;
-    if (count >= limit) break;
-  }
+      createdAt: p.created_at ?? new Date().toISOString(),
+      refundedAmountCents: Number(p.refunded_money?.amount ?? 0),
+      sourceType: p.source_type ?? null,
+      last4: p.card_details?.card?.last_4 ?? null,
+      cardBrand: p.card_details?.card?.card_brand ?? null,
+    }));
 
   return { payments, cursor: nextCursor };
 }
