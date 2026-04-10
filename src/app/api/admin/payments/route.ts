@@ -98,8 +98,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ payments: enriched, cursor: nextCursor });
   } catch (err) {
     console.error("Payments API error:", err);
+    const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { error: "Failed to fetch payments" },
+      { error: message },
       { status: 500 },
     );
   }
