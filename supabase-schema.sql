@@ -321,10 +321,8 @@ create table if not exists email_send_log (
 alter table email_send_log enable row level security;
 alter table email_suppression_list enable row level security;
 
-create policy service_role_all_email_send_log on email_send_log
-  for all to service_role using (true) with check (true);
-create policy service_role_all_email_suppression_list on email_suppression_list
-  for all to service_role using (true) with check (true);
+-- No explicit policies: deny-all for anon/authenticated when RLS is enabled.
+-- service_role bypasses RLS by design.
 
 create index idx_email_send_log_created_at on email_send_log(created_at);
 create index idx_email_send_log_to_email on email_send_log(to_email);

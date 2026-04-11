@@ -9,7 +9,6 @@ import {
   publishInvoice,
   chargeCard,
   listAllSquareCustomers,
-  listCustomerCards,
 } from "@/lib/square";
 
 export const runtime = "nodejs";
