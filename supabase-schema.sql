@@ -206,7 +206,10 @@ create or replace function check_rate_limit(
   p_key text,
   p_limit integer,
   p_window_start timestamptz
-) returns integer as $$
+) returns integer
+language plpgsql
+set search_path = public
+as $$
 declare
   v_count integer;
 begin
@@ -222,9 +225,10 @@ begin
       else rate_limits.window_start
     end
   returning count into v_count;
+
   return v_count;
 end;
-$$ language plpgsql;
+$$;
 
 -- ---------------------------------------------------------------------------
 -- RLS: Deny all public access (service_role key bypasses RLS)
@@ -247,14 +251,35 @@ alter table invoices enable row level security;
 create index idx_quotes_email on quotes(customer_email);
 create index idx_quotes_status on quotes(status);
 create index idx_quotes_created on quotes(created_at);
+create index idx_quotes_service_key on quotes(service_key);
+create index idx_quotes_recurring_customer_id on quotes(recurring_customer_id);
+
 create index idx_bookings_date on bookings(scheduled_date);
 create index idx_bookings_location on bookings(customer_location);
 create index idx_bookings_status on bookings(status);
+create index idx_bookings_quote_id on bookings(quote_id);
+create index idx_bookings_assigned_crew on bookings(assigned_crew);
+create index idx_bookings_recurring_customer_id on bookings(recurring_customer_id);
+
 create index idx_chat_sessions_status on chat_sessions(status);
+create index idx_chat_sessions_quote_id on chat_sessions(quote_id);
+
 create index idx_recurring_customers_active on recurring_customers(active);
+
 create index idx_service_logs_customer on service_logs(customer_id);
 create index idx_service_logs_status on service_logs(status);
 create index idx_service_logs_date on service_logs(service_date);
+create index idx_service_logs_assigned_crew on service_logs(assigned_crew);
+
+create index idx_invoices_customer_id on invoices(customer_id);
+create index idx_invoices_service_log_id on invoices(service_log_id);
+
+create index idx_portal_tokens_customer_id on portal_tokens(customer_id);
+
+create index idx_referrals_referrer_customer_id on referrals(referrer_customer_id);
+create index idx_referrals_referee_quote_id on referrals(referee_quote_id);
+
+create index idx_email_ab_sends_test_id on email_ab_sends(test_id);
 
 -- ---------------------------------------------------------------------------
 -- Customer profile & farm details columns
@@ -268,3 +293,40 @@ ALTER TABLE recurring_customers ADD COLUMN IF NOT EXISTS billing_address text;
 
 ALTER TABLE quotes ADD COLUMN IF NOT EXISTS recurring_customer_id uuid REFERENCES recurring_customers(id);
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS recurring_customer_id uuid REFERENCES recurring_customers(id);
+
+-- ---------------------------------------------------------------------------
+-- Email suppression + send log tables (rate limiting / deliverability)
+-- ---------------------------------------------------------------------------
+create table if not exists email_suppression_list (
+  id uuid primary key default gen_random_uuid(),
+  email text not null unique,
+  reason text not null default 'bounced',
+  created_at timestamptz not null default now()
+);
+
+create table if not exists email_send_log (
+  id uuid primary key default gen_random_uuid(),
+  to_email text not null,
+  subject text not null,
+  template_name text,
+  priority text not null default 'MEDIUM'
+    check (priority in ('CRITICAL','HIGH','MEDIUM','LOW')),
+  status text not null default 'sent'
+    check (status in ('sent','skipped','failed','suppressed')),
+  error_message text,
+  resend_id text,
+  created_at timestamptz not null default now()
+);
+
+alter table email_send_log enable row level security;
+alter table email_suppression_list enable row level security;
+
+create policy service_role_all_email_send_log on email_send_log
+  for all to service_role using (true) with check (true);
+create policy service_role_all_email_suppression_list on email_suppression_list
+  for all to service_role using (true) with check (true);
+
+create index idx_email_send_log_created_at on email_send_log(created_at);
+create index idx_email_send_log_to_email on email_send_log(to_email);
+create index idx_email_send_log_status on email_send_log(status);
+create index idx_email_suppression_list_email on email_suppression_list(email);

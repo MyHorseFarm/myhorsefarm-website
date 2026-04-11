@@ -365,7 +365,7 @@ export function buildAssistantConfig(webhookUrl: string) {
     name: "My Horse Farm AI Assistant",
     model: {
       provider: "anthropic",
-      model: "claude-haiku-4-5-20250315",
+      model: "claude-sonnet-4-6",
       messages: [
         {
           role: "system",

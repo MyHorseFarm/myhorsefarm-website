@@ -5,7 +5,7 @@ import { buildSystemPrompt } from "./system-prompt";
 import { toolDefinitions, executeTool } from "./tools";
 import type { ChatMessage } from "@/lib/types";
 
-const PRIMARY_MODEL = "claude-haiku-4-5";
+const PRIMARY_MODEL = "claude-sonnet-4-6";
 const FALLBACK_MODEL = "claude-sonnet-4-6";
 
 let _anthropic: Anthropic | null = null;
