@@ -174,10 +174,10 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
         return JSON.stringify({
           pendingCharges: pendingLogs.length,
           pendingTotal: `$${(pendingTotal / 100).toFixed(2)}`,
-          pendingDetails: pendingLogs.slice(0, 10).map((l: any) => ({
+          pendingDetails: pendingLogs.slice(0, 10).map((l) => ({
             id: l.id,
             amount: `$${((l.total_amount || 0) / 100).toFixed(2)}`,
-            customer: l.recurring_customers?.name || "Unknown",
+            customer: l.recurring_customers?.[0]?.name || "Unknown",
           })),
           bookingsToday: (bookingsRes.data || []).length,
           bookings: (bookingsRes.data || []).slice(0, 10),
@@ -322,15 +322,16 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
               .update({ status: "charged", square_payment_id: r.paymentId })
               .eq("id", log.id);
             results.push({ id: log.id, success: true, amount: `$${(log.total_amount / 100).toFixed(2)}`, customer: log.recurring_customers?.name });
-          } catch (err: any) {
-            results.push({ id: log.id, error: err.message });
+          } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Unknown error";
+            results.push({ id: log.id, error: message });
           }
         }
         return JSON.stringify({ total: logs.length, results });
       }
 
       case "create_invoice": {
-        const lineItems = ((input.lineItems as any[]) || []).map((item) => ({
+        const lineItems = ((input.lineItems as Array<{ description: string; amount: number; quantity?: number }>) || []).map((item) => ({
           description: item.description,
           amount: item.amount,
           quantity: item.quantity || 1,
@@ -421,8 +422,9 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
       default:
         return JSON.stringify({ error: `Unknown tool: ${name}` });
     }
-  } catch (err: any) {
-    return JSON.stringify({ error: err.message || "Tool execution failed" });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Tool execution failed";
+    return JSON.stringify({ error: message });
   }
 }
 
@@ -473,7 +475,7 @@ export async function POST(request: NextRequest) {
 
         for (let iteration = 0; iteration < 5; iteration++) {
           const response = await anthropic.messages.create({
-            model: "claude-sonnet-4-6",
+            model: "claude-haiku-4-5-20251001",
             max_tokens: 2048,
             system: "You are the My Horse Farm admin assistant. You help manage the horse farm business operations. You can check payments, customers, invoices, schedules, and perform actions like charging customers and creating invoices. Be concise and actionable.",
             tools: TOOLS,
@@ -565,8 +567,9 @@ export async function POST(request: NextRequest) {
             { role: "user", content: toolResults },
           ];
         }
-      } catch (err: any) {
-        send("error", { message: err.message || "An error occurred" });
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "An error occurred";
+        send("error", { message });
       } finally {
         controller.close();
       }

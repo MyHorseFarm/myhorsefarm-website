@@ -5,8 +5,8 @@ import { buildSystemPrompt } from "./system-prompt";
 import { toolDefinitions, executeTool } from "./tools";
 import type { ChatMessage } from "@/lib/types";
 
-const PRIMARY_MODEL = "claude-sonnet-4-6";
-const FALLBACK_MODEL = "claude-sonnet-4-6";
+const PRIMARY_MODEL = "claude-haiku-4-5-20251001";
+const FALLBACK_MODEL = "claude-haiku-4-5-20251001";
 
 let _anthropic: Anthropic | null = null;
 function getClient(): Anthropic {
