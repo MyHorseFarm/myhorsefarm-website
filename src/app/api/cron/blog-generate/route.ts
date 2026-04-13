@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import { generateText } from "@/lib/gemini";
 import { supabase } from "@/lib/supabase";
 import { sendEmail } from "@/lib/emails";
 import { withCronMonitor } from "@/lib/cron-monitor";
@@ -7,7 +7,7 @@ import { withCronMonitor } from "@/lib/cron-monitor";
 export const runtime = "nodejs";
 export const maxDuration = 180; // Extended for AI generation with retries
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@myhorsefarm.com";
+const ADMIN_EMAIL = process.env.EMAIL_ADMIN_NOTIFICATION || "manureservice@gmail.com";
 
 const TOPICS = [
   {
@@ -88,7 +88,6 @@ async function alertAdmin(subject: string, body: string) {
 }
 
 async function generateWithRetry(
-  anthropic: Anthropic,
   topic: (typeof TOPICS)[number],
   existingTitles: string,
   attempt: number = 1,
@@ -96,19 +95,8 @@ async function generateWithRetry(
   const maxAttempts = 3;
 
   try {
-    const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 8000,
-      messages: [
-        {
-          role: "user",
-          content: `You are a content writer for My Horse Farm, a professional equestrian property services company based in Royal Palm Beach, Florida. They serve horse farms throughout Palm Beach County including Wellington, Loxahatchee, and West Palm Beach.
-
-Services offered: manure removal, junk hauling, sod installation, fill dirt delivery, dumpster rental, farm repairs, fence maintenance, property cleanouts, and grading.
-
-Phone: (561) 576-7667 | Website: myhorsefarm.com
-
-Write a blog post about the following topic:
+    const responseText = await generateText({
+      prompt: `Write a blog post about the following topic:
 ${topic.prompt}
 
 Requirements:
@@ -140,12 +128,13 @@ For the HTML content:
 - Use <strong> for emphasis
 - Do NOT include the title as an H1 — that's handled by the page template
 - Do NOT include any wrapper divs or article tags`,
-        },
-      ],
-    });
+      systemPrompt: `You are a content writer for My Horse Farm, a professional equestrian property services company based in Royal Palm Beach, Florida. They serve horse farms throughout Palm Beach County including Wellington, Loxahatchee, and West Palm Beach.
 
-    const responseText =
-      message.content[0].type === "text" ? message.content[0].text : "";
+Services offered: manure removal, junk hauling, sod installation, fill dirt delivery, dumpster rental, farm repairs, fence maintenance, property cleanouts, and grading.
+
+Phone: (561) 576-7667 | Website: myhorsefarm.com`,
+      maxTokens: 8000,
+    });
 
     // Parse JSON — try direct first, then extract from markdown
     try {
@@ -160,7 +149,7 @@ For the HTML content:
       console.warn(`Blog generation attempt ${attempt} failed, retrying...`, err);
       // Wait 5 seconds before retry
       await new Promise((r) => setTimeout(r, 5000));
-      return generateWithRetry(anthropic, topic, existingTitles, attempt + 1);
+      return generateWithRetry(topic, existingTitles, attempt + 1);
     }
     throw err;
   }
@@ -221,8 +210,7 @@ export async function GET(request: NextRequest) {
       .join("\n- ");
 
     // Generate with up to 3 retries
-    const anthropic = new Anthropic();
-    const parsed = await generateWithRetry(anthropic, topic, existingTitles);
+    const parsed = await generateWithRetry(topic, existingTitles);
 
     const slug = slugify(parsed.title);
 

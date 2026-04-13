@@ -1,18 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import { generateText } from "@/lib/gemini";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
-
-let _anthropic: Anthropic | null = null;
-function getClient(): Anthropic {
-  if (!_anthropic) {
-    _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  }
-  return _anthropic;
-}
 
 const SYSTEM_PROMPT = `You are an expert advertising copywriter for My Horse Farm, a junk removal and farm services company in Royal Palm Beach, Florida.
 
@@ -122,46 +114,16 @@ Generate:
       userPrompt += `\n\nAdditional context from the business owner: ${additionalContext}`;
     }
 
-    // Build message content with optional images
-    const content: Anthropic.Messages.ContentBlockParam[] = [];
-
-    // Add images if provided (up to 4)
-    for (const img of images.slice(0, 4)) {
-      if (typeof img === "string" && img.startsWith("data:image/")) {
-        const [meta, base64] = img.split(",");
-        const mediaType = meta.split(":")[1].split(";")[0] as
-          | "image/jpeg"
-          | "image/png"
-          | "image/gif"
-          | "image/webp";
-        content.push({
-          type: "image",
-          source: { type: "base64", media_type: mediaType, data: base64 },
-        });
-      }
-    }
-
     if (images.length > 0) {
       userPrompt +=
-        "\n\nI've attached photos of our work/equipment. Reference what you see in the images to make the ad copy more specific and authentic.";
+        "\n\nNote: The business owner has photos of their work/equipment. Reference typical junk removal equipment (40-yard dump trailer, skid steer, front-end loader) to make the ad copy specific and authentic.";
     }
 
-    content.push({ type: "text", text: userPrompt });
-
-    const client = getClient();
-    const response = await client.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 4000,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content }],
+    const text = await generateText({
+      prompt: userPrompt,
+      systemPrompt: SYSTEM_PROMPT,
+      maxTokens: 4000,
     });
-
-    // Extract text from response
-    const text =
-      response.content
-        .filter((b): b is Anthropic.Messages.TextBlock => b.type === "text")
-        .map((b) => b.text)
-        .join("") || "";
 
     // Parse JSON from response (handle markdown code blocks)
     let parsed;

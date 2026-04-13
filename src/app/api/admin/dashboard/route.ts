@@ -1,23 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import Anthropic from "@anthropic-ai/sdk";
+import { generateText } from "@/lib/gemini";
 
 export const runtime = "nodejs";
 
 function checkAuth(request: NextRequest): boolean {
   const auth = request.headers.get("authorization");
   return auth === `Bearer ${process.env.ADMIN_SECRET}`;
-}
-
-let _anthropic: Anthropic | null = null;
-function getClient(): Anthropic {
-  if (!_anthropic) {
-    _anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-      maxRetries: 2,
-    });
-  }
-  return _anthropic;
 }
 
 async function generateSummary(data: {
@@ -30,14 +19,8 @@ async function generateSummary(data: {
   bookingLocations: string[];
 }): Promise<string> {
   try {
-    const client = getClient();
-    const msg = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 150,
-      messages: [
-        {
-          role: "user",
-          content: `You are an assistant for a horse farm services business. Generate a brief, friendly daily summary in one sentence based on this data:
+    const text = await generateText({
+      prompt: `You are an assistant for a horse farm services business. Generate a brief, friendly daily summary in one sentence based on this data:
 - ${data.pendingCount} pending charges ($${data.pendingTotal.toFixed(2)} total)
 - ${data.bookingsToday} bookings today${data.bookingLocations.length > 0 ? ` in ${[...new Set(data.bookingLocations)].join(", ")}` : ""}
 - ${data.activeCustomers} active customers
@@ -45,11 +28,9 @@ async function generateSummary(data: {
 - ${data.newQuotes} new quote requests (last 7 days)
 
 Keep it under 100 words, conversational, and actionable. Example: "3 pending charges ($450 total), 2 bookings today in Wellington, 1 new quote request."`,
-        },
-      ],
+      maxTokens: 150,
     });
-    const block = msg.content[0];
-    return block.type === "text" ? block.text : "Dashboard loaded.";
+    return text || "Dashboard loaded.";
   } catch (err) {
     console.error("AI summary failed:", err);
     return `${data.pendingCount} pending charges ($${data.pendingTotal.toFixed(2)} total), ${data.bookingsToday} bookings today, ${data.newQuotes} new quotes.`;
