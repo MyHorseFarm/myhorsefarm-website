@@ -1,5 +1,11 @@
 import { NextRequest } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import {
+  generateWithTools,
+  buildModelMessage,
+  buildFunctionResponseMessage,
+  type GeminiMessage,
+  type ToolDeclaration,
+} from "@/lib/gemini";
 import { supabase } from "@/lib/supabase";
 import {
   listPayments,
@@ -19,27 +25,19 @@ function checkAuth(request: NextRequest): boolean {
   return auth === `Bearer ${process.env.ADMIN_SECRET}`;
 }
 
-let _anthropic: Anthropic | null = null;
-function getAnthropicClient(): Anthropic {
-  if (!_anthropic) {
-    _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, maxRetries: 2 });
-  }
-  return _anthropic;
-}
-
 const LOCATION_ID = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID || "";
 
-const TOOLS: Anthropic.Tool[] = [
+const TOOLS: ToolDeclaration[] = [
   {
     name: "get_dashboard_summary",
     description: "Get today's dashboard summary: pending charges, bookings, active customers, overdue invoices",
-    input_schema: { type: "object" as const, properties: {}, required: [] },
+    parameters: { type: "object", properties: {}, required: [] },
   },
   {
     name: "list_payments",
     description: "List recent payments from Square",
-    input_schema: {
-      type: "object" as const,
+    parameters: {
+      type: "object",
       properties: {
         days: { type: "number", description: "Number of days back to look (default 7)" },
         status: { type: "string", description: "Filter by status: COMPLETED, FAILED, PENDING" },
@@ -50,8 +48,8 @@ const TOOLS: Anthropic.Tool[] = [
   {
     name: "list_invoices",
     description: "List invoices from Square, optionally filtered by status",
-    input_schema: {
-      type: "object" as const,
+    parameters: {
+      type: "object",
       properties: {
         status: { type: "string", description: "Filter: DRAFT, UNPAID, PAID, CANCELED, OVERDUE" },
       },
@@ -61,8 +59,8 @@ const TOOLS: Anthropic.Tool[] = [
   {
     name: "search_customers",
     description: "Search customers by name, email, or phone",
-    input_schema: {
-      type: "object" as const,
+    parameters: {
+      type: "object",
       properties: {
         query: { type: "string", description: "Search term (name, email, or phone)" },
       },
@@ -72,8 +70,8 @@ const TOOLS: Anthropic.Tool[] = [
   {
     name: "charge_customer",
     description: "Charge a specific pending service log by its ID",
-    input_schema: {
-      type: "object" as const,
+    parameters: {
+      type: "object",
       properties: {
         serviceLogId: { type: "string", description: "The service_log ID to charge" },
       },
@@ -83,13 +81,13 @@ const TOOLS: Anthropic.Tool[] = [
   {
     name: "charge_all_pending",
     description: "Charge all pending service logs for today",
-    input_schema: { type: "object" as const, properties: {}, required: [] },
+    parameters: { type: "object", properties: {}, required: [] },
   },
   {
     name: "create_invoice",
     description: "Create a Square invoice for a customer",
-    input_schema: {
-      type: "object" as const,
+    parameters: {
+      type: "object",
       properties: {
         customerId: { type: "string", description: "Square customer ID" },
         lineItems: {
@@ -115,8 +113,8 @@ const TOOLS: Anthropic.Tool[] = [
   {
     name: "get_revenue_summary",
     description: "Get revenue summary for a period",
-    input_schema: {
-      type: "object" as const,
+    parameters: {
+      type: "object",
       properties: {
         days: { type: "number", description: "Number of days to look back (default 30)" },
       },
@@ -126,13 +124,13 @@ const TOOLS: Anthropic.Tool[] = [
   {
     name: "get_overdue_invoices",
     description: "Get list of overdue invoices",
-    input_schema: { type: "object" as const, properties: {}, required: [] },
+    parameters: { type: "object", properties: {}, required: [] },
   },
   {
     name: "get_upcoming_bookings",
     description: "Get upcoming bookings for the next N days",
-    input_schema: {
-      type: "object" as const,
+    parameters: {
+      type: "object",
       properties: {
         days: { type: "number", description: "Number of days ahead (default 7)" },
       },
@@ -448,6 +446,8 @@ const TOOL_LABELS: Record<string, string> = {
 // POST handler — streaming SSE
 // ---------------------------------------------------------------------------
 
+const SYSTEM_PROMPT = "You are the My Horse Farm admin assistant. You help manage the horse farm business operations. You can check payments, customers, invoices, schedules, and perform actions like charging customers and creating invoices. Be concise and actionable.";
+
 export async function POST(request: NextRequest) {
   if (!checkAuth(request)) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
@@ -458,8 +458,6 @@ export async function POST(request: NextRequest) {
     return new Response(JSON.stringify({ error: "messages array required" }), { status: 400 });
   }
 
-  const anthropic = getAnthropicClient();
-
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
@@ -468,103 +466,58 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        let currentMessages: Anthropic.MessageParam[] = messages.map((m: { role: string; content: string }) => ({
-          role: m.role as "user" | "assistant",
-          content: m.content,
+        // Convert incoming messages to Gemini format
+        let geminiMessages: GeminiMessage[] = messages.map((m: { role: string; content: string }) => ({
+          role: m.role === "assistant" ? "model" as const : "user" as const,
+          parts: [{ text: m.content }],
         }));
 
         for (let iteration = 0; iteration < 5; iteration++) {
-          const response = await anthropic.messages.create({
-            model: "claude-haiku-4-5-20251001",
-            max_tokens: 2048,
-            system: "You are the My Horse Farm admin assistant. You help manage the horse farm business operations. You can check payments, customers, invoices, schedules, and perform actions like charging customers and creating invoices. Be concise and actionable.",
+          const response = await generateWithTools({
+            messages: geminiMessages,
             tools: TOOLS,
-            messages: currentMessages,
-            stream: true,
+            systemPrompt: SYSTEM_PROMPT,
+            maxTokens: 2048,
           });
 
-          let fullText = "";
-          const toolUses: { id: string; name: string; input: string }[] = [];
-          let currentToolId = "";
-          let currentToolName = "";
-          let currentToolInput = "";
+          const { text, functionCalls, rawParts } = response;
 
-          for await (const event of response) {
-            if (event.type === "content_block_start") {
-              if (event.content_block.type === "text") {
-                // text block started
-              } else if (event.content_block.type === "tool_use") {
-                currentToolId = event.content_block.id;
-                currentToolName = event.content_block.name;
-                currentToolInput = "";
-                send("tool_start", { name: currentToolName, label: TOOL_LABELS[currentToolName] || currentToolName });
-              }
-            } else if (event.type === "content_block_delta") {
-              if (event.delta.type === "text_delta") {
-                fullText += event.delta.text;
-                send("text", { text: event.delta.text });
-              } else if (event.delta.type === "input_json_delta") {
-                currentToolInput += event.delta.partial_json;
-              }
-            } else if (event.type === "content_block_stop") {
-              if (currentToolId) {
-                toolUses.push({ id: currentToolId, name: currentToolName, input: currentToolInput });
-                currentToolId = "";
-              }
-            } else if (event.type === "message_stop") {
-              // done
-            }
+          // Send any text to the client
+          if (text) {
+            send("text", { text });
           }
 
           // If no tool calls, we're done
-          if (toolUses.length === 0) {
-            send("done", { text: fullText });
+          if (functionCalls.length === 0) {
+            send("done", { text });
             break;
           }
 
-          // Build the assistant message content blocks
-          const assistantContent: Anthropic.ContentBlockParam[] = [];
-          if (fullText) {
-            assistantContent.push({ type: "text", text: fullText });
-          }
-          for (const tool of toolUses) {
-            let parsedInput = {};
-            try {
-              parsedInput = tool.input ? JSON.parse(tool.input) : {};
-            } catch {
-              parsedInput = {};
-            }
-            assistantContent.push({
-              type: "tool_use",
-              id: tool.id,
-              name: tool.name,
-              input: parsedInput,
-            });
+          // Notify client about tool calls
+          for (const fc of functionCalls) {
+            send("tool_start", { name: fc.name, label: TOOL_LABELS[fc.name] || fc.name });
           }
 
-          // Execute tools and build tool results
-          const toolResults: Anthropic.ToolResultBlockParam[] = [];
-          for (const tool of toolUses) {
-            let parsedInput: Record<string, unknown> = {};
+          // Execute tools and collect results
+          const toolResults: { name: string; response: Record<string, unknown> }[] = [];
+          for (const fc of functionCalls) {
+            const result = await executeTool(fc.name, fc.args);
+            send("tool_result", { name: fc.name, label: TOOL_LABELS[fc.name] || fc.name });
+
+            let parsed: Record<string, unknown>;
             try {
-              parsedInput = tool.input ? JSON.parse(tool.input) : {};
+              parsed = JSON.parse(result);
             } catch {
-              parsedInput = {};
+              parsed = { result };
             }
-            const result = await executeTool(tool.name, parsedInput);
-            send("tool_result", { name: tool.name, label: TOOL_LABELS[tool.name] || tool.name });
-            toolResults.push({
-              type: "tool_result",
-              tool_use_id: tool.id,
-              content: result,
-            });
+            toolResults.push({ name: fc.name, response: parsed });
           }
 
-          // Add to messages for next iteration
-          currentMessages = [
-            ...currentMessages,
-            { role: "assistant", content: assistantContent },
-            { role: "user", content: toolResults },
+          // Add assistant message and tool results for next iteration
+          geminiMessages = [
+            ...geminiMessages,
+            buildModelMessage(rawParts),
+            buildFunctionResponseMessage(toolResults),
           ];
         }
       } catch (err: unknown) {

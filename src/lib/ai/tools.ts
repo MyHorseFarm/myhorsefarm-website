@@ -1,4 +1,4 @@
-import type Anthropic from "@anthropic-ai/sdk";
+import type { ToolDeclaration } from "@/lib/gemini";
 import { supabase } from "@/lib/supabase";
 import { getServiceByKey, calculateQuote } from "@/lib/pricing";
 import { getAvailableDates } from "@/lib/availability";
@@ -14,15 +14,15 @@ import {
 } from "@/lib/hubspot";
 
 /**
- * Tool definitions for Claude to call.
+ * Tool definitions for AI to call.
  */
-export const toolDefinitions: Anthropic.Tool[] = [
+export const toolDefinitions: ToolDeclaration[] = [
   {
     name: "generate_quote",
     description:
       "Generate a price quote for a customer. Call this when you have gathered the service type, property details, customer location, and customer contact info.",
-    input_schema: {
-      type: "object" as const,
+    parameters: {
+      type: "object",
       properties: {
         service_key: {
           type: "string",
@@ -47,8 +47,8 @@ export const toolDefinitions: Anthropic.Tool[] = [
     name: "check_availability",
     description:
       "Check available dates for scheduling a service. Call this when a customer wants to schedule.",
-    input_schema: {
-      type: "object" as const,
+    parameters: {
+      type: "object",
       properties: {
         days: {
           type: "number",
