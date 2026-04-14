@@ -47,7 +47,11 @@ export function verifyUnsubscribeSignature(
 // Send
 // ---------------------------------------------------------------------------
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let _resend: Resend | null = null;
+function getResend(): Resend {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY);
+  return _resend;
+}
 
 export async function sendEmail(
   to: string,
@@ -61,7 +65,7 @@ export async function sendEmail(
   // BCC Jose on all outgoing emails so he can monitor
   const bcc = process.env.EMAIL_BCC_ADDRESS || undefined;
 
-  const { data, error } = await resend.emails.send({
+  const { data, error } = await getResend().emails.send({
     from,
     to,
     subject,
