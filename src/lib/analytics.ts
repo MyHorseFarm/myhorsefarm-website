@@ -1,13 +1,8 @@
 declare global {
   interface Window {
     dataLayer: Record<string, unknown>[];
-    gtag?: (...args: unknown[]) => void;
-    fbq?: (...args: unknown[]) => void;
   }
 }
-
-const GADS_CONVERSION_ID = "AW-385210685";
-const GADS_CONVERSION_LABEL = "vzneCILiqIccEL2y17cB";
 
 export function trackEvent(event: string, params?: Record<string, unknown>) {
   if (typeof window !== "undefined" && window.dataLayer) {
@@ -52,38 +47,11 @@ export function trackConversion(
   if (userData.state) enhanced.state = userData.state.toLowerCase().trim();
   if (userData.country) enhanced.country = (userData.country || "US").toLowerCase().trim();
 
+  // Push to dataLayer — GTM handles all Google Ads + Meta Pixel conversion tags
   window.dataLayer.push({
     event,
     event_id: eventId,
     enhanced_conversions: enhanced,
     ...params,
   });
-
-  // Fire Google Ads conversion for lead events
-  if (
-    window.gtag &&
-    (event === "generate_lead" || event === "purchase" || event === "begin_checkout")
-  ) {
-    window.gtag("event", "conversion", {
-      send_to: `${GADS_CONVERSION_ID}/${GADS_CONVERSION_LABEL}`,
-      event_callback: () => {},
-    });
-  }
-
-  // Fire Meta Pixel events
-  if (window.fbq) {
-    if (event === "generate_lead") {
-      window.fbq("track", "Lead", {
-        content_name: params.service || "quote",
-        currency: "USD",
-        value: params.value || 0,
-      }, { eventID: eventId });
-    } else if (event === "purchase" || event === "begin_checkout") {
-      window.fbq("track", "Schedule", {
-        content_name: params.service || "booking",
-        currency: "USD",
-        value: params.value || 0,
-      }, { eventID: eventId });
-    }
-  }
 }
