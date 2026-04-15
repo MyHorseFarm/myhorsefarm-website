@@ -136,9 +136,9 @@ export async function sendEmail(
       return undefined;
     }
 
-    // 90% threshold: skip LOW priority
-    if (sentToday >= DAILY_EMAIL_LIMIT * 0.9 && priority === 'LOW') {
-      console.log(`[EMAIL] Skipped (90% quota ${sentToday}/${DAILY_EMAIL_LIMIT}): ${toEmail} [LOW]`);
+    // 90% threshold: only CRITICAL and HIGH can send
+    if (sentToday >= DAILY_EMAIL_LIMIT * 0.9 && (priority === 'LOW' || priority === 'MEDIUM')) {
+      console.log(`[EMAIL] Skipped (90% quota ${sentToday}/${DAILY_EMAIL_LIMIT}): ${toEmail} [${priority}]`);
       await db.from("email_send_log").insert({
         to_email: toEmail,
         subject,
