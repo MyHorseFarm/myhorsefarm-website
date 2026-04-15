@@ -6,7 +6,7 @@ import { withCronMonitor } from "@/lib/cron-monitor";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@myhorsefarm.com";
+const ADMIN_EMAIL = process.env.EMAIL_ADMIN_NOTIFICATION || "manureservice@gmail.com";
 const FB_PAGE_ID = process.env.FACEBOOK_PAGE_ID;
 const FB_PAGE_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
 

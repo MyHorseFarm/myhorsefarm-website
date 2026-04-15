@@ -43,9 +43,9 @@ export default function Navbar() {
     // Reset menus on route change - expected cascading render
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobileOpen(false);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setMobileServicesOpen(false);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setServicesOpen(false);
   }, [pathname]);
 

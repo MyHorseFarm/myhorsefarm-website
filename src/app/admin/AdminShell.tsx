@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getAdminToken } from "@/lib/admin-auth";
@@ -21,12 +21,7 @@ const navItems = [
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [adminToken, setTokenState] = useState<string>("");
-
-  useEffect(() => {
-    const token = getAdminToken();
-    setTokenState(token);
-  }, []);
+  const [adminToken] = useState<string>(() => getAdminToken());
 
   return (
     <div className="flex min-h-screen">

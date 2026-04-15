@@ -169,9 +169,19 @@ async function RelatedPosts({ currentSlug }: { currentSlug: string }) {
 
   if (allCandidates.length === 0) return null;
 
-  // Pick 3 random posts
-  const shuffled = allCandidates.sort(() => Math.random() - 0.5);
-  const selected = shuffled.slice(0, 3);
+  // Pick 3 deterministic-but-varied posts (stable for SSR/purity)
+  const seeded = allCandidates
+    .map((post) => {
+      const key = `${currentSlug}:${post.slug}`;
+      let hash = 0;
+      for (let i = 0; i < key.length; i++) {
+        hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+      }
+      return { post, hash };
+    })
+    .sort((a, b) => a.hash - b.hash);
+
+  const selected = seeded.slice(0, 3).map((entry) => entry.post);
 
   return (
     <section className="mt-16 mb-4">

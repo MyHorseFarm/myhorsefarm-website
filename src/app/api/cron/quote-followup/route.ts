@@ -61,9 +61,11 @@ export async function GET(request: NextRequest) {
   }
 
   return withCronMonitor("quote-followup", async () => {
+  const MAX_PER_RUN = 15; // Cap to stay within Resend daily quota
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
   const results: string[] = [];
+  let totalSent = 0;
 
     // -----------------------------------------------------------------------
     // Followup 1: Quotes created 1–2 days ago, still pending (was 2-4)
@@ -76,6 +78,7 @@ export async function GET(request: NextRequest) {
       .lte("created_at", daysAgo(1));
 
     for (const quote of followup1Quotes ?? []) {
+      if (totalSent >= MAX_PER_RUN) break;
       try {
         const { data: fresh } = await supabase
           .from("quotes")
@@ -132,6 +135,7 @@ export async function GET(request: NextRequest) {
           contactId,
           `${TAGS.FOLLOWUP_1} Sent for ${quote.quote_number} on ${new Date().toISOString()}`,
         );
+        totalSent++;
         results.push(`followup_1 → ${quote.customer_email} (${quote.quote_number})`);
       } catch (err) {
         results.push(`followup_1 FAIL ${quote.quote_number}: ${err}`);
@@ -149,6 +153,7 @@ export async function GET(request: NextRequest) {
       .lte("created_at", daysAgo(3));
 
     for (const quote of followup2Quotes ?? []) {
+      if (totalSent >= MAX_PER_RUN) break;
       try {
         const { data: fresh } = await supabase
           .from("quotes")
@@ -202,6 +207,7 @@ export async function GET(request: NextRequest) {
           contactId,
           `${TAGS.FOLLOWUP_2} Sent for ${quote.quote_number} on ${new Date().toISOString()}`,
         );
+        totalSent++;
         results.push(`followup_2 → ${quote.customer_email} (${quote.quote_number})`);
       } catch (err) {
         results.push(`followup_2 FAIL ${quote.quote_number}: ${err}`);
@@ -219,6 +225,7 @@ export async function GET(request: NextRequest) {
       .lte("expires_at", daysFromNow(2));
 
     for (const quote of expiringQuotes ?? []) {
+      if (totalSent >= MAX_PER_RUN) break;
       try {
         const { data: fresh } = await supabase
           .from("quotes")
@@ -256,6 +263,7 @@ export async function GET(request: NextRequest) {
           contactId,
           `${TAGS.EXPIRING} Sent for ${quote.quote_number} (${daysLeft}d left) on ${new Date().toISOString()}`,
         );
+        totalSent++;
         results.push(`expiring → ${quote.customer_email} (${quote.quote_number}, ${daysLeft}d)`);
       } catch (err) {
         results.push(`expiring FAIL ${quote.quote_number}: ${err}`);
@@ -273,6 +281,7 @@ export async function GET(request: NextRequest) {
       .lte("expires_at", daysAgo(0));
 
     for (const quote of expiredQuotes ?? []) {
+      if (totalSent >= MAX_PER_RUN) break;
       try {
         // Only for actually expired quotes
         if (new Date(quote.expires_at) > new Date()) continue;
@@ -307,6 +316,7 @@ export async function GET(request: NextRequest) {
           contactId,
           `${TAGS.EXPIRED_RECOVERY} Sent for expired ${quote.quote_number} on ${new Date().toISOString()}`,
         );
+        totalSent++;
         results.push(`expired_recovery → ${quote.customer_email} (${quote.quote_number})`);
       } catch (err) {
         results.push(`expired_recovery FAIL ${quote.quote_number}: ${err}`);

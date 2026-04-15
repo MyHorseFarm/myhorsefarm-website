@@ -5,6 +5,8 @@ export const PHONE_CELL = "(561) 889-9016";
 export const PHONE_CELL_TEL = "+15618899016";
 export const EMAIL_SALES = "sales@myhorsefarm.com";
 export const EMAIL_FORM = "admin@myhorsefarm.com";
+export const EMAIL_ADMIN_NOTIFICATION =
+  process.env.EMAIL_ADMIN_NOTIFICATION || "manureservice@gmail.com";
 export const ADDRESS = "Royal Palm Beach, FL 33411";
 
 export const SOCIAL = {

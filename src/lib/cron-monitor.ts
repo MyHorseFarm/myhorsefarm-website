@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { sendEmail, cronFailureAlertEmail } from "@/lib/emails";
 
-const ALERT_TO = "sales@myhorsefarm.com";
+const ALERT_TO = process.env.EMAIL_ADMIN_NOTIFICATION || "manureservice@gmail.com";
 
 export type CronResult = {
   sent?: number;
@@ -13,7 +13,7 @@ export type CronResult = {
 /**
  * Wraps a cron job function with error monitoring.
  *
- * On failure: sends an alert email to sales@myhorsefarm.com
+ * On failure: sends an alert email to the admin notification address
  * On success: returns the result as a JSON response
  *
  * Usage:

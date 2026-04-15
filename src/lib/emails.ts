@@ -1,8 +1,31 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { Resend } from "resend";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 // Canonical Google review URL — use this everywhere
 export const GOOGLE_REVIEW_URL = "https://g.page/r/CUtJdTADtIsyEBM/review";
+
+// ---------------------------------------------------------------------------
+// Email priority & rate limiting
+// ---------------------------------------------------------------------------
+
+export type EmailPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+
+const DAILY_EMAIL_LIMIT = parseInt(process.env.DAILY_EMAIL_LIMIT || '90');
+
+let _supabaseAdmin: SupabaseClient | null = null;
+
+function getSupabaseAdmin(): SupabaseClient {
+  if (!_supabaseAdmin) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !key) {
+      throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+    }
+    _supabaseAdmin = createClient(url, key);
+  }
+  return _supabaseAdmin;
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -57,7 +80,94 @@ export async function sendEmail(
   to: string,
   subject: string,
   html: string,
+  priority: EmailPriority = 'MEDIUM',
+  templateName?: string,
 ): Promise<string | undefined> {
+  const db = getSupabaseAdmin();
+  const toEmail = to.toLowerCase();
+
+  // --- a. Check suppression list (fail open) ---
+  try {
+    const { data: suppressed } = await db
+      .from("email_suppression_list")
+      .select("email")
+      .eq("email", toEmail)
+      .single();
+
+    if (suppressed) {
+      console.log(`[EMAIL] Suppressed: ${toEmail}`);
+      await db.from("email_send_log").insert({
+        to_email: toEmail,
+        subject,
+        template_name: templateName || null,
+        priority,
+        status: "suppressed",
+      }).then(() => {});
+      return undefined;
+    }
+  } catch {
+    // Suppression check failed — fail open, continue sending
+  }
+
+  // --- b. Check daily quota (fail open) ---
+  try {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const { count } = await db
+      .from("email_send_log")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "sent")
+      .gte("created_at", todayStart.toISOString());
+
+    const sentToday = count || 0;
+
+    // Hard limit: only CRITICAL can exceed the daily cap
+    if (sentToday >= DAILY_EMAIL_LIMIT && priority !== 'CRITICAL') {
+      console.log(`[EMAIL] Skipped (daily limit ${sentToday}/${DAILY_EMAIL_LIMIT}): ${toEmail} [${priority}]`);
+      await db.from("email_send_log").insert({
+        to_email: toEmail,
+        subject,
+        template_name: templateName || null,
+        priority,
+        status: "skipped",
+        error_message: `Daily limit reached (${sentToday}/${DAILY_EMAIL_LIMIT})`,
+      }).then(() => {});
+      return undefined;
+    }
+
+    // 90% threshold: skip LOW priority
+    if (sentToday >= DAILY_EMAIL_LIMIT * 0.9 && priority === 'LOW') {
+      console.log(`[EMAIL] Skipped (90% quota ${sentToday}/${DAILY_EMAIL_LIMIT}): ${toEmail} [LOW]`);
+      await db.from("email_send_log").insert({
+        to_email: toEmail,
+        subject,
+        template_name: templateName || null,
+        priority,
+        status: "skipped",
+        error_message: `90% quota reached (${sentToday}/${DAILY_EMAIL_LIMIT})`,
+      }).then(() => {});
+      return undefined;
+    }
+
+    // 80% threshold: skip LOW priority
+    if (sentToday >= DAILY_EMAIL_LIMIT * 0.8 && priority === 'LOW') {
+      console.log(`[EMAIL] Skipped (80% quota ${sentToday}/${DAILY_EMAIL_LIMIT}): ${toEmail} [LOW]`);
+      await db.from("email_send_log").insert({
+        to_email: toEmail,
+        subject,
+        template_name: templateName || null,
+        priority,
+        status: "skipped",
+        error_message: `80% quota reached (${sentToday}/${DAILY_EMAIL_LIMIT})`,
+      }).then(() => {});
+      return undefined;
+    }
+  } catch {
+    // Quota check failed — fail open, continue sending
+  }
+
+  // --- c. Send via Resend ---
   const from =
     process.env.RESEND_FROM_EMAIL ||
     "My Horse Farm <onboarding@resend.dev>";
@@ -65,16 +175,80 @@ export async function sendEmail(
   // BCC Jose on all outgoing emails so he can monitor
   const bcc = process.env.EMAIL_BCC_ADDRESS || undefined;
 
-  const { data, error } = await getResend().emails.send({
-    from,
-    to,
-    subject,
-    html,
-    ...(bcc ? { bcc } : {}),
-  });
+  try {
+    const { data, error } = await getResend().emails.send({
+      from,
+      to,
+      subject,
+      html,
+      ...(bcc ? { bcc } : {}),
+    });
 
-  if (error) throw new Error(`Resend: ${JSON.stringify(error)}`);
-  return data?.id;
+    if (error) {
+      // --- d. Log failure ---
+      try {
+        await db.from("email_send_log").insert({
+          to_email: toEmail,
+          subject,
+          template_name: templateName || null,
+          priority,
+          status: "failed",
+          error_message: JSON.stringify(error),
+        });
+      } catch { /* logging is non-fatal */ }
+      throw new Error(`Resend: ${JSON.stringify(error)}`);
+    }
+
+    // --- d. Log success ---
+    const resendId = data?.id;
+    try {
+      await db.from("email_send_log").insert({
+        to_email: toEmail,
+        subject,
+        template_name: templateName || null,
+        priority,
+        status: "sent",
+        resend_id: resendId || null,
+      });
+    } catch { /* logging is non-fatal */ }
+
+    return resendId;
+  } catch (err) {
+    // If it's our own rethrown Resend error, propagate it
+    if (err instanceof Error && err.message.startsWith("Resend:")) throw err;
+    // Otherwise log and rethrow
+    try {
+      await db.from("email_send_log").insert({
+        to_email: toEmail,
+        subject,
+        template_name: templateName || null,
+        priority,
+        status: "failed",
+        error_message: err instanceof Error ? err.message : String(err),
+      });
+    } catch { /* logging is non-fatal */ }
+    throw err;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Suppression list management
+// ---------------------------------------------------------------------------
+
+export async function addToSuppressionList(
+  email: string,
+  reason: string = "bounced",
+): Promise<void> {
+  try {
+    const db = getSupabaseAdmin();
+    await db.from("email_suppression_list").upsert(
+      { email: email.toLowerCase(), reason },
+      { onConflict: "email", ignoreDuplicates: true },
+    );
+    console.log(`[EMAIL] Added to suppression list: ${email} (${reason})`);
+  } catch (err) {
+    console.error(`[EMAIL] Failed to add ${email} to suppression list:`, err);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -1921,6 +2095,277 @@ ${signoff()}
 </div></div>`,
       unsubscribeUrl,
     ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Summer Campaign: Existing Customer
+// ---------------------------------------------------------------------------
+
+export function existingCustomerSummerEmail(
+  name: string,
+  servicesUsed: string[],
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const safeName = escapeHtml(name || "there");
+  const servicesList = servicesUsed.length > 0
+    ? servicesUsed.map((s) => escapeHtml(s)).join(", ")
+    : "our services";
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Horse Farm - Summer Services</title>
+<style>
+body { margin: 0; padding: 0; background-color: #f4f1ec; font-family: Georgia, 'Times New Roman', serif; }
+.wrapper { max-width: 600px; margin: 0 auto; background: #ffffff; }
+.header { background-color: #2c5f2d; padding: 30px 20px; text-align: center; }
+.header h1 { color: #ffffff; margin: 0; font-size: 22px; letter-spacing: 1px; }
+.header p { color: #a8d5a2; margin: 5px 0 0; font-size: 13px; }
+.body-content { padding: 30px 25px; color: #3a3a3a; font-size: 15px; line-height: 1.6; }
+.body-content h2 { color: #2c5f2d; font-size: 20px; margin-top: 0; }
+.services { background: #f9f7f4; border-left: 4px solid #2c5f2d; padding: 15px 20px; margin: 20px 0; }
+.services ul { margin: 5px 0; padding-left: 18px; }
+.services li { margin-bottom: 6px; font-size: 14px; }
+.discount-badge { background: #2c5f2d; color: #fff; text-align: center; padding: 15px; margin: 20px 0; border-radius: 6px; }
+.discount-badge .amount { font-size: 28px; font-weight: bold; }
+.discount-badge .detail { font-size: 13px; opacity: 0.9; }
+.cta-wrap { text-align: center; margin: 25px 0; }
+.cta-btn { display: inline-block; background-color: #d4a843; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 5px; font-size: 16px; font-weight: bold; letter-spacing: 0.5px; }
+.footer { background: #2c5f2d; padding: 20px; text-align: center; color: #a8d5a2; font-size: 12px; line-height: 1.8; }
+.footer a { color: #d4a843; text-decoration: underline; }
+@media only screen and (max-width: 480px) {
+  .body-content { padding: 20px 15px; }
+  .header h1 { font-size: 19px; }
+  .cta-btn { padding: 14px 30px; font-size: 15px; display: block; margin: 0 15px; }
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="header">
+    <h1>MY HORSE FARM</h1>
+    <p>Wellington, Florida \u2014 Year-Round Service</p>
+  </div>
+
+  <div class="body-content">
+    <h2>Season\u2019s over. We\u2019re not.</h2>
+    <p>Hi ${safeName} \u2014 thanks for trusting us during the season with ${servicesList}. We wanted you to know: <strong>we work year-round</strong> in Wellington and across South Florida.</p>
+    <p>Summer is the perfect time to tackle projects that get pushed aside during WEF:</p>
+
+    <div class="services">
+      <ul>
+        <li><strong>Junk Removal</strong> \u2014 clear out what\u2019s piled up</li>
+        <li><strong>Property Cleanouts</strong> \u2014 barns, storage, full estates</li>
+        <li><strong>Farm Repairs</strong> \u2014 fencing, stalls, drainage</li>
+        <li><strong>Construction Debris</strong> \u2014 hauling and disposal</li>
+        <li><strong>Dumpster Rentals</strong> \u2014 any size, fast delivery</li>
+      </ul>
+    </div>
+
+    <div class="discount-badge">
+      <div class="amount">15% OFF</div>
+      <div class="detail">Your first summer service \u2014 loyal customer exclusive</div>
+    </div>
+
+    <div class="cta-wrap">
+      <a href="tel:5615767667" class="cta-btn">CALL (561) 576-7667</a>
+    </div>
+    <p style="text-align:center; font-size:13px; color:#888;">Or reply to this email \u2014 we\u2019ll get back to you same day.</p>
+  </div>
+
+  <div class="footer">
+    My Horse Farm &bull; Wellington, FL<br>
+    <a href="https://myhorsefarm.com">myhorsefarm.com</a> &bull; (561) 576-7667<br><br>
+    <a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a> &bull; <a href="https://www.myhorsefarm.com/privacy-policy">Email Preferences</a>
+  </div>
+</div>
+</body>
+</html>`;
+
+  return {
+    subject: "We\u2019re Here Year-Round \u2014 Summer Specials Just for You \ud83c\udf34",
+    html,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Summer Campaign: Property Manager Outreach
+// ---------------------------------------------------------------------------
+
+export function propertyManagerOutreachEmail(
+  name: string,
+  company: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const safeName = escapeHtml(name || "there");
+  const safeCompany = escapeHtml(company || "your company");
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Horse Farm - Property Management Services</title>
+<style>
+body { margin: 0; padding: 0; background-color: #f4f1ec; font-family: Georgia, 'Times New Roman', serif; }
+.wrapper { max-width: 600px; margin: 0 auto; background: #ffffff; }
+.header { background-color: #1a3a4a; padding: 30px 20px; text-align: center; }
+.header h1 { color: #ffffff; margin: 0; font-size: 22px; letter-spacing: 1px; }
+.header p { color: #8fbdd4; margin: 5px 0 0; font-size: 13px; }
+.body-content { padding: 30px 25px; color: #3a3a3a; font-size: 15px; line-height: 1.6; }
+.body-content h2 { color: #1a3a4a; font-size: 20px; margin-top: 0; }
+.check-list { margin: 20px 0; }
+.check-item { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+.check-item:last-child { border-bottom: none; }
+.check-item strong { color: #1a3a4a; }
+.trust-box { background: #f0f6f9; padding: 18px; border-radius: 6px; margin: 20px 0; text-align: center; font-size: 14px; color: #1a3a4a; }
+.trust-box strong { display: block; font-size: 16px; margin-bottom: 5px; }
+.cta-wrap { text-align: center; margin: 25px 0; }
+.cta-btn { display: inline-block; background-color: #d4a843; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 5px; font-size: 16px; font-weight: bold; letter-spacing: 0.5px; }
+.footer { background: #1a3a4a; padding: 20px; text-align: center; color: #8fbdd4; font-size: 12px; line-height: 1.8; }
+.footer a { color: #d4a843; text-decoration: underline; }
+@media only screen and (max-width: 480px) {
+  .body-content { padding: 20px 15px; }
+  .header h1 { font-size: 19px; }
+  .cta-btn { padding: 14px 30px; font-size: 15px; display: block; margin: 0 15px; }
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="header">
+    <h1>MY HORSE FARM</h1>
+    <p>Professional Property Services \u2014 Wellington &amp; South Florida</p>
+  </div>
+
+  <div class="body-content">
+    <h2>One vendor. Every property need.</h2>
+    <p>Hi ${safeName} at ${safeCompany} \u2014 managing properties in Wellington and Palm Beach County? We make your job easier with reliable, insured services you can count on \u2014 especially during the demanding summer months.</p>
+
+    <div class="check-list">
+      <div class="check-item">\u2713 <strong>Debris Removal</strong> \u2014 storm cleanup, construction waste, bulk hauling</div>
+      <div class="check-item">\u2713 <strong>Property Cleanouts</strong> \u2014 tenant turnovers, estate clearing, storage units</div>
+      <div class="check-item">\u2713 <strong>Grounds Maintenance</strong> \u2014 landscaping support, fence repair, drainage</div>
+      <div class="check-item">\u2713 <strong>Dumpster Rental</strong> \u2014 flexible sizes, fast drop-off and pickup</div>
+      <div class="check-item">\u2713 <strong>Commercial Accounts</strong> \u2014 invoicing, recurring schedules, priority response</div>
+    </div>
+
+    <div class="trust-box">
+      <strong>Trusted by Wellington\u2019s equestrian community.</strong>
+      Licensed &bull; Insured &bull; Locally owned &bull; Same-day response available
+    </div>
+
+    <div class="cta-wrap">
+      <a href="tel:5615767667" class="cta-btn">SCHEDULE A CONSULTATION</a>
+    </div>
+    <p style="text-align:center; font-size:13px; color:#888;">Call (561) 576-7667 or reply to this email for a free quote.</p>
+  </div>
+
+  <div class="footer">
+    My Horse Farm &bull; Wellington, FL<br>
+    <a href="https://myhorsefarm.com">myhorsefarm.com</a> &bull; (561) 576-7667<br><br>
+    <a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a> &bull; <a href="https://www.myhorsefarm.com/privacy-policy">Email Preferences</a>
+  </div>
+</div>
+</body>
+</html>`;
+
+  return {
+    subject: "Property Managers: One Call for All Your Maintenance Needs",
+    html,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Summer Campaign: Reactivation
+// ---------------------------------------------------------------------------
+
+export function reactivationCampaignEmail(
+  name: string,
+  lastServiceDate: string,
+  unsubscribeUrl: string,
+): EmailTemplate {
+  const safeName = escapeHtml(name || "there");
+  const safeDate = escapeHtml(lastServiceDate || "a while back");
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Horse Farm - We Miss You</title>
+<style>
+body { margin: 0; padding: 0; background-color: #f4f1ec; font-family: Georgia, 'Times New Roman', serif; }
+.wrapper { max-width: 600px; margin: 0 auto; background: #ffffff; }
+.header { background-color: #5b3a29; padding: 30px 20px; text-align: center; }
+.header h1 { color: #ffffff; margin: 0; font-size: 22px; letter-spacing: 1px; }
+.header p { color: #d4a843; margin: 5px 0 0; font-size: 13px; }
+.body-content { padding: 30px 25px; color: #3a3a3a; font-size: 15px; line-height: 1.6; }
+.body-content h2 { color: #5b3a29; font-size: 22px; margin-top: 0; text-align: center; }
+.offer-box { background: linear-gradient(135deg, #5b3a29, #7a5440); color: #fff; text-align: center; padding: 25px; margin: 25px 0; border-radius: 8px; }
+.offer-box .amount { font-size: 42px; font-weight: bold; line-height: 1; }
+.offer-box .label { font-size: 16px; margin-top: 5px; }
+.offer-box .code { background: rgba(255,255,255,0.2); display: inline-block; padding: 6px 18px; border-radius: 4px; margin-top: 12px; font-size: 14px; letter-spacing: 2px; font-weight: bold; }
+.reminder { font-size: 14px; color: #666; margin: 15px 0; }
+.reminder span { color: #5b3a29; font-weight: bold; }
+.cta-wrap { text-align: center; margin: 25px 0; }
+.cta-btn { display: inline-block; background-color: #d4a843; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 5px; font-size: 16px; font-weight: bold; letter-spacing: 0.5px; }
+.footer { background: #5b3a29; padding: 20px; text-align: center; color: #c4a882; font-size: 12px; line-height: 1.8; }
+.footer a { color: #d4a843; text-decoration: underline; }
+@media only screen and (max-width: 480px) {
+  .body-content { padding: 20px 15px; }
+  .header h1 { font-size: 19px; }
+  .offer-box .amount { font-size: 36px; }
+  .cta-btn { padding: 14px 30px; font-size: 15px; display: block; margin: 0 15px; }
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="header">
+    <h1>MY HORSE FARM</h1>
+    <p>Wellington, Florida</p>
+  </div>
+
+  <div class="body-content">
+    <h2>We miss working with you.</h2>
+    <p>Hi ${safeName} \u2014 it\u2019s been since ${safeDate} since we last helped out at your property, and we wanted to check in. Whether it\u2019s been a quiet season or things just got busy \u2014 we\u2019re still right here in Wellington, ready when you are.</p>
+
+    <p>Summer\u2019s actually the best time to knock out those projects:</p>
+    <p class="reminder">
+      <span>\u2192</span> Junk piling up? We\u2019ll haul it.<br>
+      <span>\u2192</span> Barn or property need a cleanout? On it.<br>
+      <span>\u2192</span> Fence down or repairs needed? We\u2019ll fix it.<br>
+      <span>\u2192</span> Need a dumpster? Delivered fast.
+    </p>
+
+    <div class="offer-box">
+      <div class="amount">20% OFF</div>
+      <div class="label">Your next service \u2014 welcome back</div>
+      <div class="code">COMEBACK20</div>
+    </div>
+
+    <div class="cta-wrap">
+      <a href="tel:5615767667" class="cta-btn">BOOK NOW \u2014 (561) 576-7667</a>
+    </div>
+    <p style="text-align:center; font-size:12px; color:#999;">Offer valid for 30 days. Mention code or reply to this email.</p>
+  </div>
+
+  <div class="footer">
+    My Horse Farm &bull; Wellington, FL<br>
+    <a href="https://myhorsefarm.com">myhorsefarm.com</a> &bull; (561) 576-7667<br><br>
+    <a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a> &bull; <a href="https://www.myhorsefarm.com/privacy-policy">Email Preferences</a>
+  </div>
+</div>
+</body>
+</html>`;
+
+  return {
+    subject: "It\u2019s Been a While \u2014 Here\u2019s 20% Off to Come Back \ud83d\udc4b",
+    html,
   };
 }
 

@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
 
     // Batch: pre-filter contacts with payment tags to reduce API calls.
     // Process max 50 contacts per run to stay within HubSpot rate limits.
-    const BATCH_LIMIT = 50;
+    const BATCH_LIMIT = 20; // Reduced from 50 to stay within Resend daily quota
     let processed = 0;
 
     for (const contactSummary of contacts) {

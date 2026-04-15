@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
   }
 
   return withCronMonitor("welcome-sequence", async () => {
+  const MAX_PER_RUN = 10; // Cap to stay within Resend daily quota
+  let totalSent = 0;
   const results: string[] = [];
   const errors: string[] = [];
     // -----------------------------------------------------------------------
@@ -60,6 +62,7 @@ export async function GET(request: NextRequest) {
     }
 
     for (const contact of newContacts) {
+      if (totalSent >= MAX_PER_RUN) break;
       const email = contact.properties.email;
       if (!email) continue;
 
@@ -81,6 +84,7 @@ export async function GET(request: NextRequest) {
           contact.id,
           `${TAGS.WELCOME_1} Sent to ${email} on ${new Date().toISOString()}`,
         );
+        totalSent++;
         results.push(`welcome_1 → ${email}`);
       } catch (err) {
         const msg = `welcome_1 FAIL ${email}: ${err}`;
@@ -126,6 +130,7 @@ export async function GET(request: NextRequest) {
     }
 
     for (const contact of midContacts) {
+      if (totalSent >= MAX_PER_RUN) break;
       const email = contact.properties.email;
       if (!email) continue;
 
@@ -146,6 +151,7 @@ export async function GET(request: NextRequest) {
           contact.id,
           `${TAGS.WELCOME_2} Sent to ${email} on ${new Date().toISOString()}`,
         );
+        totalSent++;
         results.push(`welcome_2 → ${email}`);
       } catch (err) {
         const msg = `welcome_2 FAIL ${email}: ${err}`;
@@ -191,6 +197,7 @@ export async function GET(request: NextRequest) {
     }
 
     for (const contact of lateContacts) {
+      if (totalSent >= MAX_PER_RUN) break;
       const email = contact.properties.email;
       if (!email) continue;
 
@@ -211,6 +218,7 @@ export async function GET(request: NextRequest) {
           contact.id,
           `${TAGS.WELCOME_3} Sent to ${email} on ${new Date().toISOString()}`,
         );
+        totalSent++;
         results.push(`welcome_3 → ${email}`);
       } catch (err) {
         const msg = `welcome_3 FAIL ${email}: ${err}`;

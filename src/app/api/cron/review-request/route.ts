@@ -72,6 +72,8 @@ export async function GET(request: NextRequest) {
   }
 
   return withCronMonitor("review-request", async () => {
+  const MAX_PER_RUN = 10; // Cap to stay within Resend daily quota
+  let totalSent = 0;
   const results: string[] = [];
   // Track emails sent in Phase 1 so Phase 2 can skip them
   const sentEmails = new Set<string>();
@@ -104,6 +106,7 @@ export async function GET(request: NextRequest) {
     );
 
     for (const deal of completedDeals) {
+      if (totalSent >= MAX_PER_RUN) break;
       try {
         // Skip if review already sent for this deal
         if (await hasAutomationTag("deals", deal.id, DEAL_TAG)) continue;
@@ -154,6 +157,7 @@ export async function GET(request: NextRequest) {
         );
         // Cross-update Supabase so both systems stay in sync
         await updateSupabaseReviewTimestamp(email);
+        totalSent++;
         results.push(`review → ${email} (deal ${deal.id})`);
       } catch (err) {
         results.push(`review FAIL deal ${deal.id}: ${err}`);
@@ -190,6 +194,7 @@ export async function GET(request: NextRequest) {
         results.push(`Phase 2 FAIL fetching customers: ${custError.message}`);
       } else if (customers) {
         for (const customer of customers) {
+          if (totalSent >= MAX_PER_RUN) break;
           try {
             const email = customer.email as string;
 
@@ -234,6 +239,7 @@ export async function GET(request: NextRequest) {
               );
             }
 
+            totalSent++;
             results.push(`review → ${email} (recurring ${customer.id})`);
           } catch (err) {
             results.push(`review FAIL recurring ${customer.id}: ${err}`);

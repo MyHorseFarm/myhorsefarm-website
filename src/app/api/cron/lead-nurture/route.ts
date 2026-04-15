@@ -51,7 +51,7 @@ export const maxDuration = 300;
  *   Step 5: Day 21
  */
 
-const MAX_PER_RUN = 80; // Stay within Resend free tier (100/day, leave room for other crons)
+const MAX_PER_RUN = 20; // Stay within Resend free tier — reduced from 80 to preserve daily quota
 const MAX_RESENDS = 20; // Bonus budget for step-1 non-opener re-sends
 const DRIP_DAYS = [0, 3, 7, 14, 21]; // Days after step 1 for each step
 

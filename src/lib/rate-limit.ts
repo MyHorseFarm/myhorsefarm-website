@@ -5,6 +5,12 @@ import { supabase } from "@/lib/supabase";
  * Uses atomic upsert with raw SQL increment to prevent race conditions.
  * Falls back to allowing requests if Supabase is unavailable.
  */
+function logWarn(...args: unknown[]) {
+  if (process.env.NODE_ENV !== "test") {
+    console.warn(...args);
+  }
+}
+
 export async function checkRateLimit(
   key: string,
   limit: number,
@@ -17,7 +23,18 @@ export async function checkRateLimit(
 
     // Atomic upsert: insert with count=1 or increment count if within window.
     // If the window has expired, reset count to 1 and update window_start.
-    const { data, error } = await supabase.rpc("check_rate_limit", {
+    const rpcClient = supabase as unknown as {
+      rpc?: (
+        fn: string,
+        args: Record<string, unknown>,
+      ) => Promise<{ data: unknown; error: { message: string } | null }>;
+    };
+
+    if (typeof rpcClient.rpc !== "function") {
+      return checkRateLimitFallback(key, limit, windowSeconds);
+    }
+
+    const { data, error } = await rpcClient.rpc("check_rate_limit", {
       p_key: key,
       p_limit: limit,
       p_window_start: windowStart,
@@ -28,7 +45,7 @@ export async function checkRateLimit(
       if (error.message.includes("check_rate_limit")) {
         return checkRateLimitFallback(key, limit, windowSeconds);
       }
-      console.warn("Rate limit check failed, allowing request:", error.message);
+      logWarn("Rate limit check failed, allowing request:", error.message);
       return { allowed: true, remaining: limit };
     }
 
@@ -37,7 +54,7 @@ export async function checkRateLimit(
     return { allowed, remaining: Math.max(0, limit - count) };
   } catch (err) {
     // Rate limiting should never break the app
-    console.warn("Rate limiter error, allowing request:", err);
+    logWarn("Rate limiter error, allowing request:", err);
     return { allowed: true, remaining: limit };
   }
 }
@@ -61,7 +78,7 @@ async function checkRateLimitFallback(
       .maybeSingle();
 
     if (error) {
-      console.warn("Rate limit fallback failed, allowing request:", error.message);
+      logWarn("Rate limit fallback failed, allowing request:", error.message);
       return { allowed: true, remaining: limit };
     }
 
@@ -84,7 +101,7 @@ async function checkRateLimitFallback(
 
     return { allowed: true, remaining: limit - data.count - 1 };
   } catch (err) {
-    console.warn("Rate limiter fallback error, allowing request:", err);
+    logWarn("Rate limiter fallback error, allowing request:", err);
     return { allowed: true, remaining: limit };
   }
 }

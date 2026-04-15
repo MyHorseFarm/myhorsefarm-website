@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { supabase } from "@/lib/supabase";
+import { addToSuppressionList } from "@/lib/emails";
 import {
   findContactByEmail,
   createContactNote,
@@ -227,6 +228,9 @@ export async function POST(request: NextRequest) {
         // 5. Bounce suppression — after 2+ bounces, suppress contact
         // ---------------------------------------------------------------
         if (type === "email.bounced") {
+          // Add to suppression list immediately on bounce
+          await addToSuppressionList(recipientEmail, "bounced");
+
           await createContactNote(
             contact.id,
             `[EMAIL:BOUNCED] Email bounced for ${recipientEmail} on ${now}`,
@@ -256,6 +260,7 @@ export async function POST(request: NextRequest) {
 
         // Complaint handling
         if (type === "email.complained") {
+          await addToSuppressionList(recipientEmail, "complained");
           await createContactNote(
             contact.id,
             `[EMAIL:COMPLAINED] Spam complaint from ${recipientEmail} on ${now}`,

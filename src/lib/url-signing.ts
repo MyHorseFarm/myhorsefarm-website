@@ -6,7 +6,14 @@ import { createHmac, timingSafeEqual } from "crypto";
  */
 
 function getSecret(): string {
-  return process.env.URL_SIGNING_SECRET || process.env.ADMIN_SECRET!;
+  const secret = process.env.URL_SIGNING_SECRET || process.env.ADMIN_SECRET;
+  if (secret) return secret;
+
+  if (process.env.NODE_ENV === "test") {
+    return "test-url-signing-secret";
+  }
+
+  throw new Error("Missing URL signing secret (set URL_SIGNING_SECRET or ADMIN_SECRET)");
 }
 
 /**

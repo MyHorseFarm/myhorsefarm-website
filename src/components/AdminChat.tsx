@@ -91,7 +91,7 @@ export default function AdminChat({ adminToken }: { adminToken: string }) {
 
         const decoder = new TextDecoder();
         let buffer = "";
-        let accumulatedText = "";
+        const accumulatedText = "";
 
         while (true) {
           const { done, value } = await reader.read();
@@ -122,10 +122,11 @@ export default function AdminChat({ adminToken }: { adminToken: string }) {
 
         // Re-parse the full response properly using EventSource-style parsing
         // Actually let's redo this with a proper SSE parser inline:
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Unknown error";
         setMessages((prev) => [
           ...prev,
-          { role: "assistant", content: `Error: ${err.message}` },
+          { role: "assistant", content: `Error: ${message}` },
         ]);
       } finally {
         setLoading(false);
@@ -168,7 +169,7 @@ export default function AdminChat({ adminToken }: { adminToken: string }) {
         const decoder = new TextDecoder();
         let buffer = "";
         let accumulatedText = "";
-        let currentEvent = "";
+        const currentEvent = "";
 
         while (true) {
           const { done, value } = await reader.read();
@@ -244,10 +245,11 @@ export default function AdminChat({ adminToken }: { adminToken: string }) {
           });
           setStreamingText("");
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Unknown error";
         setMessages((prev) => [
           ...prev,
-          { role: "assistant", content: `Error: ${err.message}` },
+          { role: "assistant", content: `Error: ${message}` },
         ]);
       } finally {
         setLoading(false);
