@@ -299,8 +299,8 @@ export async function GET(request: NextRequest) {
     const post = getPostForDate(today);
     const results: string[] = [];
 
-    // === Wednesday & Saturday: Post a VIDEO AD to both platforms ===
-    if (dayOfWeek === 3 || dayOfWeek === 6) {
+    // === Saturday: Post a VIDEO AD to both platforms ===
+    if (dayOfWeek === 6) {
       const weekOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000));
       const videoAd = VIDEO_ADS[weekOfYear % VIDEO_ADS.length];
       const videoPostId = `video-${videoAd.file}`;
@@ -334,8 +334,8 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // === Tue/Thu/Sat: Post the regular image post ===
-    const isImageDay = dayOfWeek === 2 || dayOfWeek === 4 || dayOfWeek === 6; // Tue/Thu/Sat
+    // === Mon/Wed/Fri: Post the regular image post ===
+    const isImageDay = dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5; // Mon/Wed/Fri
 
     if (isImageDay && !post.image?.endsWith(".mp4")) {
     // Facebook photo

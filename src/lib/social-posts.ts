@@ -643,6 +643,220 @@ Call ${PHONE} to claim your free first pickup.
     cta: "Claim your free first pickup!",
     link: PRICING_URL,
   },
+
+  // --- Lead-Gen: Summer Push (12 posts using fresh assets) ---
+  {
+    id: "lead-summer-junk-1",
+    theme: "lead-gen",
+    service: "junk",
+    text: `Summer project? We haul everything. Furniture, appliances, yard debris, construction waste — if you can point at it, we can remove it.
+
+Serving Wellington, Royal Palm Beach, Loxahatchee, and all of Palm Beach County. Same-day and next-day available.
+
+Call ${PHONE} or tap the link for your free quote.
+
+#junkremoval #wellington #palmbeachcounty #cleanup #hauling #myhorsefarm #southflorida #summercleanup`,
+    image: "social/junk-loaded-trailer.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "Get your free quote today!",
+    link: QUOTE_URL,
+  },
+  {
+    id: "lead-summer-dumpster-1",
+    theme: "lead-gen",
+    service: "dumpster",
+    text: `Need a dumpster? We deliver. Starting at $75/ton with no hidden fees.
+
+Perfect for renovations, farm cleanouts, construction projects, or just finally clearing out the barn. 20-yard roll-off dumpsters delivered fast across Palm Beach County.
+
+${PHONE} — call or text for availability.
+
+#dumpsterrental #wellington #construction #renovation #farmlife #myhorsefarm #palmbeach #cleanup`,
+    image: "social/dumpster-covered.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "Reserve your dumpster now!",
+    link: QUOTE_URL,
+  },
+  {
+    id: "lead-summer-manure-bins",
+    theme: "lead-gen",
+    service: "manure",
+    text: `A single horse produces 50 lbs of waste per day. That adds up fast.
+
+We provide leak-proof bins and handle all pickups on a schedule that works for your barn. Weekly, biweekly, or custom — we've got you covered.
+
+Trusted by Wellington's top equestrian facilities.
+
+${PHONE} or visit myhorsefarm.com for pricing.
+
+#manureremoval #horsefarm #wellington #equestrian #barnlife #myhorsefarm #palmbeach #stablemanagement`,
+    image: "social/bins-at-farm.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "See our manure removal plans",
+    link: PRICING_URL,
+  },
+  {
+    id: "lead-summer-capacity",
+    theme: "lead-gen",
+    service: "manure",
+    text: `This is what a full load looks like. We haul this so you don't have to.
+
+Our trailers handle massive volumes — whether it's a single-horse hobby farm or a 30-stall facility, we scale to your needs.
+
+Serving Wellington, Loxahatchee, Royal Palm Beach, and beyond.
+
+#manureremoval #wellington #horsefarm #equestrian #myhorsefarm #palmbeachcounty #farmservices`,
+    image: "social/trailer-loaded-closeup.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "Get a free estimate!",
+    link: QUOTE_URL,
+  },
+  {
+    id: "lead-summer-delivery",
+    theme: "lead-gen",
+    service: "general",
+    text: `From sod pallets to dumpster drops — we deliver what your property needs.
+
+One call handles it all: sod installation, fill dirt, mulch, rock delivery, dumpster rental, and hauling. No middlemen, no subcontractors. Just our crew and our equipment.
+
+${PHONE} — serving all of Palm Beach County.
+
+#delivery #sodinstallation #filldirt #dumpster #myhorsefarm #wellington #palmbeach #propertyservices`,
+    image: "social/sod-delivery-truck.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "Call for a free quote!",
+    link: QUOTE_URL,
+  },
+  {
+    id: "lead-summer-special",
+    theme: "promo",
+    service: "general",
+    text: `SUMMER SPECIAL: $50 OFF your first service with My Horse Farm.
+
+Whether it's manure removal, junk hauling, dumpster rental, or property maintenance — now's the time to get it done.
+
+Trusted by Wellington's equestrian community. Clean. Reliable. Local.
+
+Call ${PHONE} or visit myhorsefarm.com to claim your discount.
+
+#summerspecial #discount #myhorsefarm #wellington #palmbeach #equestrian #farmservices #deal`,
+    image: "social/summer-special-flyer.png",
+    platforms: ["facebook", "instagram"],
+    cta: "Claim $50 off your first service!",
+    link: QUOTE_URL,
+  },
+  {
+    id: "lead-summer-dumpster-2",
+    theme: "lead-gen",
+    service: "dumpster",
+    text: `Big project? Bigger dumpster. We've got you covered.
+
+Our roll-off dumpsters handle everything from barn cleanouts to full property renovations. Drop-off, fill it up, we haul it away. Simple.
+
+No rental games, no surprise fees. Just honest pricing from a local company.
+
+${PHONE} — call today for same-week delivery.
+
+#dumpsterrental #wellington #palmbeach #cleanup #renovation #myhorsefarm #hauling #localservice`,
+    image: "social/dumpster-loaded.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "Book your dumpster now!",
+    link: QUOTE_URL,
+  },
+  {
+    id: "lead-summer-bins-closeup",
+    theme: "educational",
+    service: "manure",
+    text: `Our manure bins are purpose-built: leak-proof, heavy-duty, and sized right for equestrian facilities.
+
+We deliver them, pick them up on schedule, and handle all disposal. Your barn stays clean, your pastures stay healthy, and you never have to think about it.
+
+That's the My Horse Farm difference.
+
+#manureremoval #equestrian #horsefarm #wellington #barnmanagement #myhorsefarm #palmbeach`,
+    image: "social/manure-bins-closeup.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "Learn about our plans",
+    link: PRICING_URL,
+  },
+  {
+    id: "lead-summer-sunset",
+    theme: "brand",
+    service: "general",
+    text: `Another day, another clean farm. That's what we do.
+
+My Horse Farm has been serving Wellington and Palm Beach County's equestrian community for years. Manure removal, junk hauling, dumpsters, sod, fill dirt, and farm repairs — all from one team you can trust.
+
+Your property. Taken care of.
+
+${PHONE} | myhorsefarm.com
+
+#myhorsefarm #wellington #palmbeach #equestrian #farmlife #propertyservices #trusted #local`,
+    image: "social/trailer-at-farm-sunset.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "Visit myhorsefarm.com",
+    link: SITE,
+  },
+  {
+    id: "lead-summer-storage",
+    theme: "lead-gen",
+    service: "general",
+    text: `Need storage? We sell and deliver containers for farms, job sites, and residential properties.
+
+Secure, weather-tight, and built to last. Perfect for tack rooms, feed storage, equipment, or seasonal overflow.
+
+Delivery available throughout Palm Beach County. Call for sizes and pricing.
+
+${PHONE}
+
+#storage #containers #farmlife #wellington #palmbeach #myhorsefarm #equestrian #propertymanagement`,
+    image: "social/container-closed.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "Call for container pricing!",
+    link: QUOTE_URL,
+  },
+  {
+    id: "lead-summer-container-open",
+    theme: "lead-gen",
+    service: "general",
+    text: `Containers delivered. Walk-in ready.
+
+We provide 20ft and 40ft shipping containers for any use — barn storage, equipment lockup, job site security, or long-term inventory. Doors open wide, floor is clean, and it's yours to use.
+
+Delivered to your property on our schedule.
+
+${PHONE} | myhorsefarm.com
+
+#shippingcontainer #storage #delivery #wellington #palmbeach #myhorsefarm #farmservices`,
+    image: "social/container-open-angle.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "Get container delivery pricing",
+    link: QUOTE_URL,
+  },
+  {
+    id: "lead-summer-logo-brand",
+    theme: "brand",
+    service: "general",
+    text: `My Horse Farm — Agricultural Service Company
+
+Serving Wellington, Royal Palm Beach, Loxahatchee, West Palm Beach, and all of Palm Beach County.
+
+What we do:
+\u2713 Manure removal (weekly/biweekly)
+\u2713 Junk removal & hauling
+\u2713 Dumpster rental
+\u2713 Sod installation
+\u2713 Fill dirt & mulch delivery
+\u2713 Farm repairs & maintenance
+
+One call. Every service. ${PHONE}
+
+#myhorsefarm #wellington #palmbeach #equestrian #farmservices #manureremoval #junkremoval #sodinstallation`,
+    image: "social/mhf-logo.jpg",
+    platforms: ["facebook", "instagram"],
+    cta: "See all our services",
+    link: PRICING_URL,
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -689,11 +903,11 @@ export function getUpcomingPosts(
   const posts: (SocialPost & { scheduledDate: string })[] = [];
   const current = new Date(startDate);
 
-  // Look forward day by day, picking only Tue/Thu/Sat (posting days)
+  // Look forward day by day, picking only Mon/Wed/Fri (posting days)
   while (posts.length < count) {
     const dayOfWeek = current.getDay();
-    // 2 = Tuesday, 4 = Thursday, 6 = Saturday
-    if (dayOfWeek === 2 || dayOfWeek === 4 || dayOfWeek === 6) {
+    // 1 = Monday, 3 = Wednesday, 5 = Friday
+    if (dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5) {
       const post = getPostForDate(current);
       posts.push({
         ...post,
