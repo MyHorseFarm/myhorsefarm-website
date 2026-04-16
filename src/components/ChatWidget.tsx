@@ -12,11 +12,20 @@ interface QuoteCard {
   requires_site_visit: boolean;
 }
 
+interface BookingCard {
+  booking_number: string;
+  service: string;
+  scheduled_date: string;
+  time_slot: string;
+  booking_url: string;
+}
+
 interface Message {
   role: "user" | "assistant";
   content: string;
   imageUrl?: string;
   quoteCard?: QuoteCard;
+  bookingCard?: BookingCard;
   timestamp?: number;
 }
 
@@ -209,6 +218,30 @@ export default function ChatWidget() {
                 service: event.service,
                 source: "chatbot",
                 quote_number: event.quote_number,
+              });
+            } else if (event.type === "booking_card") {
+              setMessages((prev) =>
+                prev.map((msg, idx) =>
+                  idx === prev.length - 1 && msg.role === "assistant"
+                    ? {
+                        ...msg,
+                        bookingCard: {
+                          booking_number: event.booking_number,
+                          service: event.service,
+                          scheduled_date: event.scheduled_date,
+                          time_slot: event.time_slot,
+                          booking_url: event.booking_url,
+                        },
+                      }
+                    : msg
+                )
+              );
+              trackEvent("purchase", {
+                currency: "USD",
+                value: 0,
+                service: event.service,
+                source: "chatbot",
+                booking_number: event.booking_number,
               });
             } else if (event.type === "error") {
               setMessages((prev) =>
@@ -408,6 +441,60 @@ export default function ChatWidget() {
                           className="flex-1 text-center px-3 py-2 border border-primary text-primary text-xs font-semibold rounded-lg hover:bg-green-50 transition-colors"
                         >
                           Call to Schedule
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                  {/* Inline booking card */}
+                  {msg.bookingCard && (
+                    <div className="mx-2 mb-2 bg-white rounded-xl border border-green-200 overflow-hidden shadow-sm">
+                      <div className="px-4 py-3 border-b border-green-100 bg-green-50">
+                        <div className="flex items-center gap-1.5">
+                          <i className="fas fa-check-circle text-green-600 text-xs" />
+                          <p className="text-[10px] text-green-700 uppercase tracking-wide font-semibold">Booking Confirmed</p>
+                        </div>
+                        <p className="font-semibold text-gray-800 text-sm mt-0.5">{msg.bookingCard.service}</p>
+                      </div>
+                      <div className="px-4 py-3">
+                        <table className="w-full text-sm">
+                          <tbody>
+                            <tr>
+                              <td className="text-gray-500 py-1 pr-3">Booking #</td>
+                              <td className="font-semibold text-gray-800 py-1">{msg.bookingCard.booking_number}</td>
+                            </tr>
+                            <tr>
+                              <td className="text-gray-500 py-1 pr-3">Date</td>
+                              <td className="font-semibold text-gray-800 py-1">
+                                {new Date(msg.bookingCard.scheduled_date + "T12:00:00").toLocaleDateString("en-US", {
+                                  weekday: "short",
+                                  month: "long",
+                                  day: "numeric",
+                                })}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td className="text-gray-500 py-1 pr-3">Time</td>
+                              <td className="text-gray-800 py-1">
+                                {msg.bookingCard.time_slot === "morning" ? "Morning (8 AM \u2013 12 PM)" : "Afternoon (12 PM \u2013 5 PM)"}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div className="px-3 pb-3 flex gap-2">
+                        <a
+                          href={msg.bookingCard.booking_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 text-center px-3 py-2 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-colors"
+                        >
+                          View Booking
+                        </a>
+                        <a
+                          href="tel:+15615767667"
+                          className="flex-1 text-center px-3 py-2 border border-green-600 text-green-700 text-xs font-semibold rounded-lg hover:bg-green-50 transition-colors"
+                        >
+                          Call Us
                         </a>
                       </div>
                     </div>

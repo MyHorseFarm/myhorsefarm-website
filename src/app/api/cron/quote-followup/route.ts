@@ -22,6 +22,11 @@ import {
   recordSend,
 } from "@/lib/ab-testing";
 import { withCronMonitor } from "@/lib/cron-monitor";
+import {
+  generatePersonalizedFollowup,
+  getChatSummary,
+  FollowUpStage,
+} from "@/lib/ai/follow-up";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -54,6 +59,43 @@ function daysFromNow(days: number): string {
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
 }
 
+/**
+ * Try to generate an AI-personalized follow-up body.
+ * Returns undefined on failure so the caller falls back to the template.
+ */
+async function tryPersonalize(
+  quote: {
+    customer_name: string;
+    service_key: string;
+    estimated_amount: number;
+    customer_location: string;
+    quote_number: string;
+    chat_session_id: string | null;
+  },
+  stage: FollowUpStage,
+  daysLeft?: number,
+): Promise<string | undefined> {
+  try {
+    const chatSummary = await getChatSummary(quote.chat_session_id);
+    const body = await generatePersonalizedFollowup({
+      customerName: quote.customer_name,
+      serviceKey: quote.service_key,
+      amount: quote.estimated_amount,
+      location: quote.customer_location,
+      quoteNumber: quote.quote_number,
+      stage,
+      daysLeft,
+      chatSummary,
+    });
+    // Sanity check — AI should return something meaningful
+    if (body && body.length > 20) return body;
+    return undefined;
+  } catch {
+    // AI generation failed — fall back to template
+    return undefined;
+  }
+}
+
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -68,7 +110,7 @@ export async function GET(request: NextRequest) {
   let totalSent = 0;
 
     // -----------------------------------------------------------------------
-    // Followup 1: Quotes created 1–2 days ago, still pending (was 2-4)
+    // Followup 1: Quotes created 1–2 days ago, still pending
     // -----------------------------------------------------------------------
     const { data: followup1Quotes } = await supabase
       .from("quotes")
@@ -100,6 +142,8 @@ export async function GET(request: NextRequest) {
         if (await hasAutomationTag("contacts", contactId, TAGS.FOLLOWUP_1))
           continue;
 
+        const personalizedBody = await tryPersonalize(quote, "first");
+
         const unsub = createUnsubscribeUrl(quote.customer_email);
         const acceptUrl = buildSignedUrl(`/quote/${quote.id}`, "quote", quote.id);
         const template = quoteFollowup1Email(
@@ -108,6 +152,7 @@ export async function GET(request: NextRequest) {
           acceptUrl,
           unsub,
           quote.service_key,
+          personalizedBody,
         );
 
         // A/B test: override subject if active test exists for this template
@@ -133,17 +178,17 @@ export async function GET(request: NextRequest) {
 
         await createContactNote(
           contactId,
-          `${TAGS.FOLLOWUP_1} Sent for ${quote.quote_number} on ${new Date().toISOString()}`,
+          `${TAGS.FOLLOWUP_1} Sent for ${quote.quote_number} on ${new Date().toISOString()}${personalizedBody ? " [AI-personalized]" : ""}`,
         );
         totalSent++;
-        results.push(`followup_1 → ${quote.customer_email} (${quote.quote_number})`);
+        results.push(`followup_1 → ${quote.customer_email} (${quote.quote_number})${personalizedBody ? " [AI]" : ""}`);
       } catch (err) {
         results.push(`followup_1 FAIL ${quote.quote_number}: ${err}`);
       }
     }
 
     // -----------------------------------------------------------------------
-    // Followup 2: Quotes created 3–4 days ago, still pending (was 5-8)
+    // Followup 2: Quotes created 3–4 days ago, still pending
     // -----------------------------------------------------------------------
     const { data: followup2Quotes } = await supabase
       .from("quotes")
@@ -174,6 +219,8 @@ export async function GET(request: NextRequest) {
         if (await hasAutomationTag("contacts", contactId, TAGS.FOLLOWUP_2))
           continue;
 
+        const personalizedBody = await tryPersonalize(quote, "second");
+
         const unsub = createUnsubscribeUrl(quote.customer_email);
         const acceptUrl = buildSignedUrl(`/quote/${quote.id}`, "quote", quote.id);
         const template = quoteFollowup2Email(
@@ -182,6 +229,7 @@ export async function GET(request: NextRequest) {
           acceptUrl,
           unsub,
           quote.service_key,
+          personalizedBody,
         );
 
         // A/B test: override subject if active test exists for this template
@@ -205,17 +253,17 @@ export async function GET(request: NextRequest) {
         }
         await createContactNote(
           contactId,
-          `${TAGS.FOLLOWUP_2} Sent for ${quote.quote_number} on ${new Date().toISOString()}`,
+          `${TAGS.FOLLOWUP_2} Sent for ${quote.quote_number} on ${new Date().toISOString()}${personalizedBody ? " [AI-personalized]" : ""}`,
         );
         totalSent++;
-        results.push(`followup_2 → ${quote.customer_email} (${quote.quote_number})`);
+        results.push(`followup_2 → ${quote.customer_email} (${quote.quote_number})${personalizedBody ? " [AI]" : ""}`);
       } catch (err) {
         results.push(`followup_2 FAIL ${quote.quote_number}: ${err}`);
       }
     }
 
     // -----------------------------------------------------------------------
-    // Expiration warning: Quotes expiring in 1–2 days (was 4-6 days)
+    // Expiration warning: Quotes expiring in 1–2 days
     // -----------------------------------------------------------------------
     const { data: expiringQuotes } = await supabase
       .from("quotes")
@@ -248,6 +296,8 @@ export async function GET(request: NextRequest) {
             (24 * 60 * 60 * 1000),
         );
 
+        const personalizedBody = await tryPersonalize(quote, "expiring", daysLeft);
+
         const unsub = createUnsubscribeUrl(quote.customer_email);
         const acceptUrl = buildSignedUrl(`/quote/${quote.id}`, "quote", quote.id);
         const template = quoteExpiringEmail(
@@ -256,15 +306,16 @@ export async function GET(request: NextRequest) {
           daysLeft,
           acceptUrl,
           unsub,
+          personalizedBody,
         );
         await sendEmail(quote.customer_email, template.subject, template.html);
 
         await createContactNote(
           contactId,
-          `${TAGS.EXPIRING} Sent for ${quote.quote_number} (${daysLeft}d left) on ${new Date().toISOString()}`,
+          `${TAGS.EXPIRING} Sent for ${quote.quote_number} (${daysLeft}d left) on ${new Date().toISOString()}${personalizedBody ? " [AI-personalized]" : ""}`,
         );
         totalSent++;
-        results.push(`expiring → ${quote.customer_email} (${quote.quote_number}, ${daysLeft}d)`);
+        results.push(`expiring → ${quote.customer_email} (${quote.quote_number}, ${daysLeft}d)${personalizedBody ? " [AI]" : ""}`);
       } catch (err) {
         results.push(`expiring FAIL ${quote.quote_number}: ${err}`);
       }
@@ -302,6 +353,8 @@ export async function GET(request: NextRequest) {
           .eq("id", quote.id)
           .eq("status", "pending");
 
+        const personalizedBody = await tryPersonalize(quote, "expired");
+
         const unsub = createUnsubscribeUrl(quote.customer_email);
         const newQuoteUrl = `${siteUrl}/quote`;
         const serviceName = SERVICE_NAMES[quote.service_key] || quote.service_key;
@@ -310,14 +363,15 @@ export async function GET(request: NextRequest) {
           serviceName,
           newQuoteUrl,
           unsub,
+          personalizedBody,
         );
         await sendEmail(quote.customer_email, template.subject, template.html);
         await createContactNote(
           contactId,
-          `${TAGS.EXPIRED_RECOVERY} Sent for expired ${quote.quote_number} on ${new Date().toISOString()}`,
+          `${TAGS.EXPIRED_RECOVERY} Sent for expired ${quote.quote_number} on ${new Date().toISOString()}${personalizedBody ? " [AI-personalized]" : ""}`,
         );
         totalSent++;
-        results.push(`expired_recovery → ${quote.customer_email} (${quote.quote_number})`);
+        results.push(`expired_recovery → ${quote.customer_email} (${quote.quote_number})${personalizedBody ? " [AI]" : ""}`);
       } catch (err) {
         results.push(`expired_recovery FAIL ${quote.quote_number}: ${err}`);
       }

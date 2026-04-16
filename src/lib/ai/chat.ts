@@ -171,6 +171,25 @@ export async function processChat(
                     } catch { /* non-fatal */ }
                   }
 
+                  // Emit booking card for book_service results
+                  if (call.name === "book_service") {
+                    try {
+                      const parsed = JSON.parse(result);
+                      if (!parsed.error) {
+                        controller.enqueue(
+                          encoder.encode(`data: ${JSON.stringify({
+                            type: "booking_card",
+                            booking_number: parsed.booking_number,
+                            service: parsed.service,
+                            scheduled_date: parsed.scheduled_date,
+                            time_slot: parsed.time_slot,
+                            booking_url: parsed.booking_url || `/booking/${parsed.booking_id}`,
+                          })}\n\n`),
+                        );
+                      }
+                    } catch { /* non-fatal */ }
+                  }
+
                   functionResults.push({
                     name: call.name,
                     response: { result },

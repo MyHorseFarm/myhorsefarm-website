@@ -1066,9 +1066,17 @@ export function quoteFollowup1Email(
   acceptUrl: string,
   unsubscribeUrl: string,
   serviceKey?: string,
+  personalizedBody?: string,
 ): EmailTemplate {
   const name = escapeHtml(firstname || "there");
-  const hook = getServiceHook(serviceKey || "", "followup1");
+
+  const bodyHtml = personalizedBody
+    ? personalizedBody.split("\n").map((p: string) => `<p style="font-size:16px;line-height:1.6;">${escapeHtml(p)}</p>`).join("\n")
+    : (() => {
+        const hook = getServiceHook(serviceKey || "", "followup1");
+        return `<p style="font-size:16px;line-height:1.6;">I wanted to follow up on your recent quote (<strong>${escapeHtml(quoteNumber)}</strong>). ${hook}</p>
+<p style="font-size:16px;line-height:1.6;">If you have any questions about the pricing or what's included, I'm happy to chat — just reply to this email or give me a call.</p>`;
+      })();
 
   return {
     subject: `Just Checking In — Your Quote ${escapeHtml(quoteNumber)} Is Waiting`,
@@ -1077,8 +1085,7 @@ export function quoteFollowup1Email(
 ${header("Your Quote Is Ready")}
 <div style="padding:30px 20px;">
 <p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
-<p style="font-size:16px;line-height:1.6;">I wanted to follow up on your recent quote (<strong>${escapeHtml(quoteNumber)}</strong>). ${hook}</p>
-<p style="font-size:16px;line-height:1.6;">If you have any questions about the pricing or what's included, I'm happy to chat — just reply to this email or give me a call.</p>
+${bodyHtml}
 <div style="text-align:center;margin:30px 0;">
 <a href="${escapeHtml(acceptUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">View Your Quote</a>
 </div>
@@ -1099,9 +1106,17 @@ export function quoteFollowup2Email(
   acceptUrl: string,
   unsubscribeUrl: string,
   serviceKey?: string,
+  personalizedBody?: string,
 ): EmailTemplate {
   const name = escapeHtml(firstname || "there");
-  const hook = getServiceHook(serviceKey || "", "followup2");
+
+  const bodyHtml = personalizedBody
+    ? personalizedBody.split("\n").map((p: string) => `<p style="font-size:16px;line-height:1.6;">${escapeHtml(p)}</p>`).join("\n")
+    : (() => {
+        const hook = getServiceHook(serviceKey || "", "followup2");
+        return `<p style="font-size:16px;line-height:1.6;">This is a friendly last reminder that your quote <strong>${escapeHtml(quoteNumber)}</strong> is still open. ${hook}</p>
+<p style="font-size:16px;line-height:1.6;">Questions? Just call <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> — I'm happy to help.</p>`;
+      })();
 
   return {
     subject: `Last Reminder — Your Quote ${escapeHtml(quoteNumber)} Expires Soon`,
@@ -1110,11 +1125,10 @@ export function quoteFollowup2Email(
 ${header("Don't Miss Out")}
 <div style="padding:30px 20px;">
 <p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
-<p style="font-size:16px;line-height:1.6;">This is a friendly last reminder that your quote <strong>${escapeHtml(quoteNumber)}</strong> is still open. ${hook}</p>
+${bodyHtml}
 <div style="text-align:center;margin:30px 0;">
 <a href="${escapeHtml(acceptUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">View Your Quote</a>
 </div>
-<p style="font-size:16px;line-height:1.6;">Questions? Just call <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a> — I'm happy to help.</p>
 ${signoff()}
 </div></div>`,
       unsubscribeUrl,
@@ -1131,8 +1145,15 @@ export function quoteExpiredRecoveryEmail(
   serviceName: string,
   newQuoteUrl: string,
   unsubscribeUrl: string,
+  personalizedBody?: string,
 ): EmailTemplate {
   const name = escapeHtml(firstname || "there");
+
+  const bodyHtml = personalizedBody
+    ? personalizedBody.split("\n").map((p: string) => `<p style="font-size:16px;line-height:1.6;">${escapeHtml(p)}</p>`).join("\n")
+    : `<p style="font-size:16px;line-height:1.6;">Your quote for <strong>${escapeHtml(serviceName)}</strong> has expired, but don't worry — getting a new one takes less than a minute.</p>
+<p style="font-size:16px;line-height:1.6;">If you're still interested, click below and we'll have a fresh quote ready for you right away. Same great service, same team you can count on.</p>
+<p style="font-size:16px;line-height:1.6;">Or call me directly — I'll take care of everything over the phone.</p>`;
 
   return {
     subject: "Your Quote Expired — Get a Fresh One in 30 Seconds",
@@ -1141,12 +1162,10 @@ export function quoteExpiredRecoveryEmail(
 ${header("Let's Try Again")}
 <div style="padding:30px 20px;">
 <p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
-<p style="font-size:16px;line-height:1.6;">Your quote for <strong>${escapeHtml(serviceName)}</strong> has expired, but don't worry — getting a new one takes less than a minute.</p>
-<p style="font-size:16px;line-height:1.6;">If you're still interested, click below and we'll have a fresh quote ready for you right away. Same great service, same team you can count on.</p>
+${bodyHtml}
 <div style="text-align:center;margin:30px 0;">
 <a href="${escapeHtml(newQuoteUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Get a New Quote</a>
 </div>
-<p style="font-size:16px;line-height:1.6;">Or call me directly — I'll take care of everything over the phone.</p>
 ${signoff()}
 </div></div>`,
       unsubscribeUrl,
@@ -1205,8 +1224,15 @@ export function quoteExpiringEmail(
   daysLeft: number,
   acceptUrl: string,
   unsubscribeUrl: string,
+  personalizedBody?: string,
 ): EmailTemplate {
   const name = escapeHtml(firstname || "there");
+
+  const bodyHtml = personalizedBody
+    ? personalizedBody.split("\n").map((p: string) => `<p style="font-size:16px;line-height:1.6;">${escapeHtml(p)}</p>`).join("\n")
+    : `<p style="font-size:16px;line-height:1.6;">Just a heads up — your quote <strong>${escapeHtml(quoteNumber)}</strong> expires in <strong>${daysLeft} day${daysLeft !== 1 ? "s" : ""}</strong>.</p>
+<p style="font-size:16px;line-height:1.6;">If you'd still like to move forward, now's a great time to lock in your pricing and get on our schedule.</p>
+<p style="font-size:16px;line-height:1.6;">Need more time or have questions? Call me at <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a>.</p>`;
 
   return {
     subject: `Your Quote ${escapeHtml(quoteNumber)} Expires in ${daysLeft} Days`,
@@ -1215,12 +1241,10 @@ export function quoteExpiringEmail(
 ${header("Quote Expiring Soon")}
 <div style="padding:30px 20px;">
 <p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
-<p style="font-size:16px;line-height:1.6;">Just a heads up — your quote <strong>${escapeHtml(quoteNumber)}</strong> expires in <strong>${daysLeft} day${daysLeft !== 1 ? "s" : ""}</strong>.</p>
-<p style="font-size:16px;line-height:1.6;">If you'd still like to move forward, now's a great time to lock in your pricing and get on our schedule.</p>
+${bodyHtml}
 <div style="text-align:center;margin:30px 0;">
 <a href="${escapeHtml(acceptUrl)}" style="display:inline-block;background-color:#d4a843;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;font-size:16px;">Accept Quote Before It Expires</a>
 </div>
-<p style="font-size:16px;line-height:1.6;">Need more time or have questions? Call me at <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a>.</p>
 ${signoff()}
 </div></div>`,
       unsubscribeUrl,
