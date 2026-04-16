@@ -1357,6 +1357,103 @@ ${jobRows}
 }
 
 // ---------------------------------------------------------------------------
+// Crew Auto-Dispatch Email – sent to crew when a new booking is assigned
+// ---------------------------------------------------------------------------
+
+export interface AutoDispatchJobDetails {
+  date: string;
+  timeSlot: string;
+  service: string;
+  customerName: string;
+  customerPhone: string;
+  location: string;
+  bookingNumber: string;
+}
+
+export function crewAutoDispatchEmail(
+  crewName: string,
+  job: AutoDispatchJobDetails,
+): EmailTemplate {
+  const name = escapeHtml(crewName || "Team");
+  return {
+    subject: `New Job Assigned — ${escapeHtml(job.service)} on ${escapeHtml(job.date)}`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("New Job Assigned")}
+<div style="padding:30px 20px;">
+<p style="font-size:16px;line-height:1.6;">Hi ${name},</p>
+<p style="font-size:16px;line-height:1.6;">You have been assigned a new job. Here are the details:</p>
+<div style="background-color:#f9f7f2;padding:20px;border-radius:8px;margin:20px 0;border-left:4px solid #2d5016;">
+<table style="width:100%;font-size:15px;line-height:2;">
+<tr><td style="font-weight:bold;width:140px;vertical-align:top;">Booking #</td><td>${escapeHtml(job.bookingNumber)}</td></tr>
+<tr><td style="font-weight:bold;vertical-align:top;">Service</td><td>${escapeHtml(job.service)}</td></tr>
+<tr><td style="font-weight:bold;vertical-align:top;">Date</td><td>${escapeHtml(job.date)}</td></tr>
+<tr><td style="font-weight:bold;vertical-align:top;">Time</td><td>${escapeHtml(job.timeSlot)}</td></tr>
+<tr><td style="font-weight:bold;vertical-align:top;">Customer</td><td>${escapeHtml(job.customerName)}</td></tr>
+<tr><td style="font-weight:bold;vertical-align:top;">Phone</td><td><a href="tel:${escapeHtml(job.customerPhone)}" style="color:#2d5016;font-weight:bold;">${escapeHtml(job.customerPhone)}</a></td></tr>
+<tr><td style="font-weight:bold;vertical-align:top;">Location</td><td>${escapeHtml(job.location)}</td></tr>
+</table>
+</div>
+<p style="font-size:16px;line-height:1.6;">Questions? Call Jose at <a href="tel:+15615767667" style="color:#2d5016;font-weight:bold;">(561) 576-7667</a>.</p>
+</div></div>`,
+      "#",
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Dispatch Alert Email – sent to Jose when a booking is dispatched (or not)
+// ---------------------------------------------------------------------------
+
+export interface DispatchAlertDetails {
+  crewName: string | null;
+  date: string;
+  timeSlot: string;
+  service: string;
+  customerName: string;
+  customerPhone: string;
+  location: string;
+  bookingNumber: string;
+  unassignedReason?: string;
+}
+
+export function dispatchAlertEmail(details: DispatchAlertDetails): EmailTemplate {
+  const assigned = details.crewName !== null;
+  const statusColor = assigned ? "#2d5016" : "#dc2626";
+  const statusLabel = assigned
+    ? `Assigned to ${escapeHtml(details.crewName!)}`
+    : `UNASSIGNED — ${escapeHtml(details.unassignedReason || "No crew available")}`;
+
+  return {
+    subject: assigned
+      ? `Dispatch: ${escapeHtml(details.bookingNumber)} → ${escapeHtml(details.crewName!)}`
+      : `ALERT: ${escapeHtml(details.bookingNumber)} — No Crew Assigned`,
+    html: emailDoc(
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333;background:#fff;">
+${header("Dispatch Summary")}
+<div style="padding:30px 20px;">
+<div style="background-color:${assigned ? "#f0fdf4" : "#fef2f2"};padding:16px 20px;border-radius:8px;margin:0 0 20px;border-left:4px solid ${statusColor};">
+<p style="margin:0;font-size:16px;font-weight:bold;color:${statusColor};">${statusLabel}</p>
+</div>
+<div style="background-color:#f9f7f2;padding:20px;border-radius:8px;margin:20px 0;">
+<table style="width:100%;font-size:15px;line-height:2;">
+<tr><td style="font-weight:bold;width:140px;vertical-align:top;">Booking #</td><td>${escapeHtml(details.bookingNumber)}</td></tr>
+<tr><td style="font-weight:bold;vertical-align:top;">Service</td><td>${escapeHtml(details.service)}</td></tr>
+<tr><td style="font-weight:bold;vertical-align:top;">Date</td><td>${escapeHtml(details.date)}</td></tr>
+<tr><td style="font-weight:bold;vertical-align:top;">Time</td><td>${escapeHtml(details.timeSlot)}</td></tr>
+<tr><td style="font-weight:bold;vertical-align:top;">Customer</td><td>${escapeHtml(details.customerName)}</td></tr>
+<tr><td style="font-weight:bold;vertical-align:top;">Phone</td><td>${escapeHtml(details.customerPhone)}</td></tr>
+<tr><td style="font-weight:bold;vertical-align:top;">Location</td><td>${escapeHtml(details.location)}</td></tr>
+</table>
+</div>
+${!assigned ? '<p style="font-size:16px;line-height:1.6;color:#dc2626;">Please assign a crew member manually from the <a href="https://www.myhorsefarm.com/admin/daily" style="color:#2563eb;">Daily Dashboard</a>.</p>' : ""}
+</div></div>`,
+      "#",
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Service Upsell Email
 // ---------------------------------------------------------------------------
 

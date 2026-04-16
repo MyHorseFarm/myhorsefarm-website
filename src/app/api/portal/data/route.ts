@@ -23,9 +23,30 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
   }
 
-  const { customerId } = payload;
+  const { email, customerType } = payload;
 
-  // Fetch customer info
+  // ---- Recurring customer ----
+  if (customerType === "recurring") {
+    return handleRecurring(payload.customerId);
+  }
+
+  // ---- Quote customer ----
+  if (customerType === "quote") {
+    return handleQuoteCustomer(email);
+  }
+
+  // ---- Booking customer ----
+  if (customerType === "booking") {
+    return handleBookingCustomer(email);
+  }
+
+  return NextResponse.json({ error: "Unknown customer type" }, { status: 400 });
+}
+
+// ---------------------------------------------------------------------------
+// Recurring customer — existing behavior
+// ---------------------------------------------------------------------------
+async function handleRecurring(customerId: string) {
   const { data: customer } = await supabase
     .from("recurring_customers")
     .select("id, name, email, phone, address, default_service, default_bin_rate, auto_charge, charge_frequency, next_charge_date, default_bins, active, contract_type, contract_end_date, contract_discount_pct")
@@ -36,7 +57,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Customer not found" }, { status: 404 });
   }
 
-  // Fetch recent service logs
   const { data: logs } = await supabase
     .from("service_logs")
     .select("id, service_date, bins_collected, bin_rate, total_amount, status, crew_member, photo_url")
@@ -44,7 +64,6 @@ export async function GET(request: NextRequest) {
     .order("service_date", { ascending: false })
     .limit(50);
 
-  // Fetch recent invoices
   const { data: invoices } = await supabase
     .from("invoices")
     .select("id, invoice_number, amount, service_date")
@@ -58,7 +77,6 @@ export async function GET(request: NextRequest) {
     const freq = FREQ_DAYS[customer.charge_frequency] || 7;
     let d = new Date(customer.next_charge_date + "T00:00:00");
     const now = new Date();
-    // Skip past dates
     while (d < now) {
       d = new Date(d.getTime() + freq * 86400000);
     }
@@ -69,6 +87,7 @@ export async function GET(request: NextRequest) {
   }
 
   return NextResponse.json({
+    customerType: "recurring",
     customer: {
       name: customer.name,
       email: customer.email,
@@ -85,5 +104,63 @@ export async function GET(request: NextRequest) {
     logs: logs ?? [],
     invoices: invoices ?? [],
     upcoming,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Quote customer — show their quotes + any linked bookings
+// ---------------------------------------------------------------------------
+async function handleQuoteCustomer(email: string) {
+  const { data: quotes } = await supabase
+    .from("quotes")
+    .select("id, quote_number, status, customer_name, service_key, estimated_amount, pricing_breakdown, created_at, expires_at")
+    .eq("customer_email", email)
+    .order("created_at", { ascending: false })
+    .limit(25);
+
+  const customerName = quotes?.[0]?.customer_name || "Customer";
+
+  // Fetch bookings linked to this email
+  const { data: bookings } = await supabase
+    .from("bookings")
+    .select("id, booking_number, status, service_key, scheduled_date, time_slot, created_at")
+    .eq("customer_email", email)
+    .order("created_at", { ascending: false })
+    .limit(25);
+
+  return NextResponse.json({
+    customerType: "quote",
+    customer: { name: customerName, email },
+    quotes: quotes ?? [],
+    bookings: bookings ?? [],
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Booking customer — show their bookings
+// ---------------------------------------------------------------------------
+async function handleBookingCustomer(email: string) {
+  const { data: bookings } = await supabase
+    .from("bookings")
+    .select("id, booking_number, status, customer_name, service_key, scheduled_date, time_slot, created_at")
+    .eq("customer_email", email)
+    .order("created_at", { ascending: false })
+    .limit(25);
+
+  const customerName = bookings?.[0]?.customer_name || "Customer";
+
+  // Also fetch any quotes for this email
+  const { data: quotes } = await supabase
+    .from("quotes")
+    .select("id, quote_number, status, service_key, estimated_amount, created_at, expires_at")
+    .eq("customer_email", email)
+    .order("created_at", { ascending: false })
+    .limit(25);
+
+  return NextResponse.json({
+    customerType: "booking",
+    customer: { name: customerName, email },
+    bookings: bookings ?? [],
+    quotes: quotes ?? [],
   });
 }

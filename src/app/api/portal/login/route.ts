@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
 import { createPortalUrl } from "@/lib/portal-auth";
+import type { CustomerType } from "@/lib/portal-auth";
 import { sendEmail, createUnsubscribeUrl, portalLoginEmail } from "@/lib/emails";
 
 export const runtime = "nodejs";
@@ -22,18 +23,63 @@ export async function POST(request: NextRequest) {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Look up recurring customer by email
-    const { data: customer } = await supabase
+    let customerId: string | null = null;
+    let customerName: string | null = null;
+    let customerType: CustomerType | null = null;
+
+    // 1. Check recurring customers first (highest priority)
+    const { data: recurringCustomer } = await supabase
       .from("recurring_customers")
       .select("id, name")
       .eq("email", normalizedEmail)
       .eq("active", true)
       .maybeSingle();
 
-    if (customer) {
-      const portalUrl = createPortalUrl(normalizedEmail, customer.id);
+    if (recurringCustomer) {
+      customerId = recurringCustomer.id;
+      customerName = recurringCustomer.name;
+      customerType = "recurring";
+    }
+
+    // 2. Check quotes table
+    if (!customerId) {
+      const { data: quote } = await supabase
+        .from("quotes")
+        .select("id, customer_name")
+        .eq("customer_email", normalizedEmail)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (quote) {
+        customerId = quote.id;
+        customerName = quote.customer_name;
+        customerType = "quote";
+      }
+    }
+
+    // 3. Check bookings table
+    if (!customerId) {
+      const { data: booking } = await supabase
+        .from("bookings")
+        .select("id, customer_name")
+        .eq("customer_email", normalizedEmail)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (booking) {
+        customerId = booking.id;
+        customerName = booking.customer_name;
+        customerType = "booking";
+      }
+    }
+
+    // Send magic link if found in any table
+    if (customerId && customerName && customerType) {
+      const portalUrl = createPortalUrl(normalizedEmail, customerId, customerType);
       const unsubUrl = createUnsubscribeUrl(normalizedEmail);
-      const firstname = customer.name.split(" ")[0];
+      const firstname = customerName.split(" ")[0];
       const template = portalLoginEmail(firstname, portalUrl, unsubUrl);
       await sendEmail(normalizedEmail, template.subject, template.html);
     }

@@ -4,7 +4,11 @@ import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { trackEvent } from "@/lib/analytics";
 
-interface PortalCustomer {
+// ---------------------------------------------------------------------------
+// Types — Recurring customer (existing)
+// ---------------------------------------------------------------------------
+
+interface RecurringCustomerInfo {
   name: string;
   email: string;
   address: string | null;
@@ -36,12 +40,65 @@ interface Invoice {
   service_date: string | null;
 }
 
-interface PortalData {
-  customer: PortalCustomer;
+interface RecurringData {
+  customerType: "recurring";
+  customer: RecurringCustomerInfo;
   logs: ServiceLog[];
   invoices: Invoice[];
   upcoming: string[];
 }
+
+// ---------------------------------------------------------------------------
+// Types — Quote / Booking customers
+// ---------------------------------------------------------------------------
+
+interface PortalQuote {
+  id: string;
+  quote_number: string;
+  status: string;
+  customer_name?: string;
+  service_key: string;
+  estimated_amount: number;
+  pricing_breakdown: { base: number; adjustments: { label: string; amount: number }[]; total: number } | null;
+  created_at: string;
+  expires_at: string;
+}
+
+interface PortalBooking {
+  id: string;
+  booking_number: string;
+  status: string;
+  customer_name?: string;
+  service_key: string;
+  scheduled_date: string;
+  time_slot: string;
+  created_at: string;
+}
+
+interface QuoteBookingCustomerInfo {
+  name: string;
+  email: string;
+}
+
+interface QuoteData {
+  customerType: "quote";
+  customer: QuoteBookingCustomerInfo;
+  quotes: PortalQuote[];
+  bookings: PortalBooking[];
+}
+
+interface BookingData {
+  customerType: "booking";
+  customer: QuoteBookingCustomerInfo;
+  bookings: PortalBooking[];
+  quotes: PortalQuote[];
+}
+
+type PortalData = RecurringData | QuoteData | BookingData;
+
+// ---------------------------------------------------------------------------
+// Page wrapper
+// ---------------------------------------------------------------------------
 
 export default function PortalPage() {
   return (
@@ -55,6 +112,10 @@ export default function PortalPage() {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Main content
+// ---------------------------------------------------------------------------
+
 function PortalContent() {
   const searchParams = useSearchParams();
   const [token, setToken] = useState<string | null>(null);
@@ -63,6 +124,8 @@ function PortalContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
+
+  // Subscription management state (recurring only)
   const [subAction, setSubAction] = useState<"pause" | "cancel" | null>(null);
   const [cancelStep, setCancelStep] = useState<1 | 2 | 3>(1);
   const [cancelReason, setCancelReason] = useState("");
@@ -97,7 +160,6 @@ function PortalContent() {
   }, []);
 
   useEffect(() => {
-    // Check URL for token first
     const urlToken = searchParams.get("token");
     if (urlToken) {
       setToken(urlToken);
@@ -105,7 +167,6 @@ function PortalContent() {
       fetchData(urlToken);
       return;
     }
-    // Check sessionStorage
     const saved = sessionStorage.getItem("portal_token");
     if (saved) {
       setToken(saved);
@@ -133,7 +194,7 @@ function PortalContent() {
     }
   };
 
-  // Login form state
+  // ---- Login form ----
   if (!token && !loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -146,7 +207,7 @@ function PortalContent() {
             <div className="text-center">
               <p className="text-green-700 font-medium mb-2">Check your email!</p>
               <p className="text-sm text-gray-500">
-                If you have an active account, we sent a login link to your email.
+                If we have your email on file, we sent a login link. Check your inbox (and spam folder).
               </p>
             </div>
           ) : (
@@ -174,7 +235,7 @@ function PortalContent() {
     );
   }
 
-  // Loading state
+  // ---- Loading ----
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -183,7 +244,7 @@ function PortalContent() {
     );
   }
 
-  // Error state
+  // ---- Error ----
   if (error || !data) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -199,6 +260,74 @@ function PortalContent() {
       </div>
     );
   }
+
+  // ---- Recurring customer dashboard ----
+  if (data.customerType === "recurring") {
+    return (
+      <RecurringDashboard
+        data={data}
+        token={token}
+        fetchData={fetchData}
+        subAction={subAction}
+        setSubAction={setSubAction}
+        cancelStep={cancelStep}
+        setCancelStep={setCancelStep}
+        cancelReason={cancelReason}
+        setCancelReason={setCancelReason}
+        cancelFeedback={cancelFeedback}
+        setCancelFeedback={setCancelFeedback}
+        subLoading={subLoading}
+        setSubLoading={setSubLoading}
+        subMessage={subMessage}
+        setSubMessage={setSubMessage}
+      />
+    );
+  }
+
+  // ---- Quote / Booking customer dashboard ----
+  return <QuoteBookingDashboard data={data} />;
+}
+
+// ---------------------------------------------------------------------------
+// Recurring customer dashboard (existing behavior)
+// ---------------------------------------------------------------------------
+
+function RecurringDashboard({
+  data,
+  token,
+  fetchData,
+  subAction,
+  setSubAction,
+  cancelStep,
+  setCancelStep,
+  cancelReason,
+  setCancelReason,
+  cancelFeedback,
+  setCancelFeedback,
+  subLoading,
+  setSubLoading,
+  subMessage,
+  setSubMessage,
+}: {
+  data: RecurringData;
+  token: string | null;
+  fetchData: (t: string) => Promise<void>;
+  subAction: "pause" | "cancel" | null;
+  setSubAction: (a: "pause" | "cancel" | null) => void;
+  cancelStep: 1 | 2 | 3;
+  setCancelStep: (s: 1 | 2 | 3) => void;
+  cancelReason: string;
+  setCancelReason: (r: string) => void;
+  cancelFeedback: string;
+  setCancelFeedback: (f: string) => void;
+  subLoading: boolean;
+  setSubLoading: (l: boolean) => void;
+  subMessage: string;
+  setSubMessage: (m: string) => void;
+}) {
+  const c = data.customer;
+  const isPaused = c.active && !c.auto_charge;
+  const isCancelled = !c.active;
 
   const handleSubscriptionAction = async (action: "pause" | "resume" | "cancel", reason?: string, feedback?: string) => {
     const t = token || sessionStorage.getItem("portal_token");
@@ -221,7 +350,6 @@ function PortalContent() {
       trackEvent(`subscription_${action}`, { reason });
       setSubAction(null);
       setCancelStep(1);
-      // Refresh data
       fetchData(t);
     } catch {
       setSubMessage("Something went wrong. Please try again or call (561) 576-7667.");
@@ -229,11 +357,6 @@ function PortalContent() {
       setSubLoading(false);
     }
   };
-
-  // Authenticated dashboard
-  const c = data.customer;
-  const isPaused = c.active && !c.auto_charge;
-  const isCancelled = !c.active;
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
@@ -450,11 +573,163 @@ function PortalContent() {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-8 text-xs text-gray-400">
-          <p>My Horse Farm &middot; (561) 576-7667 &middot; myhorsefarm.com</p>
+        {/* Chat with Us */}
+        <div className="text-center mt-6">
+          <a
+            href="/quote"
+            className="inline-block bg-green-800 text-white text-sm px-6 py-2.5 rounded font-semibold hover:bg-green-700"
+          >
+            Request New Service
+          </a>
         </div>
+
+        <PortalFooter />
       </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Quote / Booking customer dashboard
+// ---------------------------------------------------------------------------
+
+function QuoteBookingDashboard({ data }: { data: QuoteData | BookingData }) {
+  const name = data.customer.name.split(" ")[0];
+  const quotes = data.quotes || [];
+  const bookings = data.bookings || [];
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <div className="max-w-3xl mx-auto">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-green-900">Welcome, {name}</h1>
+          <p className="text-sm text-gray-500">
+            Here is an overview of your quotes and bookings with My Horse Farm.
+          </p>
+        </div>
+
+        {/* Bookings */}
+        {bookings.length > 0 && (
+          <div className="bg-white rounded-lg shadow p-4 mb-6">
+            <h2 className="text-sm font-semibold mb-3">Your Bookings ({bookings.length})</h2>
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {bookings.map((b) => (
+                <div key={b.id} className="border rounded p-3 text-sm">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <span className="font-medium">{b.booking_number}</span>
+                      <span className="text-gray-400 text-xs ml-2">
+                        {(b.service_key || "").replace(/_/g, " ")}
+                      </span>
+                    </div>
+                    <StatusBadge status={b.status} />
+                  </div>
+                  <p className="text-gray-600 text-xs mt-1">
+                    {new Date(b.scheduled_date + "T12:00:00").toLocaleDateString("en-US", {
+                      weekday: "long",
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                    {" "}&middot; {b.time_slot === "morning" ? "Morning (8am-12pm)" : "Afternoon (12pm-5pm)"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Quotes */}
+        {quotes.length > 0 && (
+          <div className="bg-white rounded-lg shadow p-4 mb-6">
+            <h2 className="text-sm font-semibold mb-3">Your Quotes ({quotes.length})</h2>
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {quotes.map((q) => (
+                <div key={q.id} className="border rounded p-3 text-sm">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <span className="font-medium">{q.quote_number}</span>
+                      <span className="text-gray-400 text-xs ml-2">
+                        {(q.service_key || "").replace(/_/g, " ")}
+                      </span>
+                    </div>
+                    <StatusBadge status={q.status} />
+                  </div>
+                  <div className="flex justify-between items-center mt-1">
+                    <p className="text-gray-600 text-xs">
+                      {new Date(q.created_at).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </p>
+                    <span className="font-medium text-green-800">
+                      ${Number(q.estimated_amount).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Empty state */}
+        {quotes.length === 0 && bookings.length === 0 && (
+          <div className="bg-white rounded-lg shadow p-8 mb-6 text-center">
+            <p className="text-gray-500 text-sm">No quotes or bookings found.</p>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex flex-wrap justify-center gap-3 mt-6">
+          <a
+            href="/quote"
+            className="inline-block bg-green-800 text-white text-sm px-6 py-2.5 rounded font-semibold hover:bg-green-700"
+          >
+            Request New Service
+          </a>
+          <a
+            href="tel:+15615767667"
+            className="inline-block border border-green-800 text-green-800 text-sm px-6 py-2.5 rounded font-semibold hover:bg-green-50"
+          >
+            Call (561) 576-7667
+          </a>
+        </div>
+
+        <PortalFooter />
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Shared components
+// ---------------------------------------------------------------------------
+
+function StatusBadge({ status }: { status: string }) {
+  const colors: Record<string, string> = {
+    pending: "bg-amber-100 text-amber-800",
+    accepted: "bg-blue-100 text-blue-800",
+    booked: "bg-green-100 text-green-800",
+    confirmed: "bg-green-100 text-green-800",
+    completed: "bg-green-100 text-green-800",
+    expired: "bg-gray-100 text-gray-500",
+    declined: "bg-red-100 text-red-700",
+    cancelled: "bg-red-100 text-red-700",
+    pending_site_visit: "bg-amber-100 text-amber-800",
+  };
+  return (
+    <span className={`text-xs px-2 py-0.5 rounded ${colors[status] || "bg-gray-100 text-gray-600"}`}>
+      {status.replace(/_/g, " ")}
+    </span>
+  );
+}
+
+function PortalFooter() {
+  return (
+    <div className="text-center mt-8 text-xs text-gray-400">
+      <p>My Horse Farm &middot; (561) 576-7667 &middot; myhorsefarm.com</p>
     </div>
   );
 }

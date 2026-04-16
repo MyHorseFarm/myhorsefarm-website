@@ -222,6 +222,31 @@ export async function POST(request: NextRequest) {
       console.error("Google Calendar error (non-fatal):", err);
     }
 
+    // Auto-dispatch: assign crew member and notify (non-fatal)
+    try {
+      const { autoDispatch } = await import("@/lib/dispatch");
+      const dispatchResult = await autoDispatch(
+        {
+          id: booking.id,
+          booking_number: bookingNumber,
+          customer_name: body.customer_name,
+          customer_phone: body.customer_phone,
+          customer_location: body.customer_location,
+          service_key: body.service_key,
+          scheduled_date: body.scheduled_date,
+          time_slot: body.time_slot,
+        },
+        serviceName,
+      );
+      if (dispatchResult.dispatched) {
+        console.log(`Auto-dispatched ${bookingNumber} to ${dispatchResult.crew_member_name}`);
+      } else {
+        console.log(`Auto-dispatch skipped for ${bookingNumber}: ${dispatchResult.error}`);
+      }
+    } catch (err) {
+      console.error("Auto-dispatch error (non-fatal):", err);
+    }
+
     // Meta CAPI: send Schedule event (non-fatal, matches browser pixel)
     try {
       const nameParts = body.customer_name.split(" ");

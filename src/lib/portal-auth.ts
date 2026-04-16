@@ -7,16 +7,20 @@ const PORTAL_SECRET = () => {
 };
 const EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
+export type CustomerType = "recurring" | "quote" | "booking";
+
 interface PortalPayload {
   email: string;
   customerId: string;
+  customerType: CustomerType;
   expiresAt: number;
 }
 
-export function createPortalToken(email: string, customerId: string): string {
+export function createPortalToken(email: string, customerId: string, customerType: CustomerType = "recurring"): string {
   const payload: PortalPayload = {
     email,
     customerId,
+    customerType,
     expiresAt: Date.now() + EXPIRY_MS,
   };
   const data = Buffer.from(JSON.stringify(payload)).toString("base64url");
@@ -26,7 +30,7 @@ export function createPortalToken(email: string, customerId: string): string {
 
 export function verifyPortalToken(
   token: string,
-): { email: string; customerId: string } | null {
+): { email: string; customerId: string; customerType: CustomerType } | null {
   const [data, sig] = token.split(".");
   if (!data || !sig) return null;
 
@@ -41,14 +45,18 @@ export function verifyPortalToken(
       Buffer.from(data, "base64url").toString(),
     );
     if (Date.now() > payload.expiresAt) return null;
-    return { email: payload.email, customerId: payload.customerId };
+    return {
+      email: payload.email,
+      customerId: payload.customerId,
+      customerType: payload.customerType || "recurring",
+    };
   } catch {
     return null;
   }
 }
 
-export function createPortalUrl(email: string, customerId: string): string {
-  const token = createPortalToken(email, customerId);
+export function createPortalUrl(email: string, customerId: string, customerType: CustomerType = "recurring"): string {
+  const token = createPortalToken(email, customerId, customerType);
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myhorsefarm.com";
   return `${base}/portal?token=${encodeURIComponent(token)}`;
 }
