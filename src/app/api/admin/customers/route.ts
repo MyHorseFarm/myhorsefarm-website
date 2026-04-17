@@ -313,6 +313,7 @@ export async function PUT(request: NextRequest) {
   const ALLOWED_FIELDS = [
     "name", "email", "phone", "address", "notes", "active",
     "default_service", "default_bins", "default_bin_rate", "auto_charge", "auto_renew",
+    "charge_frequency", "next_charge_date",
     "contract_type", "contract_start_date", "contract_end_date",
     "contract_discount_pct", "sms_opted_in", "preferred_day",
     "preferred_time_slot", "billing_address", "square_customer_id",
