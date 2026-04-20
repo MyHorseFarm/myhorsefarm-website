@@ -2,11 +2,7 @@ import type { Metadata } from "next";
 import { Outfit, Inter } from "next/font/google";
 import Script from "next/script";
 import Navbar from "@/components/Navbar";
-import ChatWidget from "@/components/ChatWidget";
-import StickyMobileCTA from "@/components/StickyMobileCTA";
-import ConversionTracker from "@/components/ConversionTracker";
-import UtmCapture from "@/components/UtmCapture";
-import AudienceSignals from "@/components/AudienceSignals";
+import ClientGlobals from "@/components/ClientGlobals";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -105,11 +101,7 @@ export default function RootLayout({
         >
           <i className="fab fa-whatsapp text-2xl" />
         </a>
-        <ChatWidget />
-        <StickyMobileCTA />
-        <ConversionTracker />
-        <UtmCapture />
-        <AudienceSignals />
+        <ClientGlobals />
         <Script id="font-awesome-async" strategy="afterInteractive">
           {`var l=document.createElement('link');l.rel='stylesheet';l.href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css';l.crossOrigin='anonymous';document.head.appendChild(l);`}
         </Script>

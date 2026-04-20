@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import AnimatedStats from "@/components/AnimatedStats";
@@ -8,8 +9,9 @@ import WhyChooseUs from "@/components/WhyChooseUs";
 import CtaBanner from "@/components/CtaBanner";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import FaqAccordion from "@/components/FaqAccordion";
-import ServiceCalendar from "@/components/ServiceCalendar";
 import HubSpotForm from "@/components/HubSpotForm";
+
+const ServiceCalendar = dynamic(() => import("@/components/ServiceCalendar"));
 import SchemaMarkup from "@/components/SchemaMarkup";
 import {
   PHONE_OFFICE,
