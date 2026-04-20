@@ -25,6 +25,26 @@ export interface EnhancedUserData {
   country?: string;
 }
 
+// GA4's ecommerce whitelist. Events on this list can carry `currency` + `value`
+// at the top level of a dataLayer push. Events NOT on this list get rejected
+// by GTM's ecommerce validator with "Invalid Ecommerce event name" and are
+// silently dropped before reaching GA4 — even though the push itself succeeds.
+const GA4_ECOMMERCE_EVENTS = new Set([
+  "add_to_cart",
+  "begin_checkout",
+  "purchase",
+  "refund",
+  "view_item",
+  "select_item",
+  "view_item_list",
+  "add_shipping_info",
+  "add_payment_info",
+  "view_cart",
+  "remove_from_cart",
+  "select_promotion",
+  "view_promotion",
+]);
+
 /**
  * Push conversion event with enhanced conversion data for Google Ads.
  * Includes event_id for Meta pixel dedup.
@@ -47,11 +67,28 @@ export function trackConversion(
   if (userData.state) enhanced.state = userData.state.toLowerCase().trim();
   if (userData.country) enhanced.country = (userData.country || "US").toLowerCase().trim();
 
-  // Push to dataLayer — GTM handles all Google Ads + Meta Pixel conversion tags
-  window.dataLayer.push({
+  const payload: Record<string, unknown> = {
     event,
     event_id: eventId,
     enhanced_conversions: enhanced,
     ...params,
-  });
+  };
+
+  // Sidestep GTM's ecommerce validator for non-whitelisted events (e.g.,
+  // generate_lead). Moving the monetary fields to differently-named keys
+  // keeps the data accessible to GTM variables while the event itself passes
+  // through GA4's non-ecommerce path.
+  if (!GA4_ECOMMERCE_EVENTS.has(event)) {
+    if (payload.value !== undefined) {
+      payload.conversion_value = payload.value;
+      delete payload.value;
+    }
+    if (payload.currency !== undefined) {
+      payload.conversion_currency = payload.currency;
+      delete payload.currency;
+    }
+  }
+
+  // Push to dataLayer — GTM handles all Google Ads + Meta Pixel conversion tags
+  window.dataLayer.push(payload);
 }
