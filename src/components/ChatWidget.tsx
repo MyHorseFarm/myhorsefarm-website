@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import NextImage from "next/image";
-import { trackEvent } from "@/lib/analytics";
+import { trackConversion, generateEventId } from "@/lib/analytics";
 
 interface QuoteCard {
   quote_number: string;
@@ -212,13 +212,18 @@ export default function ChatWidget() {
                     : msg
                 )
               );
-              trackEvent("generate_lead", {
-                currency: "USD",
-                value: event.total,
-                service: event.service,
-                source: "chatbot",
-                quote_number: event.quote_number,
-              });
+              trackConversion(
+                "generate_lead",
+                {
+                  currency: "USD",
+                  value: event.total,
+                  service: event.service,
+                  source: "chatbot",
+                  quote_number: event.quote_number,
+                },
+                {},
+                generateEventId(),
+              );
             } else if (event.type === "booking_card") {
               setMessages((prev) =>
                 prev.map((msg, idx) =>
@@ -236,13 +241,18 @@ export default function ChatWidget() {
                     : msg
                 )
               );
-              trackEvent("purchase", {
-                currency: "USD",
-                value: 0,
-                service: event.service,
-                source: "chatbot",
-                booking_number: event.booking_number,
-              });
+              trackConversion(
+                "purchase",
+                {
+                  currency: "USD",
+                  value: 0,
+                  service: event.service,
+                  source: "chatbot",
+                  booking_number: event.booking_number,
+                },
+                {},
+                generateEventId(),
+              );
             } else if (event.type === "error") {
               setMessages((prev) =>
                 prev.map((msg, idx) =>
