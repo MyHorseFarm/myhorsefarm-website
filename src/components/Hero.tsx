@@ -40,6 +40,7 @@ export default function Hero({
         alt="Equestrian farm in Palm Beach County"
         fill
         priority
+        fetchPriority="high"
         className="object-cover"
         sizes="100vw"
       />

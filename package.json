@@ -44,5 +44,19 @@
     "ts-jest": "^29.4.9",
     "tsx": "^4.21.0",
     "typescript": "^5"
+  },
+  "browserslist": {
+    "production": [
+      "chrome >= 100",
+      "firefox >= 100",
+      "safari >= 15",
+      "edge >= 100",
+      "ios >= 15"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
