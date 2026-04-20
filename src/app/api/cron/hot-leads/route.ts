@@ -3,7 +3,6 @@ import { supabase } from "@/lib/supabase";
 import { findContactByEmail } from "@/lib/hubspot";
 import { withCronMonitor } from "@/lib/cron-monitor";
 import { sendEmail } from "@/lib/emails";
-import { isTestEmail } from "@/lib/test-data-filter";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -59,8 +58,6 @@ export async function GET(request: NextRequest) {
     for (const e of events || []) {
       const email = e.recipient_email?.toLowerCase().trim();
       if (!email) continue;
-      // Operator note: skip test/demo recipients so Jose's call list is real leads only.
-      if (isTestEmail(email)) continue;
 
       if (!statsMap[email]) statsMap[email] = { opens: 0, clicks: 0 };
 

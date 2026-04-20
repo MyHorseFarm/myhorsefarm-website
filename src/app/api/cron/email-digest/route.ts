@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { withCronMonitor } from "@/lib/cron-monitor";
 import { sendEmail } from "@/lib/emails";
-import { isTestEmail, excludeTestRecords } from "@/lib/test-data-filter";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -49,9 +48,6 @@ export async function GET(request: NextRequest) {
 
       if (events) {
         for (const e of events) {
-          // Exclude test/demo recipients from KPI counts and engaged-contact list.
-          // Raw events stay in the table — this is a reporting-time filter only.
-          if (isTestEmail(e.recipient_email)) continue;
           switch (e.event_type) {
             case "sent": sent++; break;
             case "delivered": delivered++; break;
@@ -80,29 +76,27 @@ export async function GET(request: NextRequest) {
     }
 
     // -----------------------------------------------------------------------
-    // 2. New quotes from Supabase (excluding test/demo records)
+    // 2. New quotes from Supabase
     // -----------------------------------------------------------------------
-    // Operator note: we fetch the customer fields rather than HEAD-counting so
-    // the test-data filter can inspect them. Cost is small at 24h windows.
     let newQuotes = 0;
     try {
-      const { data } = await supabase
+      const { count } = await supabase
         .from("quotes")
-        .select("customer_email, customer_name, customer_phone, customer_location")
+        .select("*", { count: "exact", head: true })
         .gte("created_at", since);
-      newQuotes = excludeTestRecords(data).length;
+      newQuotes = count || 0;
     } catch {}
 
     // -----------------------------------------------------------------------
-    // 3. New bookings from Supabase (excluding test/demo records)
+    // 3. New bookings from Supabase
     // -----------------------------------------------------------------------
     let newBookings = 0;
     try {
-      const { data } = await supabase
+      const { count } = await supabase
         .from("bookings")
-        .select("customer_email, customer_name, customer_phone, customer_location")
+        .select("*", { count: "exact", head: true })
         .gte("created_at", since);
-      newBookings = excludeTestRecords(data).length;
+      newBookings = count || 0;
     } catch {}
 
     // -----------------------------------------------------------------------
