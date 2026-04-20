@@ -10,15 +10,21 @@ globs: src/app/layout.tsx, src/lib/analytics.ts, src/lib/meta-capi.ts, src/lib/s
 - GA4, Facebook Pixel, Google Ads configured
 
 ## Google Ads
-- Conversion ID: AW-385210685
-- Conversion Label: vzneCILiqIccEL2y17cB
-- $40/day budget, junk removal ad group launched 2026-04-06
+- Customer ID: 1907045243 ("My horse Farm")
+- Login customer ID: 1907045243 (no MCC context needed for reads)
+- Conversion tracking ID: AW-385210685
+- Active conversion labels (live as of Apr 2026): `C4b1CK33n4ccEL2y17cB` (Lead), `3_vRCKKvqYccEL2y17cB` (Phone Click)
+- Budget: $80/day after MHF-19
+- Geo targeting: PRESENCE only (updated 2026-04-20)
 
 ## Meta / Facebook Pixel
-- Pixel ID: 1247574672351702 (in layout.tsx and .env.local as META_PIXEL_ID)
-- Browser pixel fires PageView on all pages, Lead on quote submit, Schedule on booking
+- Dataset/Pixel ID: **1494655975623250** (my horse farm facebook pix)
+- Set in `.env` as `META_PIXEL_ID` AND in GTM tag `Facebook Pixel - Base` (updated 2026-04-20, Version 9)
+- Browser pixel fires PageView on all pages, Lead on `CE - generate_lead`, InitiateCheckout, Purchase
 - Server-side CAPI in `src/lib/meta-capi.ts` (deduped with event IDs)
 - CAPI access token in .env.local as META_CAPI_ACCESS_TOKEN
+- Business account: My Horse Farm (`109623...`)
+- Old pixel ID `1247574672351702` is retired — do not reintroduce
 
 ## Analytics (src/lib/analytics.ts)
 - trackConversion() fires Google Ads + Meta Pixel events with shared event IDs
