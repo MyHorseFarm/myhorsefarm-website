@@ -146,10 +146,10 @@ export default async function TestimonialsSection() {
                     </div>
                   </div>
                   {featured.location && (
-                    <div className="text-xs text-gray-400">{featured.location}</div>
+                    <div className="text-xs text-gray-600">{featured.location}</div>
                   )}
                   {featured.timeDesc && (
-                    <div className="text-xs text-gray-400">{featured.timeDesc}</div>
+                    <div className="text-xs text-gray-600">{featured.timeDesc}</div>
                   )}
                 </div>
               </div>
@@ -217,10 +217,10 @@ export default async function TestimonialsSection() {
                     </div>
                   </div>
                   {t.location && (
-                    <div className="text-xs text-gray-400">{t.location}</div>
+                    <div className="text-xs text-gray-600">{t.location}</div>
                   )}
                   {t.timeDesc && (
-                    <div className="text-xs text-gray-400">{t.timeDesc}</div>
+                    <div className="text-xs text-gray-600">{t.timeDesc}</div>
                   )}
                 </div>
               </div>
