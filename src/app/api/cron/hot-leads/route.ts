@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { findContactByEmail } from "@/lib/hubspot";
-import { Resend } from "resend";
 import { withCronMonitor } from "@/lib/cron-monitor";
+import { sendEmail } from "@/lib/emails";
+import { isTestEmail } from "@/lib/test-data-filter";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -31,7 +32,6 @@ export async function GET(request: NextRequest) {
   }
 
   return withCronMonitor("hot-leads", async () => {
-  const resend = new Resend(process.env.RESEND_API_KEY);
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -59,6 +59,8 @@ export async function GET(request: NextRequest) {
     for (const e of events || []) {
       const email = e.recipient_email?.toLowerCase().trim();
       if (!email) continue;
+      // Operator note: skip test/demo recipients so Jose's call list is real leads only.
+      if (isTestEmail(email)) continue;
 
       if (!statsMap[email]) statsMap[email] = { opens: 0, clicks: 0 };
 
@@ -185,14 +187,17 @@ export async function GET(request: NextRequest) {
 </body></html>`;
     }
 
-    const { error: sendError } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "My Horse Farm <onboarding@resend.dev>",
-      to: DIGEST_TO,
+    const digestId = await sendEmail(
+      DIGEST_TO,
       subject,
       html,
-    });
+      "HIGH",
+      "hot_leads_digest",
+    );
 
-    if (sendError) throw new Error(`Resend: ${JSON.stringify(sendError)}`);
+    if (!digestId) {
+      throw new Error("Hot leads digest send was skipped or failed");
+    }
 
     return {
       processed: count,

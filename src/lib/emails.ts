@@ -1,6 +1,13 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { Resend } from "resend";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import {
+  isBlocked as isCircuitBlocked,
+  isHardProviderFailure,
+  recordFailure as recordCircuitFailure,
+  recordSuccess as recordCircuitSuccess,
+  snapshot as circuitSnapshot,
+} from "./resend-circuit";
 
 // Canonical Google review URL — use this everywhere
 export const GOOGLE_REVIEW_URL = "https://g.page/r/CUtJdTADtIsyEBM/review";
@@ -167,24 +174,77 @@ export async function sendEmail(
     // Quota check failed — fail open, continue sending
   }
 
-  // --- c. Send via Resend ---
-  const from =
+  // --- b2. Sender strategy + circuit breaker behavior ---
+  // Primary sender may be a branded domain that can temporarily become unverified.
+  // Keep a resilient fallback sender so customer comms don't hard-stop.
+  const primaryFrom =
     process.env.RESEND_FROM_EMAIL ||
     "My Horse Farm <onboarding@resend.dev>";
+  const fallbackFrom =
+    process.env.RESEND_FALLBACK_FROM_EMAIL ||
+    "My Horse Farm <onboarding@resend.dev>";
+  const canFallback = primaryFrom !== fallbackFrom;
+
+  // If circuit is open from a hard provider failure, skip unless we can bypass
+  // with a different sender identity.
+  let preferredFrom = primaryFrom;
+  if (isCircuitBlocked()) {
+    const snap = circuitSnapshot();
+    if (!canFallback) {
+      console.log(
+        `[EMAIL] Skipped (circuit ${snap.state} reason=${snap.reason} cooldownUntil=${snap.cooldownUntil}): ${toEmail} [${priority}]`,
+      );
+      try {
+        await db.from("email_send_log").insert({
+          to_email: toEmail,
+          subject,
+          template_name: templateName || null,
+          priority,
+          status: "skipped",
+          error_message: `Circuit ${snap.state}: ${snap.reason} (cooldownUntil=${snap.cooldownUntil})`,
+        });
+      } catch { /* logging is non-fatal */ }
+      return undefined;
+    }
+
+    preferredFrom = fallbackFrom;
+    console.warn(
+      `[EMAIL] Circuit open; bypassing with fallback sender: ${fallbackFrom}`,
+    );
+  }
 
   // BCC Jose on all outgoing emails so he can monitor
   const bcc = process.env.EMAIL_BCC_ADDRESS || undefined;
 
-  try {
-    const { data, error } = await getResend().emails.send({
-      from,
+  const sendOnce = async (fromAddress: string) =>
+    getResend().emails.send({
+      from: fromAddress,
       to,
       subject,
       html,
       ...(bcc ? { bcc } : {}),
     });
 
+  try {
+    let { data, error } = await sendOnce(preferredFrom);
+
+    // Domain/auth hard failure on primary sender? Retry once with fallback sender.
+    if (error && canFallback && preferredFrom === primaryFrom) {
+      const hard = isHardProviderFailure(error);
+      if (hard.hard) {
+        console.warn(
+          `[EMAIL] Primary sender failed hard; retrying with fallback sender. to=${toEmail} priority=${priority}`,
+        );
+        const retry = await sendOnce(fallbackFrom);
+        data = retry.data;
+        error = retry.error;
+      }
+    }
+
     if (error) {
+      // Feed provider-level errors into the circuit breaker; hard failures
+      // (e.g. 403 domain not verified) trip the circuit, transient ones don't.
+      recordCircuitFailure(error);
       // --- d. Log failure ---
       try {
         await db.from("email_send_log").insert({
@@ -200,6 +260,7 @@ export async function sendEmail(
     }
 
     // --- d. Log success ---
+    recordCircuitSuccess();
     const resendId = data?.id;
     try {
       await db.from("email_send_log").insert({
@@ -214,9 +275,11 @@ export async function sendEmail(
 
     return resendId;
   } catch (err) {
-    // If it's our own rethrown Resend error, propagate it
+    // If it's our own rethrown Resend error, propagate it (circuit already updated above)
     if (err instanceof Error && err.message.startsWith("Resend:")) throw err;
-    // Otherwise log and rethrow
+    // Otherwise it's a thrown exception from the SDK/network — let the circuit
+    // inspect it (only hard provider failures will trip it).
+    recordCircuitFailure(err);
     try {
       await db.from("email_send_log").insert({
         to_email: toEmail,

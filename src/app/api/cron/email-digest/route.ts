@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { Resend } from "resend";
 import { withCronMonitor } from "@/lib/cron-monitor";
+import { sendEmail } from "@/lib/emails";
+import { isTestEmail, excludeTestRecords } from "@/lib/test-data-filter";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -25,7 +26,6 @@ export async function GET(request: NextRequest) {
   }
 
   return withCronMonitor("email-digest", async () => {
-  const resend = new Resend(process.env.RESEND_API_KEY);
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -49,6 +49,9 @@ export async function GET(request: NextRequest) {
 
       if (events) {
         for (const e of events) {
+          // Exclude test/demo recipients from KPI counts and engaged-contact list.
+          // Raw events stay in the table — this is a reporting-time filter only.
+          if (isTestEmail(e.recipient_email)) continue;
           switch (e.event_type) {
             case "sent": sent++; break;
             case "delivered": delivered++; break;
@@ -77,27 +80,29 @@ export async function GET(request: NextRequest) {
     }
 
     // -----------------------------------------------------------------------
-    // 2. New quotes from Supabase
+    // 2. New quotes from Supabase (excluding test/demo records)
     // -----------------------------------------------------------------------
+    // Operator note: we fetch the customer fields rather than HEAD-counting so
+    // the test-data filter can inspect them. Cost is small at 24h windows.
     let newQuotes = 0;
     try {
-      const { count } = await supabase
+      const { data } = await supabase
         .from("quotes")
-        .select("*", { count: "exact", head: true })
+        .select("customer_email, customer_name, customer_phone, customer_location")
         .gte("created_at", since);
-      newQuotes = count || 0;
+      newQuotes = excludeTestRecords(data).length;
     } catch {}
 
     // -----------------------------------------------------------------------
-    // 3. New bookings from Supabase
+    // 3. New bookings from Supabase (excluding test/demo records)
     // -----------------------------------------------------------------------
     let newBookings = 0;
     try {
-      const { count } = await supabase
+      const { data } = await supabase
         .from("bookings")
-        .select("*", { count: "exact", head: true })
+        .select("customer_email, customer_name, customer_phone, customer_location")
         .gte("created_at", since);
-      newBookings = count || 0;
+      newBookings = excludeTestRecords(data).length;
     } catch {}
 
     // -----------------------------------------------------------------------
@@ -176,14 +181,17 @@ ${sent === 0 && newQuotes === 0 && newBookings === 0 ? `
 
     // Send the digest
     try {
-      const { error } = await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || "My Horse Farm <onboarding@resend.dev>",
-        to: DIGEST_TO,
-        subject: `MHF Daily Digest: ${sent} sent, ${opened} opened, ${clicked} clicked — ${today}`,
+      const digestId = await sendEmail(
+        DIGEST_TO,
+        `MHF Daily Digest: ${sent} sent, ${opened} opened, ${clicked} clicked — ${today}`,
         html,
-      });
+        "HIGH",
+        "daily_email_digest",
+      );
 
-      if (error) throw new Error(`Resend: ${JSON.stringify(error)}`);
+      if (!digestId) {
+        throw new Error("Daily email digest send was skipped or failed");
+      }
     } catch (sendErr) {
       console.error("[email-digest] Failed to send digest:", sendErr instanceof Error ? sendErr.message : sendErr);
       throw sendErr;
