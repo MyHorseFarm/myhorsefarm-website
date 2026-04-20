@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Footer from "@/components/Footer";
-import OffersPageTracker from "./OffersPageTracker";
 import { PHONE_OFFICE, PHONE_OFFICE_TEL } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -87,7 +86,6 @@ const testimonials = [
 export default function OffersPage() {
   return (
     <>
-      <OffersPageTracker />
       <main>
         {/* Hero Section */}
         <section className="relative bg-[#1a3009] text-white overflow-hidden">

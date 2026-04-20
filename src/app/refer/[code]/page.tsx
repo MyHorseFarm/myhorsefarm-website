@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Footer from "@/components/Footer";
-import ReferralTracker from "@/components/ReferralTracker";
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -35,7 +34,6 @@ export default async function ReferralPage({
 
   return (
     <>
-      <ReferralTracker code={code} />
       <main className="pt-24 pb-16 px-5 max-md:px-4">
         <div className="max-w-lg mx-auto text-center">
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
