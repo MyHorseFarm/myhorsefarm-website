@@ -86,17 +86,21 @@ export default function DateTimePicker({
       {/* Month navigation */}
       <div className="flex items-center justify-between mb-4">
         <button
+          type="button"
           onClick={() => setCurrentMonth(new Date(year, month - 1, 1))}
+          aria-label="Previous month"
           className="p-2 hover:bg-gray-100 rounded"
         >
-          <i className="fas fa-chevron-left text-gray-600" />
+          <i className="fas fa-chevron-left text-gray-600" aria-hidden="true" />
         </button>
         <h3 className="font-bold text-lg">{monthLabel}</h3>
         <button
+          type="button"
           onClick={() => setCurrentMonth(new Date(year, month + 1, 1))}
+          aria-label="Next month"
           className="p-2 hover:bg-gray-100 rounded"
         >
-          <i className="fas fa-chevron-right text-gray-600" />
+          <i className="fas fa-chevron-right text-gray-600" aria-hidden="true" />
         </button>
       </div>
 

@@ -29,7 +29,7 @@ export default function WhyChooseUs() {
                 My Horse Farm
               </span>
             </div>
-            <div className="bg-gray-400 p-4">
+            <div className="bg-gray-600 p-4">
               <span className="font-[family-name:var(--font-heading)] text-white font-bold text-sm uppercase tracking-wider">
                 Typical Competitor
               </span>

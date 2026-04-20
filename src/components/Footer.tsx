@@ -44,7 +44,7 @@ export default function Footer() {
                 alt="My Horse Farm"
                 width={44}
                 height={44}
-                className="w-11 h-11"
+                className="w-11 h-11 object-contain"
               />
               <span className="text-lg font-bold font-[family-name:var(--font-heading)] tracking-tight">
                 My Horse Farm
@@ -56,19 +56,20 @@ export default function Footer() {
             </p>
             <div className="flex gap-3">
               {[
-                { href: SOCIAL.facebook, icon: "fab fa-facebook-f" },
-                { href: SOCIAL.instagram, icon: "fab fa-instagram" },
-                { href: SOCIAL.youtube, icon: "fab fa-youtube" },
-                { href: SOCIAL.google, icon: "fab fa-google" },
+                { href: SOCIAL.facebook, icon: "fab fa-facebook-f", label: "Facebook" },
+                { href: SOCIAL.instagram, icon: "fab fa-instagram", label: "Instagram" },
+                { href: SOCIAL.youtube, icon: "fab fa-youtube", label: "YouTube" },
+                { href: SOCIAL.google, icon: "fab fa-google", label: "Google Maps" },
               ].map((s) => (
                 <a
                   key={s.icon}
                   href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={`My Horse Farm on ${s.label}`}
                   className="flex items-center justify-center w-9 h-9 rounded-lg bg-white/10 text-white/70 hover:bg-accent hover:text-earth transition-all text-sm"
                 >
-                  <i className={s.icon} />
+                  <i className={s.icon} aria-hidden="true" />
                 </a>
               ))}
             </div>

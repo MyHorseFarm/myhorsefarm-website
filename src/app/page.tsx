@@ -240,7 +240,7 @@ export default function HomePage() {
               ))}
             </div>
             <p className="text-gray-600 italic text-sm md:text-base">&ldquo;Hands down the most dependable farm service company in the area. They show up on schedule, the property stays clean, and the communication is excellent.&rdquo;</p>
-            <p className="text-gray-400 text-xs mt-1">&mdash; Sarah M., Wellington, FL</p>
+            <p className="text-gray-600 text-xs mt-1">&mdash; Sarah M., Wellington, FL</p>
           </div>
         </section>
 
@@ -439,7 +439,7 @@ export default function HomePage() {
                     <div>
                       <div className="font-bold text-gray-900 text-lg">Jose Gomez</div>
                       <div className="text-sm font-medium text-primary mb-3">Founder &amp; Operator</div>
-                      <p className="text-sm text-gray-500 leading-relaxed">
+                      <p className="text-sm text-gray-700 leading-relaxed">
                         With nearly 20 years in the livestock waste and equestrian support
                         industry, Jose built My Horse Farm into a trusted name among farm
                         owners, boarding facilities, and property managers throughout Palm Beach

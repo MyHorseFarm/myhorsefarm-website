@@ -77,7 +77,7 @@ export default async function TestimonialsSection() {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 font-heading">
             What Our Customers Say
           </h2>
-          <p className="mt-3 text-lg text-gray-500 max-w-xl mx-auto">
+          <p className="mt-3 text-lg text-gray-700 max-w-xl mx-auto">
             Trusted by horse farms and homeowners across Palm Beach County
           </p>
         </div>
