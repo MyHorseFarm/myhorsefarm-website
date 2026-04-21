@@ -192,14 +192,11 @@ export async function GET(request: NextRequest) {
       "hot_leads_digest",
     );
 
-    if (!digestId) {
-      throw new Error("Hot leads digest send was skipped or failed");
-    }
-
     return {
       processed: count,
-      sent: 1,
+      sent: digestId ? 1 : 0,
       hotLeads: count,
+      skipped: !digestId,
       leads: leads.map((l) => ({ email: l.email, clicks: l.clicks })),
     };
   });
