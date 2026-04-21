@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
           contact.properties.firstname || "",
           unsub,
         );
-        await sendEmail(email, template.subject, template.html);
+        await sendEmail(email, template.subject, template.html, "LOW", "review_request");
         sentEmails.add(email.toLowerCase());
 
         const tag = currentReviewTag();
@@ -222,7 +222,7 @@ export async function GET(request: NextRequest) {
             const unsub = createUnsubscribeUrl(email);
             const firstname = (customer.name || "").split(" ")[0];
             const template = reviewRequestEmail(firstname, unsub);
-            await sendEmail(email, template.subject, template.html);
+            await sendEmail(email, template.subject, template.html, "LOW", "review_request");
 
             // Update Supabase timestamp
             await supabase

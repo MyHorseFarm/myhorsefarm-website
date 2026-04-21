@@ -221,7 +221,7 @@ export async function GET(request: NextRequest) {
               invoiceUrl,
               unsubUrl,
             );
-            await sendEmail(customer.email, email.subject, email.html);
+            await sendEmail(customer.email, email.subject, email.html, "CRITICAL", "auto_charge_receipt");
           } catch {
             // non-fatal
           }
