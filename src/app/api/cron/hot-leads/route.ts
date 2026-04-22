@@ -184,13 +184,18 @@ export async function GET(request: NextRequest) {
 </body></html>`;
     }
 
-    const digestId = await sendEmail(
-      DIGEST_TO,
-      subject,
-      html,
-      "HIGH",
-      "hot_leads_digest",
-    );
+    let digestId: string | undefined;
+    try {
+      digestId = await sendEmail(
+        DIGEST_TO,
+        subject,
+        html,
+        "HIGH",
+        "hot_leads_digest",
+      );
+    } catch {
+      // Resend delivery failure — leads were processed correctly, treat as skipped
+    }
 
     return {
       processed: count,
